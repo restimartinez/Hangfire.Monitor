@@ -8,12 +8,12 @@ public class HangfireApplicationOptions
     public const string DefaultSchema = "HangFire";
 
     /// <summary>
-    /// Human-readable application label. Required (validated in a later task).
+    /// Human-readable application label. Required (non-whitespace; validated at startup).
     /// </summary>
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
-    /// Hangfire SQL Server connection string. Required (validated in a later task).
+    /// Hangfire SQL Server connection string. Required (non-whitespace; validated at startup).
     /// </summary>
     public string ConnectionString { get; set; } = string.Empty;
 

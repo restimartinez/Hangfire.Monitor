@@ -31,5 +31,26 @@ Typed options live in `Hangfire.Monitor.Domain`:
 `HangfireApplicationOptions.Schema` defaults to `HangFire` via the property initializer (and `DefaultSchema` constant) on the model itself.
 
 - Missing / unset schema → `HangFire` at construction time.
-- Blank/whitespace schema normalization and required-field validation are deferred to HM-012.
-- Configuration binding is deferred to HM-011.
+- No extra Schema validation beyond that default.
+
+---
+
+## Configuration binding (HM-011)
+
+`Hangfire.Monitor.Web` binds the `HangfireMonitor` configuration section to `HangfireMonitorOptions` with standard ASP.NET Core Options (`AddOptions` + `Bind`).
+
+Consumers resolve `IOptions<HangfireMonitorOptions>` from DI.
+
+---
+
+## Configuration validation (HM-012)
+
+Validation lives in `Hangfire.Monitor.Web` as `HangfireMonitorOptionsValidator` (`IValidateOptions<HangfireMonitorOptions>`), not in Domain: the Options validation API is a hosting concern and Domain stays free of `Microsoft.Extensions.Options`.
+
+Rules:
+
+- Per application: `Name` and `ConnectionString` required (non-whitespace).
+- `Schema` optional (model default `HangFire`).
+- Empty `Applications` list is valid.
+
+Registration uses `ValidateOnStart()` so invalid config fails at host startup, before serving requests. `appsettings.json` keeps an empty `Applications` list; real connection strings belong in User Secrets / environment variables (HM-013).

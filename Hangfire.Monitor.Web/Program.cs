@@ -1,7 +1,16 @@
+using Hangfire.Monitor.Domain;
+using Hangfire.Monitor.Web.Configuration;
+using Microsoft.Extensions.Options;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services
+    .AddOptions<HangfireMonitorOptions>()
+    .Bind(builder.Configuration.GetSection("HangfireMonitor"))
+    .ValidateOnStart();
+builder.Services.AddSingleton<IValidateOptions<HangfireMonitorOptions>, HangfireMonitorOptionsValidator>();
 
 var app = builder.Build();
 
