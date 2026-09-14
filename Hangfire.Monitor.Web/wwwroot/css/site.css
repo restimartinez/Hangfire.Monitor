@@ -29,3 +29,41 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+.status-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.status-table th,
+.status-table td {
+  border: 1px solid #ccc;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.status-table thead th {
+  background-color: #f0f0f0;
+  font-weight: 600;
+}
+
+.status-ok {
+  color: #0a7a2f;
+  font-weight: 600;
+}
+
+.status-failed {
+  color: #b00020;
+  font-weight: 600;
+}
+
+.status-unavailable {
+  color: #8a6d00;
+  font-weight: 600;
+}
+
+.empty-message {
+  margin-top: 1rem;
+  color: #555;
+}

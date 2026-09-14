@@ -1,10 +1,41 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Hangfire Monitor";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<h1>Hangfire Monitor</h1>
+
+@if (Model.Results.Count == 0)
+{
+    <p class="empty-message">No applications configured.</p>
+}
+else
+{
+    <table class="status-table">
+        <thead>
+            <tr>
+                <th>Application</th>
+                <th>Status</th>
+                <th>Failed jobs</th>
+                <th>Last failure</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var result in Model.Results)
+        {
+            var statusClass = $"status-{result.Status.ToString().ToLowerInvariant()}";
+            <tr>
+                <td>@result.ApplicationName</td>
+                <td class="@statusClass">@result.Status</td>
+                <td>@result.FailedCount</td>
+                <td>
+                    @(result.LastFailedAt.HasValue
+                        ? result.LastFailedAt.Value.ToString("dd/MM/yyyy HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture)
+                        : "-")
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
