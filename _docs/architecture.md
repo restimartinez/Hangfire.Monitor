@@ -276,6 +276,18 @@ SqlServerStorage.Options
 
 **Upgrade risk:** if Hangfire.SqlServer is upgraded later, review this dependency — renames, signature changes, or removal of those internal members can break the latest-failure integration.
 
+---
+
+## Per-application failure read (HM-032)
+
+`Hangfire.Monitor.Infrastructure.Storage.HangfireStorageReader` combines the two read paths for **one** `HangfireApplicationOptions`:
+
+1. `SqlServerStorageFactory.Create` → one `SqlServerStorage`
+2. `FailedJobCountReader.GetFailedCount(storage)`
+3. `LastFailedAtReader.GetLastFailedAt(storage)` on that **same** instance
+
+Returns Infrastructure `HangfireApplicationFailureInfo` (`FailedCount`, `LastFailedAt`). Exceptions propagate unchanged (no `UNAVAILABLE` mapping yet). No shared transaction between the two reads.
+
 ### UTC / local time notes
 
 - Hangfire writes `[State].[CreatedAt]` with `DateTime.UtcNow`.
