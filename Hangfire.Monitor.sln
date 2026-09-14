@@ -15,6 +15,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hangfire.Monitor.Tests", "Hangfire.Monitor.Tests\Hangfire.Monitor.Tests.csproj", "{6EEFA331-A714-4F26-A3F8-80BA444DF34A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hangfire.Monitor.Domain", "Hangfire.Monitor.Domain\Hangfire.Monitor.Domain.csproj", "{3058D0E1-D17F-499F-B92E-ECBD5FC02EFA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,6 +51,18 @@ Global
 		{6EEFA331-A714-4F26-A3F8-80BA444DF34A}.Release|x64.Build.0 = Release|Any CPU
 		{6EEFA331-A714-4F26-A3F8-80BA444DF34A}.Release|x86.ActiveCfg = Release|Any CPU
 		{6EEFA331-A714-4F26-A3F8-80BA444DF34A}.Release|x86.Build.0 = Release|Any CPU
+		{3058D0E1-D17F-499F-B92E-ECBD5FC02EFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3058D0E1-D17F-499F-B92E-ECBD5FC02EFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3058D0E1-D17F-499F-B92E-ECBD5FC02EFA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3058D0E1-D17F-499F-B92E-ECBD5FC02EFA}.Debug|x64.Build.0 = Debug|Any CPU
+		{3058D0E1-D17F-499F-B92E-ECBD5FC02EFA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3058D0E1-D17F-499F-B92E-ECBD5FC02EFA}.Debug|x86.Build.0 = Debug|Any CPU
+		{3058D0E1-D17F-499F-B92E-ECBD5FC02EFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3058D0E1-D17F-499F-B92E-ECBD5FC02EFA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3058D0E1-D17F-499F-B92E-ECBD5FC02EFA}.Release|x64.ActiveCfg = Release|Any CPU
+		{3058D0E1-D17F-499F-B92E-ECBD5FC02EFA}.Release|x64.Build.0 = Release|Any CPU
+		{3058D0E1-D17F-499F-B92E-ECBD5FC02EFA}.Release|x86.ActiveCfg = Release|Any CPU
+		{3058D0E1-D17F-499F-B92E-ECBD5FC02EFA}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

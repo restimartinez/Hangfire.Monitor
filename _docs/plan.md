@@ -103,20 +103,25 @@ This plan decomposes the MVP into small, independently verifiable tasks for an A
 
 ### HM-010 — Define configuration model types
 
-**Purpose:** Represent `HangfireMonitor:Applications` in strongly typed options.
+**Purpose:** Represent `HangfireMonitor:Applications` in strongly typed options within a small domain project.
 
 **Depends on:** HM-002
 
 **Expected change:**
 
-* Options types for monitor settings and per-application entry
+* Create `Hangfire.Monitor.Domain` class library targeting `net9.0` and add it to the solution
+* Keep the project minimal: configuration POCOs only for this task—no interfaces, repositories, services, MediatR, CQRS, or speculative abstractions
+* Place configuration model types in `Hangfire.Monitor.Domain` (monitor settings root + per-application entry); treat them as simple configuration/domain objects, not DDD entities
 * Properties: `Name`, `ConnectionString`, `Schema` (optional)
 * Default schema value `HangFire` when schema is missing/blank (implementation may apply default at bind or validation time—document which)
+* Add project reference: `Hangfire.Monitor.Web` → `Hangfire.Monitor.Domain`
+* Add project reference: `Hangfire.Monitor.Tests` → `Hangfire.Monitor.Domain` (tests may exercise these models directly; existing Tests → Web reference may remain)
+* Do **not** introduce an Infrastructure (or other) project yet; Hangfire/SQL Server integration placement is deferred to later phases
 
 **Verification:**
 
-* Solution builds
-* Unit tests can construct the model with and without schema
+* Solution builds with Domain, Web, and Tests projects
+* Unit tests can construct the model with and without schema (via Domain reference)
 
 ---
 

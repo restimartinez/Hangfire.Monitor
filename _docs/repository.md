@@ -13,6 +13,7 @@ Concise map of the current solution layout and the `dotnet` commands used from t
 ```text
 Hangfire.Monitor/
 ├── Hangfire.Monitor.sln
+├── Hangfire.Monitor.Domain/       # Configuration / domain POCOs
 ├── Hangfire.Monitor.Web/          # ASP.NET Core Razor Pages host
 ├── Hangfire.Monitor.Tests/        # xUnit test project
 ├── _docs/                         # Specs, plan, investigations
@@ -24,12 +25,13 @@ Hangfire.Monitor/
 
 | Path | Role |
 | --- | --- |
-| `Hangfire.Monitor.sln` | Solution file; includes web and test projects |
-| `Hangfire.Monitor.Web` | Web application (`Microsoft.NET.Sdk.Web`) |
-| `Hangfire.Monitor.Tests` | Unit tests; project reference → web |
+| `Hangfire.Monitor.sln` | Solution file; includes Domain, Web, and Tests |
+| `Hangfire.Monitor.Domain` | Class library; Hangfire Monitor configuration/domain POCOs |
+| `Hangfire.Monitor.Web` | Web application (`Microsoft.NET.Sdk.Web`); references Domain |
+| `Hangfire.Monitor.Tests` | Unit tests; references Domain and Web |
 | `_docs/` | Product/planning documentation |
 
-Both projects target **`net9.0`**.
+All three projects target **`net9.0`**.
 
 ---
 
