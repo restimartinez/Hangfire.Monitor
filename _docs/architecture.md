@@ -142,3 +142,98 @@ So unavailability is expressed **only by throwing**, never by a special return v
 5. **Limitation:** without a live SQL Server, the exact provider exception type for every failure mode cannot be enumerated exhaustively here; the important fact from 1.8.25 source is that Hangfire **rethrows** underlying access errors rather than wrapping them for `GetStatistics()`.
 
 Existing unit test `FailedJobCountReaderTests.GetFailedCount_PropagatesException_FromMonitoringApi` documents the current boundary: monitoring failures bubble unchanged.
+
+---
+
+## FailedAt timestamp semantics (HM-030)
+
+Verified against **Hangfire.Core / Hangfire.SqlServer 1.8.25** (tag `v1.8.25` / installed NuGet packages). This closes the SPEC verification item: do **not** assume the mapping until checked against this version.
+
+### Code path inspected
+
+```text
+IMonitoringApi.FailedJobs(from, count)
+  → SqlServerMonitoringApi.FailedJobs
+  → GetJobs(..., stateName: FailedState.StateName ("Failed"), descending: true, selector)
+  → SQL over [schema].Job + [schema].State
+  → SqlJob.StateChanged
+  → FailedJobDto.FailedAt = sqlJob.StateChanged
+```
+
+Sources (v1.8.25):
+
+- `Hangfire.SqlServer/SqlServerMonitoringApi.cs` — `FailedJobs`, `GetJobs`
+- `Hangfire.SqlServer/Entities/SqlJob.cs` — `StateChanged` property
+- `Hangfire.Core/Storage/Monitoring/FailedJobDto.cs` — `FailedAt`
+- `Hangfire.Core/States/FailedState.cs` — `FailedAt = DateTime.UtcNow` + `SerializeData()["FailedAt"]`
+- `Hangfire.SqlServer/SqlServerWriteOnlyTransaction.cs` — `SetJobState` inserts `State.CreatedAt`
+- `Hangfire.SqlServer/Install.sql` — `[State].[CreatedAt] [datetime] NOT NULL`
+
+### SQL column and alias
+
+In `GetJobs`, the monitoring query selects:
+
+```sql
+s.CreatedAt as StateChanged
+```
+
+joined as the **current** state row:
+
+```sql
+left join [{schema}].State s
+  on j.StateId = s.Id and j.Id = s.JobId
+```
+
+with jobs filtered by:
+
+```sql
+where j.StateName = @stateName  -- "Failed" for FailedJobs
+```
+
+Dapper maps the alias `StateChanged` onto `SqlJob.StateChanged`. The Failed selector then sets:
+
+```csharp
+FailedAt = sqlJob.StateChanged
+```
+
+| Name seen by code | Physical column |
+| --- | --- |
+| `FailedJobDto.FailedAt` | — (DTO property) |
+| `SqlJob.StateChanged` | SQL alias |
+| `s.CreatedAt` / `[State].[CreatedAt]` | Physical column |
+
+**Not** used for `FailedJobDto.FailedAt` on this path:
+
+- `[Job].[CreatedAt]` (job creation time)
+- parsing `State.Data` JSON key `FailedAt` (that value exists, but list monitoring does not read it for the DTO timestamp)
+
+### Semantic meaning
+
+`[State].[CreatedAt]` is the timestamp when the **state history row** was inserted. For a job whose **current** state is Failed, that is the moment the job **entered the Failed state** (state transition time), not job creation and not an arbitrary later update.
+
+When Hangfire persists a state (`SetJobState`), it writes:
+
+```csharp
+@createdAt = DateTime.UtcNow
+```
+
+into `[State].[CreatedAt]`. Independently, `FailedState` sets `FailedAt = DateTime.UtcNow` at construction and stores it inside `State.Data["FailedAt"]`. Those two `UtcNow` calls are sequential and can differ by milliseconds; **SQL Server Monitoring’s public DTO uses `State.CreatedAt`**, not the JSON field.
+
+### Conclusion for MVP `last failure`
+
+`FailedJobDto.FailedAt` **does** represent the failure-time semantics the MVP needs (time of entry into Failed for jobs currently failed).
+
+For the future narrow aggregate (HM-031, not implemented here), the Monitoring-equivalent expression is:
+
+```text
+MAX([State].[CreatedAt])
+```
+
+among jobs **currently** in Failed, i.e. constrained like Hangfire’s join to the current state (via `Job.StateId` / `Job.StateName = N'Failed'`), **not** `MAX(Job.Id)` and **not** `FailedJobs(0, 1)`.
+
+### UTC / local time notes
+
+- Hangfire writes `[State].[CreatedAt]` with `DateTime.UtcNow`.
+- `FailedState.FailedAt` is also `DateTime.UtcNow` (serialized into state data; not what Monitoring maps to the DTO).
+- Schema type is SQL `datetime` (no time-zone info). Values are UTC wall-clock instants as stored by Hangfire; ADO.NET typically surfaces `DateTimeKind.Unspecified` unless the consumer treats them as UTC.
+- Per SPEC: preserve the storage timestamp internally; do not apply business-level timezone conversion in monitoring logic. UI local formatting remains a later presentation concern.
