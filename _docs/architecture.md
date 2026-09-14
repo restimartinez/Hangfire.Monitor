@@ -288,6 +288,19 @@ SqlServerStorage.Options
 
 Returns Infrastructure `HangfireApplicationFailureInfo` (`FailedCount`, `LastFailedAt`). Exceptions propagate unchanged (no `UNAVAILABLE` mapping yet). No shared transaction between the two reads.
 
+---
+
+## Monitoring status / result model (HM-040)
+
+Domain types (no Hangfire / Infrastructure references):
+
+| Type | Role |
+| --- | --- |
+| `MonitoringStatus` | `OK`, `FAILED`, `UNAVAILABLE` |
+| `ApplicationMonitoringResult` | Per-app outcome: `ApplicationName`, `Status`, `FailedCount`, `LastFailedAt` |
+
+Infrastructure `HangfireApplicationFailureInfo` stays a technical read model. Mapping into `ApplicationMonitoringResult` (including when to set each status) is HM-041+. No error/detail field on the result yet — deferred until `UNAVAILABLE` mapping needs it.
+
 ### UTC / local time notes
 
 - Hangfire writes `[State].[CreatedAt]` with `DateTime.UtcNow`.
