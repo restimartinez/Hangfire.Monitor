@@ -301,6 +301,20 @@ Domain types (no Hangfire / Infrastructure references):
 
 Infrastructure `HangfireApplicationFailureInfo` stays a technical read model. Mapping into `ApplicationMonitoringResult` (including when to set each status) is HM-041+. No error/detail field on the result yet — deferred until `UNAVAILABLE` mapping needs it.
 
+---
+
+## Monitoring business rules (HM-041)
+
+`Hangfire.Monitor.Domain.ApplicationMonitoringRules` maps primitive failure data → `ApplicationMonitoringResult` (no Hangfire / Infrastructure types):
+
+| Input | Status | `FailedCount` | `LastFailedAt` |
+| --- | --- | --- | --- |
+| `failedCount == 0` | `OK` | `0` | always `null` (even if a timestamp was supplied) |
+| `failedCount > 0` | `FAILED` | as supplied | as supplied (not recalculated) |
+| `Unavailable(name)` | `UNAVAILABLE` | `0` | `null` |
+
+`Unavailable` is an explicit constructor for that status only. HM-041 does **not** catch SQL/`DbException`; orchestration that decides unavailability comes later.
+
 ### UTC / local time notes
 
 - Hangfire writes `[State].[CreatedAt]` with `DateTime.UtcNow`.
