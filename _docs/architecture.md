@@ -75,3 +75,17 @@ Registration uses `ValidateOnStart()` so invalid config fails at host startup, b
 | `TryAutoDetectSchemaDependentOptions` | `false` | Avoid opening a SQL connection during storage construction |
 
 Multi-app model: one `SqlServerStorage` per configured application. Do **not** use `JobStorage.Current`, `AddHangfire()`, or a Hangfire Server for this purpose. The factory is registered as a singleton in DI (from Web); storages are created on demand, not as a single global storage.
+
+---
+
+## Failed job count (HM-022)
+
+`Hangfire.Monitor.Infrastructure.Storage.FailedJobCountReader` reads the failed-job total from an existing `SqlServerStorage`:
+
+```text
+storage.GetMonitoringApi().GetStatistics().Failed
+```
+
+Use `IMonitoringApi.GetStatistics().Failed`, **not** `FailedCount()`. On SQL Server storage, `FailedCount()` can be capped by `DashboardJobListLimit` (default 10,000); `GetStatistics().Failed` is the uncapped aggregate count.
+
+Exceptions from storage/monitoring propagate to the caller (no `UNAVAILABLE` mapping yet).
