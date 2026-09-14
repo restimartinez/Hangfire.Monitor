@@ -332,6 +332,23 @@ Infrastructure `HangfireApplicationFailureInfo` stays a technical read model. Ma
 
 Results are independent per application: a storage failure for B does not skip C. No DI registration in this task.
 
+---
+
+## Monitoring DI composition (HM-051)
+
+`Hangfire.Monitor.Web.HangfireMonitorServiceCollectionExtensions.AddHangfireMonitorServices` registers these as **singletons** (stateless collaborators):
+
+| Service | Lifetime |
+| --- | --- |
+| `ApplicationMonitoringRules` | Singleton |
+| `SqlServerStorageFactory` | Singleton |
+| `FailedJobCountReader` | Singleton |
+| `LastFailedAtReader` | Singleton |
+| `HangfireStorageReader` | Singleton |
+| `ConfiguredApplicationsMonitor` | Singleton |
+
+`Program.cs` calls `AddHangfireMonitorServices()` alongside existing options binding. Configuration consumption / page wiring is later (HM-060+). No new interfaces for DI.
+
 ### UTC / local time notes
 
 - Hangfire writes `[State].[CreatedAt]` with `DateTime.UtcNow`.
