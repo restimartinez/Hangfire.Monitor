@@ -5,15 +5,22 @@
 
 ---
 
-## Solution layout (HM-010)
+## Solution layout
 
 ```text
-Hangfire.Monitor.Web  →  Hangfire.Monitor.Domain
-Hangfire.Monitor.Tests → Hangfire.Monitor.Domain
-Hangfire.Monitor.Tests → Hangfire.Monitor.Web
+Hangfire.Monitor.Web            → Hangfire.Monitor.Infrastructure
+Hangfire.Monitor.Web            → Hangfire.Monitor.Domain
+Hangfire.Monitor.Infrastructure → Hangfire.Monitor.Domain
+Hangfire.Monitor.Tests          → Hangfire.Monitor.Web
+Hangfire.Monitor.Tests          → Hangfire.Monitor.Domain
 ```
 
-`Hangfire.Monitor.Domain` holds Hangfire Monitor’s own concepts as simple POCOs. No Infrastructure project yet; Hangfire/SQL Server integration placement is deferred.
+| Project | Role |
+| --- | --- |
+| `Hangfire.Monitor.Domain` | Domain/configuration models (POCOs) |
+| `Hangfire.Monitor.Infrastructure` | Hangfire SQL Server integration |
+| `Hangfire.Monitor.Web` | Hosting, presentation, and application composition |
+| `Hangfire.Monitor.Tests` | Automated tests |
 
 ---
 
@@ -54,3 +61,17 @@ Rules:
 - Empty `Applications` list is valid.
 
 Registration uses `ValidateOnStart()` so invalid config fails at host startup, before serving requests. `appsettings.json` keeps an empty `Applications` list; real connection strings belong in User Secrets / environment variables (HM-013).
+
+---
+
+## Per-application SqlServerStorage (HM-021)
+
+`Hangfire.Monitor.Infrastructure.Storage.SqlServerStorageFactory` maps `HangfireApplicationOptions` → a new `SqlServerStorage` instance. Hangfire.Core / Hangfire.SqlServer package references live on Infrastructure.
+
+| Setting | Value | Why |
+| --- | --- | --- |
+| `PrepareSchemaIfNecessary` | `false` | Monitor must never install/migrate Hangfire schema |
+| `SchemaName` | `application.Schema` (default `HangFire`) | Match the monitored app’s Hangfire schema |
+| `TryAutoDetectSchemaDependentOptions` | `false` | Avoid opening a SQL connection during storage construction |
+
+Multi-app model: one `SqlServerStorage` per configured application. Do **not** use `JobStorage.Current`, `AddHangfire()`, or a Hangfire Server for this purpose. The factory is registered as a singleton in DI (from Web); storages are created on demand, not as a single global storage.

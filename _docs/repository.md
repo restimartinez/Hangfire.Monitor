@@ -13,10 +13,12 @@ Concise map of the current solution layout and the `dotnet` commands used from t
 ```text
 Hangfire.Monitor/
 ├── Hangfire.Monitor.sln
-├── Hangfire.Monitor.Domain/       # Configuration / domain POCOs
-├── Hangfire.Monitor.Web/          # ASP.NET Core Razor Pages host
-├── Hangfire.Monitor.Tests/        # xUnit test project
-├── _docs/                         # Specs, plan, investigations
+├── Hangfire.Monitor.Domain/           # Configuration / domain POCOs
+├── Hangfire.Monitor.Infrastructure/   # Hangfire SQL Server integration
+│   └── Storage/
+├── Hangfire.Monitor.Web/              # ASP.NET Core Razor Pages host
+├── Hangfire.Monitor.Tests/            # xUnit test project
+├── _docs/                             # Specs, plan, investigations
 ├── AGENTS.md
 ├── README.md
 ├── LICENSE
@@ -25,13 +27,14 @@ Hangfire.Monitor/
 
 | Path | Role |
 | --- | --- |
-| `Hangfire.Monitor.sln` | Solution file; includes Domain, Web, and Tests |
+| `Hangfire.Monitor.sln` | Solution file; includes Domain, Infrastructure, Web, and Tests |
 | `Hangfire.Monitor.Domain` | Class library; Hangfire Monitor configuration/domain POCOs |
-| `Hangfire.Monitor.Web` | Web application (`Microsoft.NET.Sdk.Web`); references Domain |
+| `Hangfire.Monitor.Infrastructure` | Class library; Hangfire SQL Server integration (e.g. `Storage/SqlServerStorageFactory`) |
+| `Hangfire.Monitor.Web` | Web application (`Microsoft.NET.Sdk.Web`); references Domain and Infrastructure |
 | `Hangfire.Monitor.Tests` | Unit tests; references Domain and Web |
 | `_docs/` | Product/planning documentation |
 
-All three projects target **`net9.0`**.
+All four projects target **`net9.0`**.
 
 ---
 

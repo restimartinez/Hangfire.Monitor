@@ -1,5 +1,6 @@
 using Hangfire.Monitor.Domain;
 using Hangfire.Monitor.Web.Configuration;
+using Hangfire.Monitor.Infrastructure.Storage;
 using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +12,7 @@ builder.Services
     .Bind(builder.Configuration.GetSection("HangfireMonitor"))
     .ValidateOnStart();
 builder.Services.AddSingleton<IValidateOptions<HangfireMonitorOptions>, HangfireMonitorOptionsValidator>();
+builder.Services.AddSingleton<SqlServerStorageFactory>();
 
 var app = builder.Build();
 
