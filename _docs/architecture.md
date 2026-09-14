@@ -315,6 +315,23 @@ Infrastructure `HangfireApplicationFailureInfo` stays a technical read model. Ma
 
 `Unavailable` is an explicit constructor for that status only. HM-041 does **not** catch SQL/`DbException`; orchestration that decides unavailability comes later.
 
+---
+
+## Multi-application monitoring (HM-050)
+
+`Hangfire.Monitor.Infrastructure.Monitoring.ConfiguredApplicationsMonitor` iterates configured applications in **configuration order** (no alphabetical re-sort):
+
+1. `HangfireStorageReader.Read(application)` → `HangfireApplicationFailureInfo`
+2. `ApplicationMonitoringRules.FromFailureInfo(...)` → `OK` / `FAILED`
+3. On **`DbException` only** → `ApplicationMonitoringRules.Unavailable(name)` for that app, then continue
+
+| Exception | Behavior |
+| --- | --- |
+| `DbException` (and derived) | Per-app `UNAVAILABLE`; remaining apps still monitored |
+| Other exceptions (`ArgumentNullException`, `InvalidOperationException`, …) | Propagate; do not map to `UNAVAILABLE` |
+
+Results are independent per application: a storage failure for B does not skip C. No DI registration in this task.
+
 ### UTC / local time notes
 
 - Hangfire writes `[State].[CreatedAt]` with `DateTime.UtcNow`.
