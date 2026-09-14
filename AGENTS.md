@@ -64,6 +64,7 @@ Keep durable context in the repository, not only in chat.
 | --- | --- |
 | `AGENTS.md` | Always-on agent rules (this file) |
 | `_docs/plan.md` | Product/MVP specification (create when scoping) |
+| `_docs/repository.md` | Solution layout and local `dotnet` commands |
 | `_docs/process.md` | How work is organized (tasks, commits, review) |
 | `_docs/architecture.md` | Architectural decisions and rejected alternatives |
 | `_docs/testing.md` | Testing conventions once the test project exists |
@@ -74,14 +75,13 @@ Before UI work, check for a design note under `_docs/`. Before data-access work,
 
 ## Commands
 
-Populate this section when the solution exists. Until then, do not invent project-specific scripts.
+Run from the repository root. See `_docs/repository.md` for layout details.
 
 ```text
-# Expected once scaffolding exists (exact commands to be confirmed):
 dotnet restore
 dotnet build
 dotnet test
-dotnet run --project <web-project>
+dotnet run --project Hangfire.Monitor.Web
 ```
 
 ## Hard stops
