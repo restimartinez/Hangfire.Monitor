@@ -223,13 +223,58 @@ into `[State].[CreatedAt]`. Independently, `FailedState` sets `FailedAt = DateTi
 
 `FailedJobDto.FailedAt` **does** represent the failure-time semantics the MVP needs (time of entry into Failed for jobs currently failed).
 
-For the future narrow aggregate (HM-031, not implemented here), the Monitoring-equivalent expression is:
+The Monitoring-equivalent aggregate is:
 
 ```text
 MAX([State].[CreatedAt])
 ```
 
 among jobs **currently** in Failed, i.e. constrained like Hangfire’s join to the current state (via `Job.StateId` / `Job.StateName = N'Failed'`), **not** `MAX(Job.Id)` and **not** `FailedJobs(0, 1)`.
+
+---
+
+## Latest failure SQL (HM-031)
+
+Split of read paths:
+
+| Concern | Mechanism |
+| --- | --- |
+| Failed job **count** | Monitoring API: `GetStatistics().Failed` (`FailedJobCountReader`) |
+| Latest failure **timestamp** | Narrow read-only SQL: `MAX(State.CreatedAt)` (`LastFailedAtReader`) |
+
+`Hangfire.Monitor.Infrastructure.Storage.LastFailedAtReader` runs:
+
+```sql
+SELECT MAX(s.[CreatedAt])
+FROM [{schema}].[Job] AS j
+INNER JOIN [{schema}].[State] AS s
+    ON j.[StateId] = s.[Id] AND j.[Id] = s.[JobId]
+WHERE j.[StateName] = N'Failed'
+```
+
+Semantics: `null` when no job is currently Failed; otherwise the storage timestamp of the most recent current Failed state (no business timezone conversion).
+
+Schema identifiers follow Hangfire.SqlServer 1.8.25 quoting (`]` → `]]` inside `[...]`). The schema comes from the `SqlServerStorage` options (configured via `HangfireApplicationOptions.Schema`).
+
+Connection: Hangfire.SqlServer **1.8.25** does not expose a public `DbConnection` opener on `SqlServerStorage` (`UseConnection` / `CreateAndOpenConnection` are internal; `GetConnection()` is Hangfire’s `IStorageConnection`, not ADO.NET). Do not use `JobStorage.Current`.
+
+#### Reflection on Hangfire internals (maintenance risk)
+
+Against **Hangfire.SqlServer 1.8.25**, `SqlServerStorageDb` uses reflection to call these non-public members:
+
+```text
+SqlServerStorage.UseConnection<TResult>(
+    DbConnection,
+    Func<SqlServerStorage, DbConnection, TResult>)
+
+SqlServerStorage.Options
+```
+
+**Why:** reuse Hangfire’s managed connection path (factory, open/release, existing-connection handling) instead of opening a separate ADO.NET connection and adding another SQL client package.
+
+**Isolation:** reflection is confined to `SqlServerStorageDb`; query construction (`LastFailedAtQuery`) and the public reader (`LastFailedAtReader`) do not reach into Hangfire internals.
+
+**Upgrade risk:** if Hangfire.SqlServer is upgraded later, review this dependency — renames, signature changes, or removal of those internal members can break the latest-failure integration.
 
 ### UTC / local time notes
 
