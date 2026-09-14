@@ -69,3 +69,66 @@ Equivalent forms that also work from the root:
 dotnet build Hangfire.Monitor.sln
 dotnet test Hangfire.Monitor.sln
 ```
+
+---
+
+## Local configuration (connection strings)
+
+Monitored Hangfire applications are configured under `HangfireMonitor:Applications`.
+
+**Do not store real connection strings in `appsettings.json` or commit them to Git.** Keep tracked `appsettings.json` free of secrets (an empty `Applications` list is fine). Provide real connection strings with **User Secrets** (local development) or **environment variables**.
+
+ASP.NET Core loads these automatically; no application code is required to read secrets manually.
+
+### User Secrets (local development)
+
+The Web project has User Secrets enabled. From the repository root:
+
+```text
+dotnet user-secrets set --project Hangfire.Monitor.Web "HangfireMonitor:Applications:0:Name" "Example"
+dotnet user-secrets set --project Hangfire.Monitor.Web "HangfireMonitor:Applications:0:ConnectionString" "Server=localhost;Database=ExampleHangfire;Trusted_Connection=True;TrustServerCertificate=True;"
+dotnet user-secrets set --project Hangfire.Monitor.Web "HangfireMonitor:Applications:0:Schema" "HangFire"
+```
+
+That is equivalent to this structure (fictitious values only):
+
+```json
+{
+  "HangfireMonitor": {
+    "Applications": [
+      {
+        "Name": "Example",
+        "ConnectionString": "Server=localhost;Database=ExampleHangfire;Trusted_Connection=True;TrustServerCertificate=True;",
+        "Schema": "HangFire"
+      }
+    ]
+  }
+}
+```
+
+Add further applications with the next index (`:1:`, `:2:`, and so on).
+
+Useful commands:
+
+```text
+dotnet user-secrets list --project Hangfire.Monitor.Web
+dotnet user-secrets clear --project Hangfire.Monitor.Web
+```
+
+### Environment variables
+
+Hierarchical configuration keys use `:` in appsettings / User Secrets. Environment variables use `__` (double underscore) in place of `:`.
+
+| Configuration key | Environment variable |
+| --- | --- |
+| `HangfireMonitor:Applications:0:ConnectionString` | `HangfireMonitor__Applications__0__ConnectionString` |
+
+Example (PowerShell), using a fictitious connection string:
+
+```powershell
+$env:HangfireMonitor__Applications__0__Name = "Example"
+$env:HangfireMonitor__Applications__0__ConnectionString = "Server=localhost;Database=ExampleHangfire;Trusted_Connection=True;TrustServerCertificate=True;"
+$env:HangfireMonitor__Applications__0__Schema = "HangFire"
+```
+
+Focus on providing `ConnectionString` (and the matching `Name` / optional `Schema`) for each application index you need; other Hangfire Monitor settings follow the same `__` convention when required.
