@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.9.12120.119 stable
+VisualStudioVersion = 18.9.12120.119
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hangfire.Monitor.Web", "Hangfire.Monitor.Web\Hangfire.Monitor.Web.csproj", "{505E9B65-52C4-4D54-81E0-E2B729B20AA7}"
 EndProject
@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		LICENSE = LICENSE
 		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hangfire.Monitor.Tests", "Hangfire.Monitor.Tests\Hangfire.Monitor.Tests.csproj", "{6EEFA331-A714-4F26-A3F8-80BA444DF34A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,6 +37,18 @@ Global
 		{505E9B65-52C4-4D54-81E0-E2B729B20AA7}.Release|x64.Build.0 = Release|Any CPU
 		{505E9B65-52C4-4D54-81E0-E2B729B20AA7}.Release|x86.ActiveCfg = Release|Any CPU
 		{505E9B65-52C4-4D54-81E0-E2B729B20AA7}.Release|x86.Build.0 = Release|Any CPU
+		{6EEFA331-A714-4F26-A3F8-80BA444DF34A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EEFA331-A714-4F26-A3F8-80BA444DF34A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6EEFA331-A714-4F26-A3F8-80BA444DF34A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6EEFA331-A714-4F26-A3F8-80BA444DF34A}.Debug|x64.Build.0 = Debug|Any CPU
+		{6EEFA331-A714-4F26-A3F8-80BA444DF34A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6EEFA331-A714-4F26-A3F8-80BA444DF34A}.Debug|x86.Build.0 = Debug|Any CPU
+		{6EEFA331-A714-4F26-A3F8-80BA444DF34A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6EEFA331-A714-4F26-A3F8-80BA444DF34A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6EEFA331-A714-4F26-A3F8-80BA444DF34A}.Release|x64.ActiveCfg = Release|Any CPU
+		{6EEFA331-A714-4F26-A3F8-80BA444DF34A}.Release|x64.Build.0 = Release|Any CPU
+		{6EEFA331-A714-4F26-A3F8-80BA444DF34A}.Release|x86.ActiveCfg = Release|Any CPU
+		{6EEFA331-A714-4F26-A3F8-80BA444DF34A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
