@@ -30,10 +30,87 @@ body {
   text-align: start;
 }
 
+.page-header {
+  margin: 0.5rem 0 1.5rem;
+}
+
+.page-header h1 {
+  margin-bottom: 0.35rem;
+}
+
+.page-subtitle {
+  margin: 0;
+  color: #555;
+  max-width: 40rem;
+}
+
+.page-breadcrumb {
+  margin: 0 0 0.75rem;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.page-breadcrumb a {
+  color: #0b5ed7;
+  text-decoration: none;
+}
+
+.page-breadcrumb a:hover,
+.page-breadcrumb a:focus {
+  text-decoration: underline;
+}
+
+.page-breadcrumb span[aria-hidden="true"] {
+  margin: 0 0.35rem;
+  color: #999;
+}
+
+.feature-card {
+  max-width: 28rem;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid #d8d8d8;
+  border-radius: 0.5rem;
+  background-color: #fafafa;
+}
+
+.feature-card h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+}
+
+.feature-card p {
+  margin: 0 0 1rem;
+  color: #555;
+}
+
+.feature-card-link {
+  display: inline-block;
+  font-weight: 600;
+  color: #0b5ed7;
+  text-decoration: none;
+}
+
+.feature-card-link:hover,
+.feature-card-link:focus {
+  text-decoration: underline;
+}
+
+.nav-link:hover,
+.nav-link:focus,
+.navbar-brand:hover,
+.navbar-brand:focus {
+  text-decoration: underline;
+}
+
+.table-panel {
+  overflow-x: auto;
+}
+
 .status-table {
   width: 100%;
+  min-width: 32rem;
   border-collapse: collapse;
-  margin-top: 1rem;
+  margin-top: 0.25rem;
 }
 
 .status-table th,
@@ -53,6 +130,11 @@ body {
   user-select: none;
 }
 
+.status-table thead th[data-sort-type]:hover,
+.status-table thead th[data-sort-type]:focus {
+  background-color: #e4e4e4;
+}
+
 .status-table thead th[aria-sort="ascending"]::after {
   content: " ▲";
 }
@@ -61,22 +143,45 @@ body {
   content: " ▼";
 }
 
+.status-table tbody tr:hover {
+  background-color: #f7f7f7;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  line-height: 1.3;
+}
+
 .status-ok {
   color: #0a7a2f;
-  font-weight: 600;
+  background-color: #e6f5ea;
 }
 
 .status-failed {
   color: #b00020;
-  font-weight: 600;
+  background-color: #fde8ec;
 }
 
 .status-unavailable {
   color: #8a6d00;
-  font-weight: 600;
+  background-color: #f8f1d4;
 }
 
 .empty-message {
   margin-top: 1rem;
   color: #555;
+}
+
+@media (max-width: 575.98px) {
+  .feature-card {
+    padding: 1rem 1.1rem;
+  }
+
+  .page-header {
+    margin-bottom: 1.1rem;
+  }
 }

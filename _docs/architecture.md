@@ -22,6 +22,20 @@ Hangfire.Monitor.Tests          → Hangfire.Monitor.Domain
 | `Hangfire.Monitor.Web` | Hosting, presentation, and application composition |
 | `Hangfire.Monitor.Tests` | Automated tests |
 
+### Razor Pages routes
+
+```text
+Pages/
+├── Index.cshtml              → /              (Home)
+└── Jobs/
+    └── Failed.cshtml         → /jobs/failed   (Failed Jobs monitoring)
+```
+
+| Route | Page | Role |
+| --- | --- | --- |
+| `/` | `Pages/Index` | Application landing page |
+| `/jobs/failed` | `Pages/Jobs/Failed` | Failed Jobs status table |
+
 ---
 
 ## Configuration model (HM-010)
@@ -360,9 +374,9 @@ Results are independent per application: a storage failure for B does not skip C
 
 ## Status table client-side sorting (HM-081)
 
-The main status table is sorted in the browser only. Rows are rendered in **configuration order**; there is no server-side re-sort (Domain, Infrastructure, and SQL stay unchanged).
+The Failed Jobs status table (`/jobs/failed`) is sorted in the browser only. Rows are rendered in **configuration order**; there is no server-side re-sort (Domain, Infrastructure, and SQL stay unchanged).
 
-- Vanilla JavaScript in `wwwroot/js/status-table-sort.js`, loaded only from `Index.cshtml` (no-op when the empty-state message is shown).
+- Vanilla JavaScript in `wwwroot/js/status-table-sort.js`, loaded only from `Pages/Jobs/Failed.cshtml` (no-op when the empty-state message is shown).
 - No extra HTTP requests. First click on a column sorts ASC; further clicks on the same column toggle DESC/ASC. A different column always starts at ASC. No sort runs on page load.
 - `Failed jobs` and `Last failure` expose `data-sort-value` in the Razor view. Application and Status use the visible cell text.
 - Last failure remains displayed as `dd/MM/yyyy HH:mm:ss`. The sort key is `yyyy-MM-ddTHH:mm:ss` of the **same** timestamp (no timezone conversion, not DateTime `"o"`). Missing dates show `-` with empty `data-sort-value` (ASC: first; DESC: last).

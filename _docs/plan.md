@@ -447,7 +447,8 @@ This plan decomposes the MVP into small, independently verifiable tasks for an A
 
 **Expected change:**
 
-* Razor Page (for example `/Index` or `/Monitor`) that invokes the orchestrator
+* Razor Page at `/jobs/failed` (`Pages/Jobs/Failed`) that invokes the orchestrator
+* Home (`/`, `Pages/Index`) is a landing page with navigation to Failed Jobs
 * Page model carries the list of monitoring results
 * No REST endpoints
 

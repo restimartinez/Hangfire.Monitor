@@ -1,12 +1,12 @@
 using Hangfire.Monitor.Domain;
 using Hangfire.Monitor.Infrastructure.Monitoring;
 using Hangfire.Monitor.Infrastructure.Storage;
-using Hangfire.Monitor.Web.Pages;
+using Hangfire.Monitor.Web.Pages.Jobs;
 using Microsoft.Extensions.Options;
 
 namespace Hangfire.Monitor.Tests;
 
-public class IndexModelTests
+public class FailedModelTests
 {
     private readonly ApplicationMonitoringRules _rules = new();
 
@@ -28,7 +28,7 @@ public class IndexModelTests
             _ => throw new InvalidOperationException($"Unexpected app: {app.Name}")
         });
 
-        var model = new IndexModel(monitor, options);
+        var model = new FailedModel(monitor, options);
 
         model.OnGet();
 
@@ -62,7 +62,7 @@ public class IndexModelTests
             return new HangfireApplicationFailureInfo(0, null);
         });
 
-        var model = new IndexModel(monitor, options);
+        var model = new FailedModel(monitor, options);
 
         model.OnGet();
 
@@ -78,7 +78,7 @@ public class IndexModelTests
         var options = Options.Create(new HangfireMonitorOptions { Applications = [] });
         var monitor = CreateMonitor(_ => throw new InvalidOperationException("should not be called"));
 
-        var model = new IndexModel(monitor, options);
+        var model = new FailedModel(monitor, options);
 
         model.OnGet();
 

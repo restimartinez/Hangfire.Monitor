@@ -1,47 +1,16 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Hangfire Monitor";
+    ViewData["Title"] = "Home";
 }
 
-<h1>Hangfire Monitor</h1>
+<section class="page-header">
+    <h1>Hangfire Monitoring</h1>
+    <p class="page-subtitle">Monitor your Hangfire applications from a single place.</p>
+</section>
 
-@if (Model.Results.Count == 0)
-{
-    <p class="empty-message">No applications configured.</p>
-}
-else
-{
-    <table class="status-table">
-        <thead>
-            <tr>
-                <th data-sort-type="text" aria-sort="none">Application</th>
-                <th data-sort-type="text" aria-sort="none">Status</th>
-                <th data-sort-type="number" aria-sort="none">Failed jobs</th>
-                <th data-sort-type="date" aria-sort="none">Last failure</th>
-            </tr>
-        </thead>
-        <tbody>
-        @foreach (var result in Model.Results)
-        {
-            var statusClass = $"status-{result.Status.ToString().ToLowerInvariant()}";
-            var lastFailedAtSortValue = result.LastFailedAt.HasValue
-                ? result.LastFailedAt.Value.ToString("yyyy-MM-ddTHH:mm:ss", System.Globalization.CultureInfo.InvariantCulture)
-                : "";
-            var lastFailedAtDisplay = result.LastFailedAt.HasValue
-                ? result.LastFailedAt.Value.ToString("dd/MM/yyyy HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture)
-                : "-";
-            <tr>
-                <td>@result.ApplicationName</td>
-                <td class="@statusClass">@result.Status</td>
-                <td data-sort-value="@result.FailedCount.ToString(System.Globalization.CultureInfo.InvariantCulture)">@result.FailedCount</td>
-                <td data-sort-value="@lastFailedAtSortValue">@lastFailedAtDisplay</td>
-            </tr>
-        }
-        </tbody>
-    </table>
-}
-
-@section Scripts {
-    <script src="~/js/status-table-sort.js" asp-append-version="true"></script>
-}
+<section class="feature-card">
+    <h2>Failed Jobs</h2>
+    <p>Monitor failed jobs across all configured Hangfire applications.</p>
+    <a class="feature-card-link" asp-page="/Jobs/Failed">View failed jobs →</a>
+</section>

@@ -1,0 +1,57 @@
+@page "/jobs/failed"
+@model Hangfire.Monitor.Web.Pages.Jobs.FailedModel
+@{
+    ViewData["Title"] = "Failed Jobs";
+}
+
+<section class="page-header">
+    <p class="page-breadcrumb">
+        <a asp-page="/Index">Home</a>
+        <span aria-hidden="true">/</span>
+        <span>Failed Jobs</span>
+    </p>
+    <h1>Failed Jobs</h1>
+    <p class="page-subtitle">Monitor failed jobs across all configured Hangfire applications.</p>
+</section>
+
+@if (Model.Results.Count == 0)
+{
+    <p class="empty-message">No applications configured.</p>
+}
+else
+{
+    <div class="table-panel">
+        <table class="status-table">
+            <thead>
+                <tr>
+                    <th data-sort-type="text" aria-sort="none">Application</th>
+                    <th data-sort-type="text" aria-sort="none">Status</th>
+                    <th data-sort-type="number" aria-sort="none">Failed jobs</th>
+                    <th data-sort-type="date" aria-sort="none">Last failure</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var result in Model.Results)
+            {
+                var statusClass = $"status-badge status-{result.Status.ToString().ToLowerInvariant()}";
+                var lastFailedAtSortValue = result.LastFailedAt.HasValue
+                    ? result.LastFailedAt.Value.ToString("yyyy-MM-ddTHH:mm:ss", System.Globalization.CultureInfo.InvariantCulture)
+                    : "";
+                var lastFailedAtDisplay = result.LastFailedAt.HasValue
+                    ? result.LastFailedAt.Value.ToString("dd/MM/yyyy HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture)
+                    : "-";
+                <tr>
+                    <td>@result.ApplicationName</td>
+                    <td><span class="@statusClass">@result.Status</span></td>
+                    <td data-sort-value="@result.FailedCount.ToString(System.Globalization.CultureInfo.InvariantCulture)">@result.FailedCount</td>
+                    <td data-sort-value="@lastFailedAtSortValue">@lastFailedAtDisplay</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}
+
+@section Scripts {
+    <script src="~/js/status-table-sort.js" asp-append-version="true"></script>
+}

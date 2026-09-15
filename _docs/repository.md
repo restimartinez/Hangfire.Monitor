@@ -17,6 +17,9 @@ Hangfire.Monitor/
 ├── Hangfire.Monitor.Infrastructure/   # Hangfire SQL Server integration
 │   └── Storage/
 ├── Hangfire.Monitor.Web/              # ASP.NET Core Razor Pages host
+│   └── Pages/
+│       ├── Index.cshtml               # Home (/)
+│       └── Jobs/Failed.cshtml         # Failed Jobs (/jobs/failed)
 ├── Hangfire.Monitor.Tests/            # xUnit test project
 ├── _docs/                             # Specs, plan, investigations
 ├── AGENTS.md
@@ -31,6 +34,8 @@ Hangfire.Monitor/
 | `Hangfire.Monitor.Domain` | Class library; Hangfire Monitor configuration/domain POCOs |
 | `Hangfire.Monitor.Infrastructure` | Class library; Hangfire SQL Server integration (e.g. `Storage/SqlServerStorageFactory`) |
 | `Hangfire.Monitor.Web` | Web application (`Microsoft.NET.Sdk.Web`); references Domain and Infrastructure |
+| `Hangfire.Monitor.Web/Pages/Index` | Home landing page (`/`) |
+| `Hangfire.Monitor.Web/Pages/Jobs/Failed` | Failed Jobs monitoring page (`/jobs/failed`) |
 | `Hangfire.Monitor.Tests` | Unit tests; references Domain and Web |
 | `_docs/` | Product/planning documentation |
 

@@ -11,6 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		AGENTS.md = AGENTS.md
 		LICENSE = LICENSE
 		README.md = README.md
+		_docs\SPEC.md = _docs\SPEC.md
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hangfire.Monitor.Tests", "Hangfire.Monitor.Tests\Hangfire.Monitor.Tests.csproj", "{6EEFA331-A714-4F26-A3F8-80BA444DF34A}"
@@ -80,5 +81,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {47AC4407-1EFE-4EB1-9F7F-E51B0CA084D4}
 	EndGlobalSection
 EndGlobal
