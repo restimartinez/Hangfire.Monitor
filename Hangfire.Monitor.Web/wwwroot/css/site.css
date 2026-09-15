@@ -48,6 +48,19 @@ body {
   font-weight: 600;
 }
 
+.status-table thead th[data-sort-type] {
+  cursor: pointer;
+  user-select: none;
+}
+
+.status-table thead th[aria-sort="ascending"]::after {
+  content: " ▲";
+}
+
+.status-table thead th[aria-sort="descending"]::after {
+  content: " ▼";
+}
+
 .status-ok {
   color: #0a7a2f;
   font-weight: 600;

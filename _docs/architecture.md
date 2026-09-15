@@ -355,3 +355,16 @@ Results are independent per application: a storage failure for B does not skip C
 - `FailedState.FailedAt` is also `DateTime.UtcNow` (serialized into state data; not what Monitoring maps to the DTO).
 - Schema type is SQL `datetime` (no time-zone info). Values are UTC wall-clock instants as stored by Hangfire; ADO.NET typically surfaces `DateTimeKind.Unspecified` unless the consumer treats them as UTC.
 - Per SPEC: preserve the storage timestamp internally; do not apply business-level timezone conversion in monitoring logic. UI local formatting remains a later presentation concern.
+
+---
+
+## Status table client-side sorting (HM-081)
+
+The main status table is sorted in the browser only. Rows are rendered in **configuration order**; there is no server-side re-sort (Domain, Infrastructure, and SQL stay unchanged).
+
+- Vanilla JavaScript in `wwwroot/js/status-table-sort.js`, loaded only from `Index.cshtml` (no-op when the empty-state message is shown).
+- No extra HTTP requests. First click on a column sorts ASC; further clicks on the same column toggle DESC/ASC. A different column always starts at ASC. No sort runs on page load.
+- `Failed jobs` and `Last failure` expose `data-sort-value` in the Razor view. Application and Status use the visible cell text.
+- Last failure remains displayed as `dd/MM/yyyy HH:mm:ss`. The sort key is `yyyy-MM-ddTHH:mm:ss` of the **same** timestamp (no timezone conversion, not DateTime `"o"`). Missing dates show `-` with empty `data-sort-value` (ASC: first; DESC: last).
+- Text columns use `Intl.Collator('en', { usage: 'sort', sensitivity: 'base', numeric: true })` so order does not depend on the browser locale. Status is lexicographic (`FAILED`, `OK`, `UNAVAILABLE`), not severity order.
+- Ties keep the previous relative row order (stable sort). The active column is indicated with `aria-sort` plus a CSS `▲` / `▼`; header text is not rewritten in JavaScript.
