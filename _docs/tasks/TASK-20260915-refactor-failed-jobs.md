@@ -93,7 +93,7 @@ The `/jobs/failed` page must continue to provide all functionality currently ava
 * `UNAVAILABLE`
 * Independent handling of application failures
 * Existing date/time formatting
-* Existing client-side sorting introduced by HM-081
+* Existing client-side sorting introduced by HM-081 (default **Failed jobs** descending on page load)
 
 No functional regression should be introduced.
 

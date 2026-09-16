@@ -376,8 +376,8 @@ Results are independent per application: a storage failure for B does not skip C
 
 The Failed Jobs status table (`/jobs/failed`) is sorted in the browser only. Rows are rendered in **configuration order**; there is no server-side re-sort (Domain, Infrastructure, and SQL stay unchanged).
 
-- Vanilla JavaScript in `wwwroot/js/status-table-sort.js`, loaded only from `Pages/Jobs/Failed.cshtml` (no-op when the empty-state message is shown).
-- No extra HTTP requests. First click on a column sorts ASC; further clicks on the same column toggle DESC/ASC. A different column always starts at ASC. No sort runs on page load.
+- Vanilla JavaScript in `wwwroot/js/status-table-sort.js`, loaded from `Pages/Jobs/Failed.cshtml` (no-op when the empty-state message is shown). After that script runs, an inline script on the same page applies the default sort by programmatically clicking the **Failed jobs** header twice (ASC, then DESC), reusing the same click handler—no duplicate sort logic.
+- No extra HTTP requests. On `/jobs/failed`, the table initially shows **Failed jobs** descending (highest count first). User clicks on a column: first click sorts ASC; further clicks on the same column toggle DESC/ASC. Choosing a different column always starts at ASC.
 - `Failed jobs` and `Last failure` expose `data-sort-value` in the Razor view. Application and Status use the visible cell text.
 - Last failure remains displayed as `dd/MM/yyyy HH:mm:ss`. The sort key is `yyyy-MM-ddTHH:mm:ss` of the **same** timestamp (no timezone conversion, not DateTime `"o"`). Missing dates show `-` with empty `data-sort-value` (ASC: first; DESC: last).
 - Text columns use `Intl.Collator('en', { usage: 'sort', sensitivity: 'base', numeric: true })` so order does not depend on the browser locale. Status is lexicographic (`FAILED`, `OK`, `UNAVAILABLE`), not severity order.

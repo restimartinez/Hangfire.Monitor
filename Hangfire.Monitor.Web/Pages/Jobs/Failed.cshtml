@@ -26,7 +26,7 @@ else
                 <tr>
                     <th data-sort-type="text" aria-sort="none">Application</th>
                     <th data-sort-type="text" aria-sort="none">Status</th>
-                    <th data-sort-type="number" aria-sort="none">Failed jobs</th>
+                    <th data-sort-type="number" aria-sort="none" data-default-sort="desc">Failed jobs</th>
                     <th data-sort-type="date" aria-sort="none">Last failure</th>
                 </tr>
             </thead>
@@ -54,4 +54,20 @@ else
 
 @section Scripts {
     <script src="~/js/status-table-sort.js" asp-append-version="true"></script>
+    <script>
+        (function () {
+            var table = document.querySelector(".status-table");
+            if (!table) {
+                return;
+            }
+
+            var header = table.querySelector('th[data-default-sort="desc"]');
+            if (!header) {
+                return;
+            }
+
+            header.click();
+            header.click();
+        })();
+    </script>
 }
