@@ -9,4 +9,5 @@ public sealed record ApplicationMonitoringResult(
     string ApplicationName,
     MonitoringStatus Status,
     long FailedCount,
-    DateTime? LastFailedAt);
+    DateTime? LastFailedAt,
+    long ServerCount);

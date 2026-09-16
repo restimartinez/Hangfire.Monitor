@@ -28,6 +28,7 @@ else
                     <th data-sort-type="text" aria-sort="none">Status</th>
                     <th data-sort-type="number" aria-sort="none" data-default-sort="desc">Failed jobs</th>
                     <th data-sort-type="date" aria-sort="none">Last failure</th>
+                    <th data-sort-type="number" aria-sort="none">Servers</th>
                 </tr>
             </thead>
             <tbody>
@@ -40,11 +41,12 @@ else
                 var lastFailedAtDisplay = result.LastFailedAt.HasValue
                     ? result.LastFailedAt.Value.ToString("dd/MM/yyyy HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture)
                     : "-";
-                <tr>
+                <tr class="@(result.ServerCount == 0 ? "status-row-no-servers" : null)">
                     <td>@result.ApplicationName</td>
                     <td><span class="@statusClass">@result.Status</span></td>
                     <td data-sort-value="@result.FailedCount.ToString(System.Globalization.CultureInfo.InvariantCulture)">@result.FailedCount</td>
                     <td data-sort-value="@lastFailedAtSortValue">@lastFailedAtDisplay</td>
+                    <td data-sort-value="@result.ServerCount.ToString(System.Globalization.CultureInfo.InvariantCulture)">@result.ServerCount</td>
                 </tr>
             }
             </tbody>

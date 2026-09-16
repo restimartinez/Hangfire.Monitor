@@ -12,7 +12,7 @@ public class FailedJobCountReaderTests
     [Fact]
     public void GetFailedCount_ReturnsFailedFromStatistics()
     {
-        var storage = new StubJobStorage(failed: 42);
+        var storage = new StubJobStorage(failed: 42, servers: 0);
 
         var result = _reader.GetFailedCount(storage);
 
@@ -22,11 +22,35 @@ public class FailedJobCountReaderTests
     [Fact]
     public void GetFailedCount_ReturnsZero_WhenNoFailedJobs()
     {
-        var storage = new StubJobStorage(failed: 0);
+        var storage = new StubJobStorage(failed: 0, servers: 0);
 
         var result = _reader.GetFailedCount(storage);
 
         Assert.Equal(0, result);
+    }
+
+    [Fact]
+    public void GetStatistics_ReturnsFailedAndServers()
+    {
+        var storage = new StubJobStorage(failed: 7, servers: 3);
+
+        var result = _reader.GetStatistics(storage);
+
+        Assert.Equal(7, result.Failed);
+        Assert.Equal(3, result.Servers);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(4)]
+    public void GetStatistics_ReturnsServersCount(long servers)
+    {
+        var storage = new StubJobStorage(failed: 0, servers: servers);
+
+        var result = _reader.GetStatistics(storage);
+
+        Assert.Equal(servers, result.Servers);
     }
 
     [Fact]
@@ -40,11 +64,31 @@ public class FailedJobCountReaderTests
     }
 
     [Fact]
+    public void GetStatistics_PropagatesException_FromMonitoringApi()
+    {
+        var storage = new StubJobStorage(new InvalidOperationException("storage unavailable"));
+
+        var ex = Assert.Throws<InvalidOperationException>(() => _reader.GetStatistics(storage));
+
+        Assert.Equal("storage unavailable", ex.Message);
+    }
+
+    [Fact]
     public void GetFailedCount_DoesNotSetJobStorageCurrent()
     {
-        var storage = new StubJobStorage(failed: 1);
+        var storage = new StubJobStorage(failed: 1, servers: 0);
 
         _ = _reader.GetFailedCount(storage);
+
+        Assert.Throws<InvalidOperationException>(() => _ = JobStorage.Current);
+    }
+
+    [Fact]
+    public void GetStatistics_DoesNotSetJobStorageCurrent()
+    {
+        var storage = new StubJobStorage(failed: 1, servers: 2);
+
+        _ = _reader.GetStatistics(storage);
 
         Assert.Throws<InvalidOperationException>(() => _ = JobStorage.Current);
     }
@@ -53,8 +97,8 @@ public class FailedJobCountReaderTests
     {
         private readonly IMonitoringApi _monitoringApi;
 
-        public StubJobStorage(long failed)
-            : this(new StubMonitoringApi(new StatisticsDto { Failed = failed }))
+        public StubJobStorage(long failed, long servers)
+            : this(new StubMonitoringApi(new StatisticsDto { Failed = failed, Servers = servers }))
         {
         }
 

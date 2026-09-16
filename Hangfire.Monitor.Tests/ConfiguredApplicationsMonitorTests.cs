@@ -21,9 +21,9 @@ public class ConfiguredApplicationsMonitorTests
 
         var monitor = CreateMonitor(app => app.Name switch
         {
-            "App A" => new HangfireApplicationFailureInfo(0, null),
-            "App B" => new HangfireApplicationFailureInfo(2, new DateTime(2026, 9, 14, 11, 0, 0, DateTimeKind.Utc)),
-            "App C" => new HangfireApplicationFailureInfo(0, null),
+            "App A" => new HangfireApplicationFailureInfo(0, null, 1),
+            "App B" => new HangfireApplicationFailureInfo(2, new DateTime(2026, 9, 14, 11, 0, 0, DateTimeKind.Utc), 2),
+            "App C" => new HangfireApplicationFailureInfo(0, null, 0),
             _ => throw new InvalidOperationException($"Unexpected app: {app.Name}")
         });
 
@@ -31,6 +31,9 @@ public class ConfiguredApplicationsMonitorTests
 
         Assert.Equal(3, results.Count);
         Assert.Equal(["App A", "App B", "App C"], results.Select(r => r.ApplicationName).ToArray());
+        Assert.Equal(1, results[0].ServerCount);
+        Assert.Equal(2, results[1].ServerCount);
+        Assert.Equal(0, results[2].ServerCount);
     }
 
     [Fact]
@@ -43,7 +46,7 @@ public class ConfiguredApplicationsMonitorTests
             App("C")
         };
 
-        var monitor = CreateMonitor(_ => new HangfireApplicationFailureInfo(0, null));
+        var monitor = CreateMonitor(_ => new HangfireApplicationFailureInfo(0, null, 0));
 
         var results = monitor.MonitorAll(applications);
 
@@ -63,9 +66,9 @@ public class ConfiguredApplicationsMonitorTests
 
         var monitor = CreateMonitor(app => app.Name switch
         {
-            "App A" => new HangfireApplicationFailureInfo(0, null),
-            "App B" => new HangfireApplicationFailureInfo(3, lastFailedAt),
-            "App C" => new HangfireApplicationFailureInfo(0, new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc)),
+            "App A" => new HangfireApplicationFailureInfo(0, null, 3),
+            "App B" => new HangfireApplicationFailureInfo(3, lastFailedAt, 1),
+            "App C" => new HangfireApplicationFailureInfo(0, new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc), 0),
             _ => throw new InvalidOperationException($"Unexpected app: {app.Name}")
         });
 
@@ -74,14 +77,41 @@ public class ConfiguredApplicationsMonitorTests
         Assert.Equal(MonitoringStatus.OK, results[0].Status);
         Assert.Equal(0, results[0].FailedCount);
         Assert.Null(results[0].LastFailedAt);
+        Assert.Equal(3, results[0].ServerCount);
 
         Assert.Equal(MonitoringStatus.FAILED, results[1].Status);
         Assert.Equal(3, results[1].FailedCount);
         Assert.Equal(lastFailedAt, results[1].LastFailedAt);
+        Assert.Equal(1, results[1].ServerCount);
 
         Assert.Equal(MonitoringStatus.OK, results[2].Status);
         Assert.Equal(0, results[2].FailedCount);
         Assert.Null(results[2].LastFailedAt);
+        Assert.Equal(0, results[2].ServerCount);
+    }
+
+    [Fact]
+    public void MonitorAll_ServerCount_DoesNotOverrideStatus()
+    {
+        var applications = new[]
+        {
+            App("App A"),
+            App("App B")
+        };
+
+        var monitor = CreateMonitor(app => app.Name switch
+        {
+            "App A" => new HangfireApplicationFailureInfo(0, null, 3),
+            "App B" => new HangfireApplicationFailureInfo(2, new DateTime(2026, 9, 14, 12, 0, 0, DateTimeKind.Utc), 3),
+            _ => throw new InvalidOperationException($"Unexpected app: {app.Name}")
+        });
+
+        var results = monitor.MonitorAll(applications);
+
+        Assert.Equal(MonitoringStatus.OK, results[0].Status);
+        Assert.Equal(3, results[0].ServerCount);
+        Assert.Equal(MonitoringStatus.FAILED, results[1].Status);
+        Assert.Equal(3, results[1].ServerCount);
     }
 
     [Fact]
@@ -104,8 +134,8 @@ public class ConfiguredApplicationsMonitorTests
 
             return app.Name switch
             {
-                "App A" => new HangfireApplicationFailureInfo(0, null),
-                "App C" => new HangfireApplicationFailureInfo(1, lastFailedAt),
+                "App A" => new HangfireApplicationFailureInfo(0, null, 2),
+                "App C" => new HangfireApplicationFailureInfo(1, lastFailedAt, 1),
                 _ => throw new InvalidOperationException($"Unexpected app: {app.Name}")
             };
         });
@@ -116,16 +146,19 @@ public class ConfiguredApplicationsMonitorTests
 
         Assert.Equal("App A", results[0].ApplicationName);
         Assert.Equal(MonitoringStatus.OK, results[0].Status);
+        Assert.Equal(2, results[0].ServerCount);
 
         Assert.Equal("App B", results[1].ApplicationName);
         Assert.Equal(MonitoringStatus.UNAVAILABLE, results[1].Status);
         Assert.Equal(0, results[1].FailedCount);
         Assert.Null(results[1].LastFailedAt);
+        Assert.Equal(0, results[1].ServerCount);
 
         Assert.Equal("App C", results[2].ApplicationName);
         Assert.Equal(MonitoringStatus.FAILED, results[2].Status);
         Assert.Equal(1, results[2].FailedCount);
         Assert.Equal(lastFailedAt, results[2].LastFailedAt);
+        Assert.Equal(1, results[2].ServerCount);
     }
 
     [Fact]
@@ -144,7 +177,7 @@ public class ConfiguredApplicationsMonitorTests
                 throw new InvalidOperationException("programming error");
             }
 
-            return new HangfireApplicationFailureInfo(0, null);
+            return new HangfireApplicationFailureInfo(0, null, 0);
         });
 
         var ex = Assert.Throws<InvalidOperationException>(() => monitor.MonitorAll(applications));

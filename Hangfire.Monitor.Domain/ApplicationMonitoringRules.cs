@@ -16,12 +16,14 @@ public class ApplicationMonitoringRules
     /// <list type="bullet">
     /// <item><c>FailedCount == 0</c> → <see cref="MonitoringStatus.OK"/>, <c>LastFailedAt = null</c></item>
     /// <item><c>FailedCount &gt; 0</c> → <see cref="MonitoringStatus.FAILED"/>, keep received <c>LastFailedAt</c></item>
+    /// <item><c>ServerCount</c> is propagated and does not affect <see cref="MonitoringStatus"/></item>
     /// </list>
     /// </remarks>
     public ApplicationMonitoringResult FromFailureInfo(
         string applicationName,
         long failedCount,
-        DateTime? lastFailedAt)
+        DateTime? lastFailedAt,
+        long serverCount)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(applicationName);
 
@@ -31,7 +33,8 @@ public class ApplicationMonitoringRules
                 applicationName,
                 MonitoringStatus.OK,
                 FailedCount: 0,
-                LastFailedAt: null);
+                LastFailedAt: null,
+                ServerCount: serverCount);
         }
 
         if (failedCount < 0)
@@ -46,7 +49,8 @@ public class ApplicationMonitoringRules
             applicationName,
             MonitoringStatus.FAILED,
             failedCount,
-            lastFailedAt);
+            lastFailedAt,
+            serverCount);
     }
 
     /// <summary>
@@ -62,6 +66,7 @@ public class ApplicationMonitoringRules
             applicationName,
             MonitoringStatus.UNAVAILABLE,
             FailedCount: 0,
-            LastFailedAt: null);
+            LastFailedAt: null,
+            ServerCount: 0);
     }
 }

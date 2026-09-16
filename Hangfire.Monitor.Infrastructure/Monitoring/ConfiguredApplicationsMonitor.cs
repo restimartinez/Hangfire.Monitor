@@ -57,7 +57,8 @@ public class ConfiguredApplicationsMonitor
                 results.Add(_rules.FromFailureInfo(
                     application.Name,
                     failureInfo.FailedCount,
-                    failureInfo.LastFailedAt));
+                    failureInfo.LastFailedAt,
+                    failureInfo.ServerCount));
             }
             catch (DbException)
             {

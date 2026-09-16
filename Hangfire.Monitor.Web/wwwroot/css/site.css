@@ -147,6 +147,14 @@ body {
   background-color: #f7f7f7;
 }
 
+.status-table tbody tr.status-row-no-servers {
+  background-color: #f0f0f0;
+}
+
+.status-table tbody tr.status-row-no-servers:hover {
+  background-color: #e4e4e4;
+}
+
 .status-badge {
   display: inline-block;
   padding: 0.15rem 0.5rem;

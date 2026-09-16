@@ -94,13 +94,17 @@ Multi-app model: one `SqlServerStorage` per configured application. Do **not** u
 
 ## Failed job count (HM-022)
 
-`Hangfire.Monitor.Infrastructure.Storage.FailedJobCountReader` reads the failed-job total from an existing `SqlServerStorage`:
+`Hangfire.Monitor.Infrastructure.Storage.FailedJobCountReader` reads Hangfire monitoring statistics from an existing `SqlServerStorage` via the public Monitoring API:
 
 ```text
-storage.GetMonitoringApi().GetStatistics().Failed
+storage.GetMonitoringApi().GetStatistics()
+→ StatisticsDto.Failed
+→ StatisticsDto.Servers
 ```
 
 Use `IMonitoringApi.GetStatistics().Failed`, **not** `FailedCount()`. On SQL Server storage, `FailedCount()` can be capped by `DashboardJobListLimit` (default 10,000); `GetStatistics().Failed` is the uncapped aggregate count.
+
+Prefer `GetStatistics()` when both Failed and Servers are needed so the monitoring batch runs once (see HM-032 / HM-082).
 
 Exceptions from storage/monitoring propagate to the caller (no `UNAVAILABLE` mapping yet).
 
@@ -253,7 +257,8 @@ Split of read paths:
 
 | Concern | Mechanism |
 | --- | --- |
-| Failed job **count** | Monitoring API: `GetStatistics().Failed` (`FailedJobCountReader`) |
+| Failed job **count** | Monitoring API: `GetStatistics().Failed` (via `FailedJobCountReader.GetStatistics`) |
+| Registered **servers** | Monitoring API: `GetStatistics().Servers` (same `StatisticsDto`) |
 | Latest failure **timestamp** | Narrow read-only SQL: `MAX(State.CreatedAt)` (`LastFailedAtReader`) |
 
 `Hangfire.Monitor.Infrastructure.Storage.LastFailedAtReader` runs:
@@ -292,15 +297,29 @@ SqlServerStorage.Options
 
 ---
 
-## Per-application failure read (HM-032)
+## Per-application failure read (HM-032 / HM-082)
 
-`Hangfire.Monitor.Infrastructure.Storage.HangfireStorageReader` combines the two read paths for **one** `HangfireApplicationOptions`:
+`Hangfire.Monitor.Infrastructure.Storage.HangfireStorageReader` combines the read paths for **one** `HangfireApplicationOptions`:
 
 1. `SqlServerStorageFactory.Create` → one `SqlServerStorage`
-2. `FailedJobCountReader.GetFailedCount(storage)`
-3. `LastFailedAtReader.GetLastFailedAt(storage)` on that **same** instance
+2. `FailedJobCountReader.GetStatistics(storage)` → **one** `StatisticsDto`
+3. Map `statistics.Failed` → `FailedCount` and `statistics.Servers` → `ServerCount`
+4. `LastFailedAtReader.GetLastFailedAt(storage)` on that **same** instance
 
-Returns Infrastructure `HangfireApplicationFailureInfo` (`FailedCount`, `LastFailedAt`). Exceptions propagate unchanged (no `UNAVAILABLE` mapping yet). No shared transaction between the two reads.
+Returns Infrastructure `HangfireApplicationFailureInfo` (`FailedCount`, `LastFailedAt`, `ServerCount`). Exceptions propagate unchanged (no `UNAVAILABLE` mapping in the reader). No shared transaction between the statistics read and the last-failure SQL.
+
+`GetStatistics()` runs **once** per application read so Failed and Servers share a single monitoring round-trip.
+
+### Registered server count (HM-082)
+
+| Topic | Decision |
+| --- | --- |
+| API | `storage.GetMonitoringApi().GetStatistics().Servers` |
+| Meaning | Count of **registered** Hangfire servers still present in `[schema].[Server]` (default schema `HangFire`) |
+| Not | Worker threads (`ServerDto.WorkersCount` / sum of workers) |
+| Heartbeat filter | **None** — same semantics as Hangfire `StatisticsDto.Servers` / Dashboard server list count |
+| SQL direct | **Not used** for this metric |
+| Stale rows | After a crash, the count can stay elevated until a Hangfire `BackgroundJobServer` watchdog removes timed-out registrations (`ServerTimeout`, default 5 minutes). If **no** server remains running, cleanup may not run until one starts again. |
 
 ---
 
@@ -311,7 +330,7 @@ Domain types (no Hangfire / Infrastructure references):
 | Type | Role |
 | --- | --- |
 | `MonitoringStatus` | `OK`, `FAILED`, `UNAVAILABLE` |
-| `ApplicationMonitoringResult` | Per-app outcome: `ApplicationName`, `Status`, `FailedCount`, `LastFailedAt` |
+| `ApplicationMonitoringResult` | Per-app outcome: `ApplicationName`, `Status`, `FailedCount`, `LastFailedAt`, `ServerCount` |
 
 Infrastructure `HangfireApplicationFailureInfo` stays a technical read model. Mapping into `ApplicationMonitoringResult` (including when to set each status) is HM-041+. No error/detail field on the result yet — deferred until `UNAVAILABLE` mapping needs it.
 
@@ -321,13 +340,13 @@ Infrastructure `HangfireApplicationFailureInfo` stays a technical read model. Ma
 
 `Hangfire.Monitor.Domain.ApplicationMonitoringRules` maps primitive failure data → `ApplicationMonitoringResult` (no Hangfire / Infrastructure types):
 
-| Input | Status | `FailedCount` | `LastFailedAt` |
-| --- | --- | --- | --- |
-| `failedCount == 0` | `OK` | `0` | always `null` (even if a timestamp was supplied) |
-| `failedCount > 0` | `FAILED` | as supplied | as supplied (not recalculated) |
-| `Unavailable(name)` | `UNAVAILABLE` | `0` | `null` |
+| Input | Status | `FailedCount` | `LastFailedAt` | `ServerCount` |
+| --- | --- | --- | --- | --- |
+| `failedCount == 0` | `OK` | `0` | always `null` (even if a timestamp was supplied) | as supplied |
+| `failedCount > 0` | `FAILED` | as supplied | as supplied (not recalculated) | as supplied |
+| `Unavailable(name)` | `UNAVAILABLE` | `0` | `null` | `0` |
 
-`Unavailable` is an explicit constructor for that status only. HM-041 does **not** catch SQL/`DbException`; orchestration that decides unavailability comes later.
+`ServerCount` does **not** affect `Status`. `Unavailable` is an explicit constructor for that status only. HM-041 does **not** catch SQL/`DbException`; orchestration that decides unavailability comes later.
 
 ---
 
@@ -378,7 +397,8 @@ The Failed Jobs status table (`/jobs/failed`) is sorted in the browser only. Row
 
 - Vanilla JavaScript in `wwwroot/js/status-table-sort.js`, loaded from `Pages/Jobs/Failed.cshtml` (no-op when the empty-state message is shown). After that script runs, an inline script on the same page applies the default sort by programmatically clicking the **Failed jobs** header twice (ASC, then DESC), reusing the same click handler—no duplicate sort logic.
 - No extra HTTP requests. On `/jobs/failed`, the table initially shows **Failed jobs** descending (highest count first). User clicks on a column: first click sorts ASC; further clicks on the same column toggle DESC/ASC. Choosing a different column always starts at ASC.
-- `Failed jobs` and `Last failure` expose `data-sort-value` in the Razor view. Application and Status use the visible cell text.
+- `Failed jobs`, `Last failure`, and `Servers` expose `data-sort-value` in the Razor view. Application and Status use the visible cell text.
+- `Servers` uses `data-sort-type="number"` (same numeric compare as Failed jobs) so `1 < 2 < 10`.
 - Last failure remains displayed as `dd/MM/yyyy HH:mm:ss`. The sort key is `yyyy-MM-ddTHH:mm:ss` of the **same** timestamp (no timezone conversion, not DateTime `"o"`). Missing dates show `-` with empty `data-sort-value` (ASC: first; DESC: last).
 - Text columns use `Intl.Collator('en', { usage: 'sort', sensitivity: 'base', numeric: true })` so order does not depend on the browser locale. Status is lexicographic (`FAILED`, `OK`, `UNAVAILABLE`), not severity order.
 - Ties keep the previous relative row order (stable sort). The active column is indicated with `aria-sort` plus a CSS `▲` / `▼`; header text is not rewritten in JavaScript.
