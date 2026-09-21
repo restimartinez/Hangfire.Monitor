@@ -271,7 +271,7 @@ INNER JOIN [{schema}].[State] AS s
 WHERE j.[StateName] = N'Failed'
 ```
 
-Semantics: `null` when no job is currently Failed; otherwise the storage timestamp of the most recent current Failed state (no business timezone conversion).
+Semantics: `null` when no job is currently Failed; otherwise the storage timestamp of the most recent current Failed state as **UTC** (`DateTimeKind.Utc`). Infrastructure does not convert to local time.
 
 Schema identifiers follow Hangfire.SqlServer 1.8.25 quoting (`]` → `]]` inside `[...]`). The schema comes from the `SqlServerStorage` options (configured via `HangfireApplicationOptions.Schema`).
 
@@ -384,10 +384,13 @@ Results are independent per application: a storage failure for B does not skip C
 
 ### UTC / local time notes
 
+Hangfire SQL Server stores state timestamps in UTC. `LastFailedAtReader` preserves the timestamp as UTC. The web UI converts the timestamp to local time for display, matching the behavior of the Hangfire Dashboard.
+
 - Hangfire writes `[State].[CreatedAt]` with `DateTime.UtcNow`.
 - `FailedState.FailedAt` is also `DateTime.UtcNow` (serialized into state data; not what Monitoring maps to the DTO).
-- Schema type is SQL `datetime` (no time-zone info). Values are UTC wall-clock instants as stored by Hangfire; ADO.NET typically surfaces `DateTimeKind.Unspecified` unless the consumer treats them as UTC.
-- Per SPEC: preserve the storage timestamp internally; do not apply business-level timezone conversion in monitoring logic. UI local formatting remains a later presentation concern.
+- Schema type is SQL `datetime` (no time-zone info). ADO.NET typically surfaces `DateTimeKind.Unspecified`; `LastFailedAtQuery.ReadScalar` normalizes to `DateTimeKind.Utc` without changing the clock face.
+- Infrastructure / Domain keep the UTC instant (no fixed offset such as `+2`, no hard-coded `Europe/Madrid`).
+- `/jobs/failed` uses `LastFailedAtDisplay`: display via `DateTime.ToLocalTime()` (host time zone, DST-aware); HM-081 `data-sort-value` keeps the UTC wall-clock `yyyy-MM-ddTHH:mm:ss` so ordering follows the stored instant.
 
 ---
 
@@ -399,6 +402,6 @@ The Failed Jobs status table (`/jobs/failed`) is sorted in the browser only. Row
 - No extra HTTP requests. On `/jobs/failed`, the table initially shows **Failed jobs** descending (highest count first). User clicks on a column: first click sorts ASC; further clicks on the same column toggle DESC/ASC. Choosing a different column always starts at ASC.
 - `Failed jobs`, `Last failure`, and `Servers` expose `data-sort-value` in the Razor view. Application and Status use the visible cell text.
 - `Servers` uses `data-sort-type="number"` (same numeric compare as Failed jobs) so `1 < 2 < 10`.
-- Last failure remains displayed as `dd/MM/yyyy HH:mm:ss`. The sort key is `yyyy-MM-ddTHH:mm:ss` of the **same** timestamp (no timezone conversion, not DateTime `"o"`). Missing dates show `-` with empty `data-sort-value` (ASC: first; DESC: last).
+- Last failure is **displayed** as local `dd/MM/yyyy HH:mm:ss` (`ToLocalTime()`). The sort key remains UTC wall-clock `yyyy-MM-ddTHH:mm:ss` of the storage instant (not DateTime `"o"`, not the local display string). Missing dates show `-` with empty `data-sort-value` (ASC: first; DESC: last).
 - Text columns use `Intl.Collator('en', { usage: 'sort', sensitivity: 'base', numeric: true })` so order does not depend on the browser locale. Status is lexicographic (`FAILED`, `OK`, `UNAVAILABLE`), not severity order.
 - Ties keep the previous relative row order (stable sort). The active column is indicated with `aria-sort` plus a CSS `▲` / `▼`; header text is not rewritten in JavaScript.

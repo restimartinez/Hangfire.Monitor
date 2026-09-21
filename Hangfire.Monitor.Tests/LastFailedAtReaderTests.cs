@@ -17,6 +17,21 @@ public class LastFailedAtReaderTests
         var result = LastFailedAtQuery.ReadScalar(failedAt);
 
         Assert.Equal(failedAt, result);
+        Assert.Equal(DateTimeKind.Utc, result!.Value.Kind);
+    }
+
+    [Fact]
+    public void ReadScalar_TreatsUnspecifiedSqlDateTime_AsUtc()
+    {
+        // ADO.NET surfaces SQL datetime as Unspecified; Hangfire wrote UtcNow.
+        var fromSql = new DateTime(2026, 9, 21, 12, 16, 24, DateTimeKind.Unspecified);
+
+        var result = LastFailedAtQuery.ReadScalar(fromSql);
+
+        Assert.NotNull(result);
+        Assert.Equal(DateTimeKind.Utc, result.Value.Kind);
+        Assert.Equal(fromSql.Ticks, result.Value.Ticks);
+        Assert.Equal(new DateTime(2026, 9, 21, 12, 16, 24, DateTimeKind.Utc), result.Value);
     }
 
     [Fact]
@@ -56,6 +71,7 @@ public class LastFailedAtReaderTests
         var result = _reader.GetLastFailedAt(connection, "HangFire");
 
         Assert.Equal(failedAt, result);
+        Assert.Equal(DateTimeKind.Utc, result!.Value.Kind);
         Assert.Contains("[HangFire].[Job]", connection.LastCommandText, StringComparison.Ordinal);
     }
 

@@ -40,6 +40,9 @@ internal static class LastFailedAtQuery
 
     /// <summary>
     /// Maps <see cref="System.Data.Common.DbCommand.ExecuteScalar"/> output to <see cref="DateTime?"/>.
+    /// Hangfire stores <c>State.CreatedAt</c> as UTC; ADO.NET typically returns
+    /// <see cref="DateTimeKind.Unspecified"/>, which is normalized to <see cref="DateTimeKind.Utc"/>
+    /// here. No local-time conversion is applied.
     /// </summary>
     public static DateTime? ReadScalar(object? value)
     {
@@ -48,6 +51,7 @@ internal static class LastFailedAtQuery
             return null;
         }
 
-        return Convert.ToDateTime(value);
+        var dateTime = Convert.ToDateTime(value);
+        return DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
     }
 }

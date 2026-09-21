@@ -113,7 +113,7 @@ Use these three conceptual statuses:
   | Application | Failed jobs | Last failure |
 
 - Status (`OK` / `FAILED` / `UNAVAILABLE`) must be distinguishable in the UI (exact presentation is left to implementation, provided the three outcomes remain clear).
-- When a last-failure timestamp exists, display it using a clear local date/time format such as:
+- When a last-failure timestamp exists, display it in the **host local time zone** (converted from Hangfire’s UTC storage instant), using a clear format such as:
 
   `14/09/2026 11:42:37`
 
@@ -166,10 +166,9 @@ Until that verification is complete, the concrete SQL column expression remains 
 
 ### 3.2.1 Timestamp handling
 
-- Preserve the timestamp returned by the monitoring/storage layer internally.
-- Do **not** perform business-level timezone conversions in the monitoring logic.
-- For the MVP UI, display the timestamp using a clear local date/time format such as `14/09/2026 11:42:37`.
-- Timezone handling can be enhanced later.
+- Hangfire SQL Server stores failure timestamps in UTC; Infrastructure preserves them as `DateTimeKind.Utc`.
+- Do **not** perform timezone conversions in monitoring/read logic (no fixed hour offsets).
+- For the MVP UI, convert UTC → host local time for display (same idea as the Hangfire Dashboard), e.g. `14/09/2026 11:42:37`.
 
 ### 3.3 Initial package versions
 
@@ -324,7 +323,7 @@ The MVP is acceptable when all of the following are true:
 The following MVP ambiguities are resolved:
 
 1. **Configuration shape** — `HangfireMonitor:Applications[]` with required `Name`, required `ConnectionString`, optional `Schema` (default `HangFire`).
-2. **Timestamp display** — preserve storage timestamp internally; no business-level timezone conversion in monitoring logic; MVP UI uses a clear local format such as `14/09/2026 11:42:37`.
+2. **Timestamp display** — Infrastructure preserves Hangfire’s UTC storage instant; MVP UI converts to host local time for display (DST-aware via `ToLocalTime()`), e.g. `14/09/2026 11:42:37`.
 3. **Status values** — `OK`, `FAILED`, `UNAVAILABLE` with the meanings defined above.
 4. **Zero failures display** — count shows `0`, last failure shows `-`.
 5. **Local secrets** — non-secrets may live in `appsettings.json`; connection strings/secrets use User Secrets or environment variables; never commit secrets; no production secret infrastructure in MVP.
