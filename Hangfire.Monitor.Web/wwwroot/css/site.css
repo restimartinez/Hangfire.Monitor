@@ -194,6 +194,47 @@ body {
   color: #555;
 }
 
+.storage-health-detail {
+  margin: 0 0 1.75rem;
+  max-width: 36rem;
+}
+
+.storage-health-detail h2 {
+  margin: 0 0 0.5rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid #ccc;
+  font-size: 1.1rem;
+}
+
+.storage-health-detail.status-row-no-servers {
+  background-color: #f0f0f0;
+  padding: 0.75rem 0.85rem;
+  border-radius: 0.25rem;
+}
+
+.metric-list {
+  margin: 0;
+}
+
+.metric-list > div {
+  display: grid;
+  grid-template-columns: minmax(10rem, 14rem) 1fr;
+  gap: 0.35rem 1rem;
+  padding: 0.25rem 0;
+}
+
+.metric-list dt {
+  margin: 0;
+  color: #555;
+  font-weight: 400;
+}
+
+.metric-list dd {
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
 @media (max-width: 575.98px) {
   .feature-card {
     padding: 1rem 1.1rem;
@@ -201,5 +242,9 @@ body {
 
   .page-header {
     margin-bottom: 1.1rem;
+  }
+
+  .metric-list > div {
+    grid-template-columns: 1fr auto;
   }
 }

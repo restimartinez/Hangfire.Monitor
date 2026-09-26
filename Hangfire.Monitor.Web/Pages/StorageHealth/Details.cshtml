@@ -1,0 +1,139 @@
+@page "/storage-health/{applicationName}"
+@model Hangfire.Monitor.Web.Pages.StorageHealth.DetailsModel
+@{
+    ViewData["Title"] = Model.Details is null
+        ? "Storage Health"
+        : $"Storage Health / {Model.Details.ApplicationName}";
+    var details = Model.Details!;
+}
+
+<section class="page-header">
+    <p class="page-breadcrumb">
+        <a asp-page="/Index">Home</a>
+        <span aria-hidden="true">/</span>
+        <a asp-page="./Index">Storage Health</a>
+        <span aria-hidden="true">/</span>
+        <span>@details.ApplicationName</span>
+    </p>
+    <h1>Storage Health / @details.ApplicationName</h1>
+    <p class="page-subtitle">Raw Hangfire SQL Server storage metrics for this configured application.</p>
+</section>
+
+@if (details.IsUnavailable)
+{
+    <p class="empty-message">Storage health metrics are unavailable for this application.</p>
+}
+else
+{
+    <section class="storage-health-detail @(StorageHealthDisplay.FormatRowCssClass(details.ServerCount))">
+        <h2>Servers</h2>
+        <dl class="metric-list">
+            <div>
+                <dt>Active servers</dt>
+                <dd>@details.ServerCount</dd>
+            </div>
+        </dl>
+    </section>
+
+    <section class="storage-health-detail">
+        <h2>Data Files</h2>
+        <dl class="metric-list">
+            <div>
+                <dt>Allocated</dt>
+                <dd>@StorageHealthDisplay.FormatMegabytes(details.DataFiles.AllocatedMB)</dd>
+            </div>
+            <div>
+                <dt>Used</dt>
+                <dd>@StorageHealthDisplay.FormatMegabytes(details.DataFiles.UsedMB)</dd>
+            </div>
+            <div>
+                <dt>Free</dt>
+                <dd>@StorageHealthDisplay.FormatMegabytes(details.DataFiles.FreeMB)</dd>
+            </div>
+            <div>
+                <dt>Used</dt>
+                <dd>@StorageHealthDisplay.FormatUsedPercent(details.DataFiles.UsedPercent)</dd>
+            </div>
+        </dl>
+    </section>
+
+    <section class="storage-health-detail">
+        <h2>Transaction Log</h2>
+        @if (details.Log is null)
+        {
+            <p class="empty-message">Transaction log metrics are unavailable.</p>
+        }
+        else
+        {
+            <dl class="metric-list">
+                <div>
+                    <dt>Total</dt>
+                    <dd>@StorageHealthDisplay.FormatMegabytes(details.Log.TotalLogMB)</dd>
+                </div>
+                <div>
+                    <dt>Used</dt>
+                    <dd>@StorageHealthDisplay.FormatMegabytes(details.Log.UsedLogMB)</dd>
+                </div>
+                <div>
+                    <dt>Free</dt>
+                    <dd>@StorageHealthDisplay.FormatMegabytes(details.Log.FreeLogMB)</dd>
+                </div>
+                <div>
+                    <dt>Used</dt>
+                    <dd>@StorageHealthDisplay.FormatUsedPercent(details.Log.UsedPercent)</dd>
+                </div>
+            </dl>
+        }
+    </section>
+
+    <section class="storage-health-detail">
+        <h2>Log Reuse</h2>
+        @if (details.LogReuse is null)
+        {
+            <p class="empty-message">Log reuse metrics are unavailable.</p>
+        }
+        else
+        {
+            <dl class="metric-list">
+                <div>
+                    <dt>Reuse wait</dt>
+                    <dd>@details.LogReuse.Wait</dd>
+                </div>
+                <div>
+                    <dt>Reuse wait description</dt>
+                    <dd>@details.LogReuse.WaitDescription</dd>
+                </div>
+                <div>
+                    <dt>Recovery model</dt>
+                    <dd>@details.LogReuse.RecoveryModel</dd>
+                </div>
+            </dl>
+        }
+    </section>
+
+    <section class="storage-health-detail">
+        <h2>Active Transactions</h2>
+        @if (details.ActiveTransactions is null)
+        {
+            <p class="empty-message">Active transaction metrics are unavailable.</p>
+        }
+        else
+        {
+            var tx = StorageHealthDisplay.FormatActiveTransactionDetails(details.ActiveTransactions);
+            <dl class="metric-list">
+                <div>
+                    <dt>Active transactions</dt>
+                    <dd>@tx.Count</dd>
+                </div>
+                <div>
+                    <dt>Oldest begin time</dt>
+                    <dd>@tx.OldestBeginTime</dd>
+                </div>
+                <div>
+                    <dt>Oldest duration</dt>
+                    <dd>@tx.OldestDuration</dd>
+                </div>
+            </dl>
+        }
+    </section>
+}

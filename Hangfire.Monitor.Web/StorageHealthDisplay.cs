@@ -4,7 +4,7 @@ using Hangfire.Monitor.Domain;
 namespace Hangfire.Monitor.Web;
 
 /// <summary>
-/// Formats Storage Health domain results for the Storage Health table.
+/// Formats Storage Health domain results for the Storage Health pages.
 /// Presentation only — does not evaluate health or acquire metrics.
 /// </summary>
 public static class StorageHealthDisplay
@@ -89,6 +89,75 @@ public static class StorageHealthDisplay
     }
 
     /// <summary>
+    /// Returns megabytes with grouping separators and an <c>MB</c> suffix.
+    /// </summary>
+    public static string FormatMegabytes(decimal megabytes) =>
+        megabytes.ToString("#,0.###", Invariant) + " MB";
+
+    /// <summary>
+    /// Returns used percent with one decimal place for the detail page, or <c>-</c> when null.
+    /// </summary>
+    public static string FormatUsedPercent(decimal? percent)
+    {
+        if (percent is null)
+        {
+            return "-";
+        }
+
+        return percent.Value.ToString("0.0", Invariant) + " %";
+    }
+
+    /// <summary>
+    /// Returns local-time display text for a UTC begin time, or <c>-</c> when null.
+    /// Uses the same <c>dd/MM/yyyy HH:mm:ss</c> convention as Failed Jobs.
+    /// </summary>
+    public static string FormatOldestBeginTime(DateTime? oldestBeginTimeUtc)
+    {
+        if (oldestBeginTimeUtc is null)
+        {
+            return "-";
+        }
+
+        return AsUtc(oldestBeginTimeUtc.Value)
+            .ToLocalTime()
+            .ToString("dd/MM/yyyy HH:mm:ss", Invariant);
+    }
+
+    /// <summary>
+    /// Returns a human-readable duration (<c>hh:mm:ss</c>), or <c>-</c> when null.
+    /// Zero seconds is a valid duration and formats as <c>00:00:00</c>.
+    /// The underlying seconds value remains on the domain model.
+    /// </summary>
+    public static string FormatOldestDuration(int? oldestDurationSeconds)
+    {
+        // Only null means unavailable — do not treat 0 as missing.
+        if (oldestDurationSeconds is null)
+        {
+            return "-";
+        }
+
+        var duration = TimeSpan.FromSeconds(oldestDurationSeconds.Value);
+        return string.Create(
+            Invariant,
+            $"{(int)duration.TotalHours:D2}:{duration.Minutes:D2}:{duration.Seconds:D2}");
+    }
+
+    /// <summary>
+    /// Formats Active Transactions detail fields for the Storage Health detail page.
+    /// Oldest begin/duration are based solely on nullability — not on <see cref="ActiveTransactionMetrics.Count"/>.
+    /// </summary>
+    public static (string Count, string OldestBeginTime, string OldestDuration) FormatActiveTransactionDetails(
+        ActiveTransactionMetrics transactions)
+    {
+        ArgumentNullException.ThrowIfNull(transactions);
+
+        return (
+            transactions.Count.ToString(Invariant),
+            FormatOldestBeginTime(transactions.OldestBeginTimeUtc),
+            FormatOldestDuration(transactions.OldestDurationSeconds));
+    }
+
+    /// <summary>
     /// Returns the display text for <paramref name="status"/>.
     /// </summary>
     public static string FormatStatus(StorageHealthStatus status) =>
@@ -123,4 +192,9 @@ public static class StorageHealthDisplay
 
     private static string FormatPercent(decimal percent) =>
         percent.ToString("0.00", Invariant) + "%";
+
+    private static DateTime AsUtc(DateTime value) =>
+        value.Kind == DateTimeKind.Utc
+            ? value
+            : DateTime.SpecifyKind(value, DateTimeKind.Utc);
 }

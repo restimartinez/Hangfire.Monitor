@@ -112,8 +112,14 @@ public class ConfiguredApplicationsStorageHealthMonitor
         return results;
     }
 
-    private ApplicationStorageHealthResult MonitorOne(HangfireApplicationOptions application)
+    /// <summary>
+    /// Evaluates storage health for a single configured application using the same
+    /// metric readers and error isolation as <see cref="MonitorAll"/>.
+    /// </summary>
+    public ApplicationStorageHealthResult MonitorOne(HangfireApplicationOptions application)
     {
+        ArgumentNullException.ThrowIfNull(application);
+
         SqlServerStorage storage;
         try
         {

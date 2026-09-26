@@ -189,4 +189,113 @@ public class StorageHealthDisplayTests
         Assert.Equal("ACTIVE_TRANSACTION", StorageHealthDisplay.FormatLogReuse(reuse));
         Assert.Equal("5 (oldest: 3600s)", StorageHealthDisplay.FormatTransactions(transactions));
     }
+
+    [Fact]
+    public void FormatMegabytes_FormatsGroupedMbValues()
+    {
+        Assert.Equal("12,450 MB", StorageHealthDisplay.FormatMegabytes(12450m));
+        Assert.Equal("320.5 MB", StorageHealthDisplay.FormatMegabytes(320.5m));
+    }
+
+    [Fact]
+    public void FormatUsedPercent_WhenPresent_ReturnsOneDecimalPercent()
+    {
+        Assert.Equal("58.8 %", StorageHealthDisplay.FormatUsedPercent(58.8m));
+        Assert.Equal("15.6 %", StorageHealthDisplay.FormatUsedPercent(15.6m));
+    }
+
+    [Fact]
+    public void FormatUsedPercent_WhenNull_ReturnsDash()
+    {
+        Assert.Equal("-", StorageHealthDisplay.FormatUsedPercent(null));
+    }
+
+    [Fact]
+    public void FormatOldestDuration_WhenPresent_ReturnsHhMmSs()
+    {
+        Assert.Equal("00:31:42", StorageHealthDisplay.FormatOldestDuration(1902));
+        Assert.Equal("01:00:00", StorageHealthDisplay.FormatOldestDuration(3600));
+    }
+
+    [Fact]
+    public void FormatOldestDuration_WhenZero_ReturnsZeroTime_NotDash()
+    {
+        Assert.Equal("00:00:00", StorageHealthDisplay.FormatOldestDuration(0));
+    }
+
+    [Fact]
+    public void FormatOldestDuration_WhenNull_ReturnsDash()
+    {
+        Assert.Equal("-", StorageHealthDisplay.FormatOldestDuration(null));
+    }
+
+    [Fact]
+    public void FormatOldestBeginTime_WhenNull_ReturnsDash()
+    {
+        Assert.Equal("-", StorageHealthDisplay.FormatOldestBeginTime(null));
+    }
+
+    [Fact]
+    public void FormatOldestBeginTime_WhenPresent_UsesLocalDdMmYyyyHhMmSs()
+    {
+        var utc = new DateTime(2026, 9, 26, 9, 42, 17, DateTimeKind.Utc);
+        var expected = utc.ToLocalTime().ToString(
+            "dd/MM/yyyy HH:mm:ss",
+            System.Globalization.CultureInfo.InvariantCulture);
+
+        Assert.Equal(expected, StorageHealthDisplay.FormatOldestBeginTime(utc));
+    }
+
+    [Fact]
+    public void FormatActiveTransactionDetails_WhenCountIsZero_ReturnsZeroAndDashes()
+    {
+        var transactions = new ActiveTransactionMetrics(0, null, null);
+
+        var display = StorageHealthDisplay.FormatActiveTransactionDetails(transactions);
+
+        Assert.Equal("0", display.Count);
+        Assert.Equal("-", display.OldestBeginTime);
+        Assert.Equal("-", display.OldestDuration);
+    }
+
+    [Fact]
+    public void FormatActiveTransactionDetails_WhenCountIsOne_AndDurationZero_DisplaysAllValues()
+    {
+        var begin = new DateTime(2026, 9, 26, 12, 38, 17, DateTimeKind.Utc);
+        var transactions = new ActiveTransactionMetrics(1, begin, 0);
+
+        var display = StorageHealthDisplay.FormatActiveTransactionDetails(transactions);
+
+        Assert.Equal("1", display.Count);
+        Assert.Equal(StorageHealthDisplay.FormatOldestBeginTime(begin), display.OldestBeginTime);
+        Assert.Equal("00:00:00", display.OldestDuration);
+        Assert.NotEqual("-", display.OldestBeginTime);
+    }
+
+    [Fact]
+    public void FormatActiveTransactionDetails_WhenCountGreaterThanOne_DisplaysAllValues()
+    {
+        var begin = new DateTime(2026, 9, 26, 10, 0, 0, DateTimeKind.Utc);
+        var transactions = new ActiveTransactionMetrics(3, begin, 1902);
+
+        var display = StorageHealthDisplay.FormatActiveTransactionDetails(transactions);
+
+        Assert.Equal("3", display.Count);
+        Assert.Equal(StorageHealthDisplay.FormatOldestBeginTime(begin), display.OldestBeginTime);
+        Assert.Equal("00:31:42", display.OldestDuration);
+    }
+
+    [Fact]
+    public void FormatActiveTransactionDetails_WhenOldestFieldsNull_ReturnsDashes_RegardlessOfCount()
+    {
+        // Defensive: formatters must not require Count > 1 to show oldest fields;
+        // null oldest values always render as '-'.
+        var transactions = new ActiveTransactionMetrics(2, null, null);
+
+        var display = StorageHealthDisplay.FormatActiveTransactionDetails(transactions);
+
+        Assert.Equal("2", display.Count);
+        Assert.Equal("-", display.OldestBeginTime);
+        Assert.Equal("-", display.OldestDuration);
+    }
 }

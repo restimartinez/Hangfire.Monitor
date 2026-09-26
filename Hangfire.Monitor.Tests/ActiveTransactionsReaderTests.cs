@@ -27,6 +27,30 @@ public class ActiveTransactionsReaderTests
     }
 
     [Fact]
+    public void MapRow_WhenCountIsOne_AndDurationIsZero_PreservesOldestFields()
+    {
+        var begin = new DateTime(2026, 9, 26, 12, 38, 17, 223, DateTimeKind.Unspecified);
+
+        var result = ActiveTransactionsQuery.MapRow(1, begin, 0);
+
+        Assert.Equal(1, result.Count);
+        Assert.Equal(new DateTime(2026, 9, 26, 12, 38, 17, 223, DateTimeKind.Utc), result.OldestBeginTimeUtc);
+        Assert.Equal(0, result.OldestDurationSeconds);
+    }
+
+    [Fact]
+    public void MapRow_WhenCountIsGreaterThanOne_PreservesOldestFields()
+    {
+        var begin = new DateTime(2026, 9, 26, 8, 0, 0, DateTimeKind.Unspecified);
+
+        var result = ActiveTransactionsQuery.MapRow(3, begin, 1902);
+
+        Assert.Equal(3, result.Count);
+        Assert.Equal(1902, result.OldestDurationSeconds);
+        Assert.NotNull(result.OldestBeginTimeUtc);
+    }
+
+    [Fact]
     public void MapRow_ReturnsCount_AndOldestTransaction()
     {
         var begin = new DateTime(2026, 9, 26, 8, 0, 0, DateTimeKind.Unspecified);

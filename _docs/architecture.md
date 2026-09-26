@@ -26,15 +26,22 @@ Hangfire.Monitor.Tests          → Hangfire.Monitor.Domain
 
 ```text
 Pages/
-├── Index.cshtml              → /              (Home)
-└── Jobs/
-    └── Failed.cshtml         → /jobs/failed   (Failed Jobs monitoring)
+├── Index.cshtml                    → /                              (Home)
+├── Jobs/
+│   └── Failed.cshtml               → /jobs/failed                   (Failed Jobs monitoring)
+└── StorageHealth/
+    ├── Index.cshtml                → /storage-health                (Storage Health table)
+    └── Details.cshtml              → /storage-health/{applicationName}
 ```
 
 | Route | Page | Role |
 | --- | --- | --- |
 | `/` | `Pages/Index` | Application landing page |
 | `/jobs/failed` | `Pages/Jobs/Failed` | Failed Jobs status table |
+| `/storage-health` | `Pages/StorageHealth/Index` | Storage Health status table |
+| `/storage-health/{applicationName}` | `Pages/StorageHealth/Details` | Raw Storage Health metrics for one configured application |
+
+The detail route identifies an application only by the configured `HangfireApplicationOptions.Name`. Unknown names return Not Found; the route never accepts a connection string.
 
 ---
 

@@ -49,7 +49,8 @@ internal static class ActiveTransactionsQuery
     /// <summary>
     /// Maps column values to <see cref="ActiveTransactionMetrics"/>.
     /// When <c>Count</c> is 0, oldest begin/duration must be null.
-    /// When <c>Count</c> is greater than 0, oldest begin/duration are required.
+    /// When <c>Count</c> is greater than or equal to 1 (including exactly 1), oldest begin/duration are required.
+    /// A duration of <c>0</c> seconds is valid and must be preserved.
     /// </summary>
     public static ActiveTransactionMetrics MapRow(
         object? count,
@@ -77,6 +78,7 @@ internal static class ActiveTransactionsQuery
                 OldestDurationSeconds: null);
         }
 
+        // Count >= 1: preserve oldest begin/duration, including duration 0.
         return new ActiveTransactionMetrics(
             transactionCount,
             RequireUtcDateTime(oldestBeginTime, nameof(ActiveTransactionMetrics.OldestBeginTimeUtc)),

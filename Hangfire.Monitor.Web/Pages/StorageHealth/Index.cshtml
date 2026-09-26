@@ -42,7 +42,9 @@ else
                 var logSortValue = result.LogSpace?.UsedPercent.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
                 var transactionsSortValue = result.ActiveTransactions?.Count.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
                 <tr class="@StorageHealthDisplay.FormatRowCssClass(result.ServerCount)">
-                    <td>@result.ApplicationName</td>
+                    <td>
+                        <a asp-page="./Details" asp-route-applicationName="@result.ApplicationName">@result.ApplicationName</a>
+                    </td>
                     <td data-sort-value="@StorageHealthDisplay.FormatStatusSortValue(result.Status)">
                         <span class="@statusClass">@StorageHealthDisplay.FormatStatus(result.Status)</span>
                     </td>
