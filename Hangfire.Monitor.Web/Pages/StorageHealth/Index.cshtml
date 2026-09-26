@@ -1,0 +1,79 @@
+@page "/storage-health"
+@model Hangfire.Monitor.Web.Pages.StorageHealth.IndexModel
+@{
+    ViewData["Title"] = "Storage Health";
+}
+
+<section class="page-header">
+    <p class="page-breadcrumb">
+        <a asp-page="/Index">Home</a>
+        <span aria-hidden="true">/</span>
+        <span>Storage Health</span>
+    </p>
+    <h1>Storage Health</h1>
+    <p class="page-subtitle">Monitor Hangfire SQL Server storage health across configured applications.</p>
+</section>
+
+@if (Model.Results.Count == 0)
+{
+    <p class="empty-message">No applications configured.</p>
+}
+else
+{
+    <div class="table-panel">
+        <table class="status-table">
+            <thead>
+                <tr>
+                    <th data-sort-type="text" aria-sort="none">Application</th>
+                    <th data-sort-type="number" aria-sort="none" data-default-sort="desc">Status</th>
+                    <th data-sort-type="number" aria-sort="none">Schema</th>
+                    <th data-sort-type="number" aria-sort="none">Data Files</th>
+                    <th data-sort-type="number" aria-sort="none">Log</th>
+                    <th data-sort-type="text" aria-sort="none">Log Reuse</th>
+                    <th data-sort-type="number" aria-sort="none">Transactions</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var result in Model.Results)
+            {
+                var statusClass = $"status-badge status-{result.Status.ToString().ToLowerInvariant()}";
+                var schemaSortValue = result.Schema.ActualVersion?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
+                var dataFilesSortValue = result.DataFiles.UsedPercent?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
+                var logSortValue = result.LogSpace?.UsedPercent.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
+                var transactionsSortValue = result.ActiveTransactions?.Count.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
+                <tr>
+                    <td>@result.ApplicationName</td>
+                    <td data-sort-value="@StorageHealthDisplay.FormatStatusSortValue(result.Status)">
+                        <span class="@statusClass">@StorageHealthDisplay.FormatStatus(result.Status)</span>
+                    </td>
+                    <td data-sort-value="@schemaSortValue">@StorageHealthDisplay.FormatSchema(result.Schema)</td>
+                    <td data-sort-value="@dataFilesSortValue">@StorageHealthDisplay.FormatDataFileSpace(result.DataFiles)</td>
+                    <td data-sort-value="@logSortValue">@StorageHealthDisplay.FormatLogSpace(result.LogSpace)</td>
+                    <td>@StorageHealthDisplay.FormatLogReuse(result.LogReuseWait)</td>
+                    <td data-sort-value="@transactionsSortValue">@StorageHealthDisplay.FormatTransactions(result.ActiveTransactions)</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}
+
+@section Scripts {
+    <script src="~/js/status-table-sort.js" asp-append-version="true"></script>
+    <script>
+        (function () {
+            var table = document.querySelector(".status-table");
+            if (!table) {
+                return;
+            }
+
+            var header = table.querySelector('th[data-default-sort="desc"]');
+            if (!header) {
+                return;
+            }
+
+            header.click();
+            header.click();
+        })();
+    </script>
+}

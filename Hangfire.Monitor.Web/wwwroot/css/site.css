@@ -169,6 +169,16 @@ body {
   background-color: #e6f5ea;
 }
 
+.status-warning {
+  color: #9a5b00;
+  background-color: #fff1e0;
+}
+
+.status-critical {
+  color: #9b1c1c;
+  background-color: #fde4e4;
+}
+
 .status-failed {
   color: #b00020;
   background-color: #fde8ec;
