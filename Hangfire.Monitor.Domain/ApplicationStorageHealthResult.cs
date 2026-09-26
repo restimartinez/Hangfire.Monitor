@@ -11,4 +11,5 @@ public sealed record ApplicationStorageHealthResult(
     DataFileSpaceHealthResult DataFiles,
     LogSpaceMetrics? LogSpace,
     LogReuseWaitMetrics? LogReuseWait,
-    ActiveTransactionMetrics? ActiveTransactions);
+    ActiveTransactionMetrics? ActiveTransactions,
+    long ServerCount);

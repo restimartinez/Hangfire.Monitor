@@ -17,7 +17,8 @@ public class ApplicationStorageHealthRulesTests
             DataOk(),
             logSpace: null,
             logReuseWait: null,
-            activeTransactions: null);
+            activeTransactions: null,
+            serverCount: 1);
 
         Assert.Equal(StorageHealthStatus.OK, result.Status);
     }
@@ -31,7 +32,8 @@ public class ApplicationStorageHealthRulesTests
             DataOk(),
             logSpace: null,
             logReuseWait: null,
-            activeTransactions: null);
+            activeTransactions: null,
+            serverCount: 1);
 
         Assert.Equal(StorageHealthStatus.WARNING, result.Status);
     }
@@ -45,7 +47,8 @@ public class ApplicationStorageHealthRulesTests
             DataCritical(),
             logSpace: null,
             logReuseWait: null,
-            activeTransactions: null);
+            activeTransactions: null,
+            serverCount: 1);
 
         Assert.Equal(StorageHealthStatus.CRITICAL, result.Status);
     }
@@ -59,7 +62,8 @@ public class ApplicationStorageHealthRulesTests
             DataCritical(),
             logSpace: null,
             logReuseWait: null,
-            activeTransactions: null);
+            activeTransactions: null,
+            serverCount: 1);
 
         Assert.Equal(StorageHealthStatus.CRITICAL, result.Status);
     }
@@ -73,7 +77,8 @@ public class ApplicationStorageHealthRulesTests
             DataOk(),
             logSpace: null,
             logReuseWait: null,
-            activeTransactions: null);
+            activeTransactions: null,
+            serverCount: 1);
 
         Assert.Equal(StorageHealthStatus.OK, result.Status);
     }
@@ -87,7 +92,8 @@ public class ApplicationStorageHealthRulesTests
             DataUnavailable(),
             logSpace: null,
             logReuseWait: null,
-            activeTransactions: null);
+            activeTransactions: null,
+            serverCount: 1);
 
         Assert.Equal(StorageHealthStatus.OK, result.Status);
     }
@@ -101,7 +107,8 @@ public class ApplicationStorageHealthRulesTests
             DataWarning(),
             logSpace: null,
             logReuseWait: null,
-            activeTransactions: null);
+            activeTransactions: null,
+            serverCount: 1);
 
         Assert.Equal(StorageHealthStatus.WARNING, result.Status);
     }
@@ -115,7 +122,8 @@ public class ApplicationStorageHealthRulesTests
             DataCritical(),
             logSpace: null,
             logReuseWait: null,
-            activeTransactions: null);
+            activeTransactions: null,
+            serverCount: 1);
 
         Assert.Equal(StorageHealthStatus.CRITICAL, result.Status);
     }
@@ -129,7 +137,8 @@ public class ApplicationStorageHealthRulesTests
             DataUnavailable(),
             logSpace: null,
             logReuseWait: null,
-            activeTransactions: null);
+            activeTransactions: null,
+            serverCount: 1);
 
         Assert.Equal(StorageHealthStatus.UNAVAILABLE, result.Status);
     }
@@ -149,7 +158,8 @@ public class ApplicationStorageHealthRulesTests
             dataFiles,
             logSpace,
             logReuseWait,
-            activeTransactions);
+            activeTransactions,
+            serverCount: 2);
 
         Assert.Equal("Payments.Worker", result.ApplicationName);
         Assert.Same(schema, result.Schema);
@@ -157,6 +167,7 @@ public class ApplicationStorageHealthRulesTests
         Assert.Same(logSpace, result.LogSpace);
         Assert.Same(logReuseWait, result.LogReuseWait);
         Assert.Same(activeTransactions, result.ActiveTransactions);
+        Assert.Equal(2, result.ServerCount);
         Assert.Equal(StorageHealthStatus.WARNING, result.Status);
     }
 
@@ -176,9 +187,89 @@ public class ApplicationStorageHealthRulesTests
             DataOk(),
             logSpace,
             logReuseWait,
-            activeTransactions);
+            activeTransactions,
+            serverCount: 0);
 
         Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Same(logSpace, result.LogSpace);
+        Assert.Same(logReuseWait, result.LogReuseWait);
+        Assert.Same(activeTransactions, result.ActiveTransactions);
+        Assert.Equal(0, result.ServerCount);
+    }
+
+    [Fact]
+    public void FromMetrics_ServerCountZero_DoesNotChangeStatus_WhenOk()
+    {
+        var result = _rules.FromMetrics(
+            "App1",
+            SchemaOk(),
+            DataOk(),
+            logSpace: null,
+            logReuseWait: null,
+            activeTransactions: null,
+            serverCount: 0);
+
+        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(0, result.ServerCount);
+    }
+
+    [Fact]
+    public void FromMetrics_ServerCountZero_DoesNotChangeStatus_WhenCritical()
+    {
+        var result = _rules.FromMetrics(
+            "App1",
+            SchemaOk(),
+            DataCritical(),
+            logSpace: null,
+            logReuseWait: null,
+            activeTransactions: null,
+            serverCount: 0);
+
+        Assert.Equal(StorageHealthStatus.CRITICAL, result.Status);
+        Assert.Equal(0, result.ServerCount);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(4)]
+    public void FromMetrics_PropagatesServerCount(long serverCount)
+    {
+        var result = _rules.FromMetrics(
+            "App1",
+            SchemaOk(),
+            DataOk(),
+            logSpace: null,
+            logReuseWait: null,
+            activeTransactions: null,
+            serverCount);
+
+        Assert.Equal(serverCount, result.ServerCount);
+        Assert.Equal(StorageHealthStatus.OK, result.Status);
+    }
+
+    [Fact]
+    public void FromMetrics_ServerCountZero_PreservesMetricPayloads()
+    {
+        var schema = SchemaOk();
+        var dataFiles = DataOk();
+        var logSpace = new LogSpaceMetrics(100m, 40m, 60m, 40m);
+        var logReuseWait = new LogReuseWaitMetrics(0, "NOTHING", "FULL");
+        var activeTransactions = new ActiveTransactionMetrics(0, null, null);
+
+        var result = _rules.FromMetrics(
+            "App1",
+            schema,
+            dataFiles,
+            logSpace,
+            logReuseWait,
+            activeTransactions,
+            serverCount: 0);
+
+        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(0, result.ServerCount);
+        Assert.Same(schema, result.Schema);
+        Assert.Same(dataFiles, result.DataFiles);
         Assert.Same(logSpace, result.LogSpace);
         Assert.Same(logReuseWait, result.LogReuseWait);
         Assert.Same(activeTransactions, result.ActiveTransactions);
@@ -199,6 +290,7 @@ public class ApplicationStorageHealthRulesTests
         Assert.Null(result.LogSpace);
         Assert.Null(result.LogReuseWait);
         Assert.Null(result.ActiveTransactions);
+        Assert.Equal(0, result.ServerCount);
     }
 
     [Fact]
@@ -210,7 +302,8 @@ public class ApplicationStorageHealthRulesTests
             DataOk(),
             logSpace: null,
             logReuseWait: null,
-            activeTransactions: null));
+            activeTransactions: null,
+            serverCount: 1));
     }
 
     [Fact]
@@ -222,7 +315,8 @@ public class ApplicationStorageHealthRulesTests
             dataFiles: null!,
             logSpace: null,
             logReuseWait: null,
-            activeTransactions: null));
+            activeTransactions: null,
+            serverCount: 1));
     }
 
     [Fact]
@@ -234,7 +328,21 @@ public class ApplicationStorageHealthRulesTests
             DataOk(),
             logSpace: null,
             logReuseWait: null,
-            activeTransactions: null));
+            activeTransactions: null,
+            serverCount: 1));
+    }
+
+    [Fact]
+    public void FromMetrics_WhenServerCountIsNegative_ThrowsArgumentOutOfRangeException()
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(() => _rules.FromMetrics(
+            "App1",
+            SchemaOk(),
+            DataOk(),
+            logSpace: null,
+            logReuseWait: null,
+            activeTransactions: null,
+            serverCount: -1));
     }
 
     [Fact]

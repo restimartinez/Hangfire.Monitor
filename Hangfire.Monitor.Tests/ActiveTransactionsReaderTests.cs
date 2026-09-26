@@ -17,7 +17,8 @@ public class ActiveTransactionsReaderTests
         Assert.Contains("sys.dm_tran_database_transactions", sql, StringComparison.Ordinal);
         Assert.Contains("database_id = DB_ID()", sql, StringComparison.Ordinal);
         Assert.Contains("transaction_state = 2", sql, StringComparison.Ordinal);
-        Assert.Contains("SYSUTCDATETIME()", sql, StringComparison.Ordinal);
+        Assert.Contains("SYSDATETIME()", sql, StringComparison.Ordinal);
+        Assert.DoesNotContain("SYSUTCDATETIME()", sql, StringComparison.Ordinal);
         Assert.Contains("AS ActiveTransactionCount", sql, StringComparison.Ordinal);
         Assert.Contains("AS OldestBeginTime", sql, StringComparison.Ordinal);
         Assert.Contains("AS OldestDurationSeconds", sql, StringComparison.Ordinal);

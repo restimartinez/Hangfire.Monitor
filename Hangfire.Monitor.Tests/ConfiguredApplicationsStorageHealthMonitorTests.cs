@@ -41,6 +41,7 @@ public class ConfiguredApplicationsStorageHealthMonitorTests
         Assert.Equal(logMetrics, result.LogSpace);
         Assert.Equal(reuseMetrics, result.LogReuseWait);
         Assert.Equal(txMetrics, result.ActiveTransactions);
+        Assert.Equal(1, result.ServerCount);
     }
 
     [Fact]
@@ -325,6 +326,7 @@ public class ConfiguredApplicationsStorageHealthMonitorTests
         Assert.Null(result.LogSpace);
         Assert.Null(result.LogReuseWait);
         Assert.Null(result.ActiveTransactions);
+        Assert.Equal(0, result.ServerCount);
     }
 
     [Fact]
@@ -355,6 +357,72 @@ public class ConfiguredApplicationsStorageHealthMonitorTests
         Assert.Equal("App B", results[1].ApplicationName);
         Assert.Equal(StorageHealthStatus.OK, results[2].Status);
         Assert.Equal("App C", results[2].ApplicationName);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(3)]
+    public void MonitorAll_PropagatesServerCount(long serverCount)
+    {
+        var monitor = CreateMonitor(
+            _ => CreateStorage(),
+            _ => 9,
+            _ => new DataFileSpaceMetrics(100m, 50m, 50m),
+            _ => new LogSpaceMetrics(1m, 0m, 1m, 0m),
+            _ => new LogReuseWaitMetrics(0, "NOTHING", "FULL"),
+            _ => new ActiveTransactionMetrics(0, null, null),
+            _ => serverCount);
+
+        var result = Assert.Single(monitor.MonitorAll([App("App1")]));
+
+        Assert.Equal(serverCount, result.ServerCount);
+        Assert.Equal(StorageHealthStatus.OK, result.Status);
+    }
+
+    [Fact]
+    public void MonitorAll_ServerCountZero_DoesNotOverrideStatus()
+    {
+        var logMetrics = new LogSpaceMetrics(200m, 80m, 120m, 40m);
+        var reuseMetrics = new LogReuseWaitMetrics(0, "NOTHING", "FULL");
+        var txMetrics = new ActiveTransactionMetrics(0, null, null);
+
+        var monitor = CreateMonitor(
+            _ => CreateStorage(),
+            _ => 9,
+            _ => new DataFileSpaceMetrics(100m, 50m, 50m),
+            _ => logMetrics,
+            _ => reuseMetrics,
+            _ => txMetrics,
+            _ => 0);
+
+        var result = Assert.Single(monitor.MonitorAll([App("App1")]));
+
+        Assert.Equal(0, result.ServerCount);
+        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(logMetrics, result.LogSpace);
+        Assert.Equal(reuseMetrics, result.LogReuseWait);
+        Assert.Equal(txMetrics, result.ActiveTransactions);
+    }
+
+    [Fact]
+    public void MonitorAll_ServerCountDbException_ReturnsZeroWithoutChangingStatus()
+    {
+        var monitor = CreateMonitor(
+            _ => CreateStorage(),
+            _ => 9,
+            _ => new DataFileSpaceMetrics(100m, 50m, 50m),
+            _ => new LogSpaceMetrics(1m, 0m, 1m, 0m),
+            _ => new LogReuseWaitMetrics(0, "NOTHING", "FULL"),
+            _ => new ActiveTransactionMetrics(0, null, null),
+            _ => throw new StubDbException("servers unavailable"));
+
+        var result = Assert.Single(monitor.MonitorAll([App("App1")]));
+
+        Assert.Equal(0, result.ServerCount);
+        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(9, result.Schema.ActualVersion);
+        Assert.Equal(50.00m, result.DataFiles.UsedPercent);
     }
 
     [Fact]
@@ -417,7 +485,8 @@ public class ConfiguredApplicationsStorageHealthMonitorTests
             _ => new DataFileSpaceMetrics(100m, 50m, 50m),
             _ => new LogSpaceMetrics(1m, 0m, 1m, 0m),
             _ => new LogReuseWaitMetrics(0, "NOTHING", "FULL"),
-            _ => new ActiveTransactionMetrics(0, null, null));
+            _ => new ActiveTransactionMetrics(0, null, null),
+            _ => 1);
 
     private ConfiguredApplicationsStorageHealthMonitor CreateMonitor(
         Func<HangfireApplicationOptions, SqlServerStorage> createStorage,
@@ -425,7 +494,8 @@ public class ConfiguredApplicationsStorageHealthMonitorTests
         Func<SqlServerStorage, DataFileSpaceMetrics> getDataFileSpace,
         Func<SqlServerStorage, LogSpaceMetrics> getLogSpace,
         Func<SqlServerStorage, LogReuseWaitMetrics> getLogReuseWait,
-        Func<SqlServerStorage, ActiveTransactionMetrics> getActiveTransactions) =>
+        Func<SqlServerStorage, ActiveTransactionMetrics> getActiveTransactions,
+        Func<SqlServerStorage, long>? getServerCount = null) =>
         new(
             createStorage,
             getSchemaVersion,
@@ -433,6 +503,7 @@ public class ConfiguredApplicationsStorageHealthMonitorTests
             getLogSpace,
             getLogReuseWait,
             getActiveTransactions,
+            getServerCount ?? (_ => 1),
             _schemaRules,
             _dataFileRules,
             _appRules);

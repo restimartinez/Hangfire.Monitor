@@ -22,6 +22,7 @@ public sealed class ApplicationStorageHealthRules
     /// <item>Else any <see cref="StorageHealthStatus.WARNING"/> → WARNING</item>
     /// <item>Else all known are OK → OK</item>
     /// <item>Both UNAVAILABLE → UNAVAILABLE</item>
+    /// <item><c>ServerCount</c> is propagated and does not affect status</item>
     /// </list>
     /// </remarks>
     public ApplicationStorageHealthResult FromMetrics(
@@ -30,11 +31,20 @@ public sealed class ApplicationStorageHealthRules
         DataFileSpaceHealthResult dataFiles,
         LogSpaceMetrics? logSpace,
         LogReuseWaitMetrics? logReuseWait,
-        ActiveTransactionMetrics? activeTransactions)
+        ActiveTransactionMetrics? activeTransactions,
+        long serverCount)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(applicationName);
         ArgumentNullException.ThrowIfNull(schema);
         ArgumentNullException.ThrowIfNull(dataFiles);
+
+        if (serverCount < 0)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(serverCount),
+                serverCount,
+                "Server count cannot be negative.");
+        }
 
         var status = AggregateStatus(schema.Status, dataFiles.Status);
 
@@ -45,7 +55,8 @@ public sealed class ApplicationStorageHealthRules
             dataFiles,
             logSpace,
             logReuseWait,
-            activeTransactions);
+            activeTransactions,
+            serverCount);
     }
 
     /// <summary>
@@ -63,7 +74,8 @@ public sealed class ApplicationStorageHealthRules
             _dataFileRules.Unavailable(),
             LogSpace: null,
             LogReuseWait: null,
-            ActiveTransactions: null);
+            ActiveTransactions: null,
+            ServerCount: 0);
     }
 
     private static StorageHealthStatus AggregateStatus(

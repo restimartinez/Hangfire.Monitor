@@ -20,7 +20,7 @@ internal static class ActiveTransactionsQuery
             SELECT
                 COUNT(*) AS ActiveTransactionCount,
                 MIN(at.transaction_begin_time) AS OldestBeginTime,
-                MAX(DATEDIFF(SECOND, at.transaction_begin_time, SYSUTCDATETIME())) AS OldestDurationSeconds
+                MAX(DATEDIFF(SECOND, at.transaction_begin_time, SYSDATETIME())) AS OldestDurationSeconds
             FROM sys.dm_tran_active_transactions AS at
             INNER JOIN sys.dm_tran_database_transactions AS dt
                 ON dt.transaction_id = at.transaction_id

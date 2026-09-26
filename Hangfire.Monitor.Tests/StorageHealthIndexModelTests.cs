@@ -49,12 +49,57 @@ public class StorageHealthIndexModelTests
         Assert.Equal(logSpace, model.Results[0].LogSpace);
         Assert.Equal(logReuse, model.Results[0].LogReuseWait);
         Assert.Equal(transactions, model.Results[0].ActiveTransactions);
+        Assert.Equal(1, model.Results[0].ServerCount);
 
         Assert.Equal("App B", model.Results[1].ApplicationName);
         Assert.Equal(StorageHealthStatus.CRITICAL, model.Results[1].Status);
         Assert.Equal(8, model.Results[1].Schema.ActualVersion);
         Assert.Equal(StorageHealthStatus.WARNING, model.Results[1].Schema.Status);
         Assert.Equal(StorageHealthStatus.CRITICAL, model.Results[1].DataFiles.Status);
+    }
+
+    [Fact]
+    public void OnGet_ExposesServerCount_OnResults()
+    {
+        var applications = new List<HangfireApplicationOptions>
+        {
+            App("App A"),
+            App("App B"),
+            App("App C")
+        };
+        var options = Options.Create(new HangfireMonitorOptions { Applications = applications });
+
+        HangfireApplicationOptions? current = null;
+        var monitor = new ConfiguredApplicationsStorageHealthMonitor(
+            app =>
+            {
+                current = app;
+                return CreateStorage();
+            },
+            _ => 9,
+            _ => new DataFileSpaceMetrics(100m, 50m, 50m),
+            _ => new LogSpaceMetrics(1m, 0m, 1m, 0m),
+            _ => new LogReuseWaitMetrics(0, "NOTHING", "FULL"),
+            _ => new ActiveTransactionMetrics(0, null, null),
+            _ => current!.Name switch
+            {
+                "App A" => 0,
+                "App B" => 1,
+                "App C" => 4,
+                _ => throw new InvalidOperationException("unexpected app")
+            },
+            _schemaRules,
+            _dataFileRules,
+            _appRules);
+
+        var model = new IndexModel(monitor, options);
+
+        model.OnGet();
+
+        Assert.Equal(0, model.Results[0].ServerCount);
+        Assert.Equal(StorageHealthStatus.OK, model.Results[0].Status);
+        Assert.Equal(1, model.Results[1].ServerCount);
+        Assert.Equal(4, model.Results[2].ServerCount);
     }
 
     [Fact]
@@ -174,7 +219,8 @@ public class StorageHealthIndexModelTests
             _ => new DataFileSpaceMetrics(100m, 50m, 50m),
             _ => new LogSpaceMetrics(1m, 0m, 1m, 0m),
             _ => new LogReuseWaitMetrics(0, "NOTHING", "FULL"),
-            _ => new ActiveTransactionMetrics(0, null, null));
+            _ => new ActiveTransactionMetrics(0, null, null),
+            _ => 1);
 
     private ConfiguredApplicationsStorageHealthMonitor CreateMonitor(
         Func<HangfireApplicationOptions, SqlServerStorage> createStorage,
@@ -182,7 +228,8 @@ public class StorageHealthIndexModelTests
         Func<HangfireApplicationOptions, DataFileSpaceMetrics> getDataFileSpaceForApp,
         Func<SqlServerStorage, LogSpaceMetrics> getLogSpace,
         Func<SqlServerStorage, LogReuseWaitMetrics> getLogReuseWait,
-        Func<SqlServerStorage, ActiveTransactionMetrics> getActiveTransactions)
+        Func<SqlServerStorage, ActiveTransactionMetrics> getActiveTransactions,
+        Func<SqlServerStorage, long>? getServerCount = null)
     {
         // Bind per-app metric stubs through createStorage callback side channel:
         // createStorage receives the app; metric funcs only receive storage.
@@ -200,6 +247,7 @@ public class StorageHealthIndexModelTests
             getLogSpace,
             getLogReuseWait,
             getActiveTransactions,
+            getServerCount ?? (_ => 1),
             _schemaRules,
             _dataFileRules,
             _appRules);

@@ -17,6 +17,7 @@ public class ConfiguredApplicationsStorageHealthMonitor
     private readonly Func<SqlServerStorage, LogSpaceMetrics> _getLogSpace;
     private readonly Func<SqlServerStorage, LogReuseWaitMetrics> _getLogReuseWait;
     private readonly Func<SqlServerStorage, ActiveTransactionMetrics> _getActiveTransactions;
+    private readonly Func<SqlServerStorage, long> _getServerCount;
     private readonly SchemaVersionHealthRules _schemaRules;
     private readonly DataFileSpaceHealthRules _dataFileRules;
     private readonly ApplicationStorageHealthRules _appRules;
@@ -28,6 +29,7 @@ public class ConfiguredApplicationsStorageHealthMonitor
         LogSpaceReader logSpaceReader,
         LogReuseWaitReader logReuseWaitReader,
         ActiveTransactionsReader activeTransactionsReader,
+        FailedJobCountReader failedJobCountReader,
         SchemaVersionHealthRules schemaVersionHealthRules,
         DataFileSpaceHealthRules dataFileSpaceHealthRules,
         ApplicationStorageHealthRules applicationStorageHealthRules)
@@ -38,6 +40,7 @@ public class ConfiguredApplicationsStorageHealthMonitor
         ArgumentNullException.ThrowIfNull(logSpaceReader);
         ArgumentNullException.ThrowIfNull(logReuseWaitReader);
         ArgumentNullException.ThrowIfNull(activeTransactionsReader);
+        ArgumentNullException.ThrowIfNull(failedJobCountReader);
         ArgumentNullException.ThrowIfNull(schemaVersionHealthRules);
         ArgumentNullException.ThrowIfNull(dataFileSpaceHealthRules);
         ArgumentNullException.ThrowIfNull(applicationStorageHealthRules);
@@ -48,6 +51,7 @@ public class ConfiguredApplicationsStorageHealthMonitor
         _getLogSpace = logSpaceReader.GetLogSpace;
         _getLogReuseWait = logReuseWaitReader.GetLogReuseWait;
         _getActiveTransactions = activeTransactionsReader.GetActiveTransactions;
+        _getServerCount = storage => failedJobCountReader.GetStatistics(storage).Servers;
         _schemaRules = schemaVersionHealthRules;
         _dataFileRules = dataFileSpaceHealthRules;
         _appRules = applicationStorageHealthRules;
@@ -63,6 +67,7 @@ public class ConfiguredApplicationsStorageHealthMonitor
         Func<SqlServerStorage, LogSpaceMetrics> getLogSpace,
         Func<SqlServerStorage, LogReuseWaitMetrics> getLogReuseWait,
         Func<SqlServerStorage, ActiveTransactionMetrics> getActiveTransactions,
+        Func<SqlServerStorage, long> getServerCount,
         SchemaVersionHealthRules schemaVersionHealthRules,
         DataFileSpaceHealthRules dataFileSpaceHealthRules,
         ApplicationStorageHealthRules applicationStorageHealthRules)
@@ -74,6 +79,7 @@ public class ConfiguredApplicationsStorageHealthMonitor
         _getLogReuseWait = getLogReuseWait ?? throw new ArgumentNullException(nameof(getLogReuseWait));
         _getActiveTransactions = getActiveTransactions
             ?? throw new ArgumentNullException(nameof(getActiveTransactions));
+        _getServerCount = getServerCount ?? throw new ArgumentNullException(nameof(getServerCount));
         _schemaRules = schemaVersionHealthRules
             ?? throw new ArgumentNullException(nameof(schemaVersionHealthRules));
         _dataFileRules = dataFileSpaceHealthRules
@@ -123,6 +129,7 @@ public class ConfiguredApplicationsStorageHealthMonitor
         var logSpace = ReadLogSpace(storage);
         var logReuseWait = ReadLogReuseWait(storage);
         var activeTransactions = ReadActiveTransactions(storage);
+        var serverCount = ReadServerCount(storage);
 
         return _appRules.FromMetrics(
             application.Name,
@@ -130,7 +137,8 @@ public class ConfiguredApplicationsStorageHealthMonitor
             dataFiles,
             logSpace,
             logReuseWait,
-            activeTransactions);
+            activeTransactions,
+            serverCount);
     }
 
     private SchemaVersionHealthResult ReadSchema(SqlServerStorage storage)
@@ -194,6 +202,18 @@ public class ConfiguredApplicationsStorageHealthMonitor
         catch (DbException)
         {
             return null;
+        }
+    }
+
+    private long ReadServerCount(SqlServerStorage storage)
+    {
+        try
+        {
+            return _getServerCount(storage);
+        }
+        catch (DbException)
+        {
+            return 0;
         }
     }
 }

@@ -160,6 +160,20 @@ public class StorageHealthDisplayTests
         Assert.Equal(expected, StorageHealthDisplay.FormatStatusSortValue(status));
     }
 
+    [Theory]
+    [InlineData(1)]
+    [InlineData(3)]
+    public void FormatRowCssClass_WhenServersPresent_ReturnsNull(long serverCount)
+    {
+        Assert.Null(StorageHealthDisplay.FormatRowCssClass(serverCount));
+    }
+
+    [Fact]
+    public void FormatRowCssClass_WhenServerCountIsZero_ReturnsNoServersClass()
+    {
+        Assert.Equal("status-row-no-servers", StorageHealthDisplay.FormatRowCssClass(0));
+    }
+
     [Fact]
     public void Formatters_DoNotApplyHealthInterpretation_ToAcquisitionOnlyMetrics()
     {

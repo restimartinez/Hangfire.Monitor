@@ -114,6 +114,13 @@ public static class StorageHealthDisplay
             _ => "0"
         };
 
+    /// <summary>
+    /// Returns the shared status-table row CSS class when Hangfire has no registered servers,
+    /// or <c>null</c> when the row should render normally.
+    /// </summary>
+    public static string? FormatRowCssClass(long serverCount) =>
+        serverCount == 0 ? "status-row-no-servers" : null;
+
     private static string FormatPercent(decimal percent) =>
         percent.ToString("0.00", Invariant) + "%";
 }

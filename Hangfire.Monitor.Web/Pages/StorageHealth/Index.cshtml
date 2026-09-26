@@ -41,7 +41,7 @@ else
                 var dataFilesSortValue = result.DataFiles.UsedPercent?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
                 var logSortValue = result.LogSpace?.UsedPercent.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
                 var transactionsSortValue = result.ActiveTransactions?.Count.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
-                <tr>
+                <tr class="@StorageHealthDisplay.FormatRowCssClass(result.ServerCount)">
                     <td>@result.ApplicationName</td>
                     <td data-sort-value="@StorageHealthDisplay.FormatStatusSortValue(result.Status)">
                         <span class="@statusClass">@StorageHealthDisplay.FormatStatus(result.Status)</span>
