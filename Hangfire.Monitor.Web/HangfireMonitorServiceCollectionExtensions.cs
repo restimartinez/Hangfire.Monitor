@@ -21,6 +21,16 @@ public static class HangfireMonitorServiceCollectionExtensions
         services.AddSingleton<HangfireStorageReader>();
         services.AddSingleton<ConfiguredApplicationsMonitor>();
 
+        services.AddSingleton<SchemaVersionReader>();
+        services.AddSingleton<DataFileSpaceReader>();
+        services.AddSingleton<LogSpaceReader>();
+        services.AddSingleton<LogReuseWaitReader>();
+        services.AddSingleton<ActiveTransactionsReader>();
+        services.AddSingleton<SchemaVersionHealthRules>();
+        services.AddSingleton<DataFileSpaceHealthRules>();
+        services.AddSingleton<ApplicationStorageHealthRules>();
+        services.AddSingleton<ConfiguredApplicationsStorageHealthMonitor>();
+
         return services;
     }
 }

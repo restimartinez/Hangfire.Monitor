@@ -19,6 +19,16 @@ public class HangfireMonitorDependencyInjectionTests
     }
 
     [Fact]
+    public void AddHangfireMonitorServices_ResolvesConfiguredApplicationsStorageHealthMonitor()
+    {
+        using var provider = BuildProvider();
+
+        var monitor = provider.GetRequiredService<ConfiguredApplicationsStorageHealthMonitor>();
+
+        Assert.NotNull(monitor);
+    }
+
+    [Fact]
     public void AddHangfireMonitorServices_ResolvesCollaborators()
     {
         using var provider = BuildProvider();
@@ -29,6 +39,15 @@ public class HangfireMonitorDependencyInjectionTests
         Assert.NotNull(provider.GetRequiredService<LastFailedAtReader>());
         Assert.NotNull(provider.GetRequiredService<HangfireStorageReader>());
         Assert.NotNull(provider.GetRequiredService<ConfiguredApplicationsMonitor>());
+        Assert.NotNull(provider.GetRequiredService<SchemaVersionReader>());
+        Assert.NotNull(provider.GetRequiredService<DataFileSpaceReader>());
+        Assert.NotNull(provider.GetRequiredService<LogSpaceReader>());
+        Assert.NotNull(provider.GetRequiredService<LogReuseWaitReader>());
+        Assert.NotNull(provider.GetRequiredService<ActiveTransactionsReader>());
+        Assert.NotNull(provider.GetRequiredService<SchemaVersionHealthRules>());
+        Assert.NotNull(provider.GetRequiredService<DataFileSpaceHealthRules>());
+        Assert.NotNull(provider.GetRequiredService<ApplicationStorageHealthRules>());
+        Assert.NotNull(provider.GetRequiredService<ConfiguredApplicationsStorageHealthMonitor>());
     }
 
     [Fact]
@@ -43,6 +62,15 @@ public class HangfireMonitorDependencyInjectionTests
         AssertSingleton<LastFailedAtReader>(services);
         AssertSingleton<HangfireStorageReader>(services);
         AssertSingleton<ConfiguredApplicationsMonitor>(services);
+        AssertSingleton<SchemaVersionReader>(services);
+        AssertSingleton<DataFileSpaceReader>(services);
+        AssertSingleton<LogSpaceReader>(services);
+        AssertSingleton<LogReuseWaitReader>(services);
+        AssertSingleton<ActiveTransactionsReader>(services);
+        AssertSingleton<SchemaVersionHealthRules>(services);
+        AssertSingleton<DataFileSpaceHealthRules>(services);
+        AssertSingleton<ApplicationStorageHealthRules>(services);
+        AssertSingleton<ConfiguredApplicationsStorageHealthMonitor>(services);
     }
 
     [Fact]
@@ -54,9 +82,18 @@ public class HangfireMonitorDependencyInjectionTests
         var second = provider.GetRequiredService<ConfiguredApplicationsMonitor>();
         var firstReader = provider.GetRequiredService<HangfireStorageReader>();
         var secondReader = provider.GetRequiredService<HangfireStorageReader>();
+        var firstStorageHealth = provider.GetRequiredService<ConfiguredApplicationsStorageHealthMonitor>();
+        var secondStorageHealth = provider.GetRequiredService<ConfiguredApplicationsStorageHealthMonitor>();
+        var firstSchemaReader = provider.GetRequiredService<SchemaVersionReader>();
+        var secondSchemaReader = provider.GetRequiredService<SchemaVersionReader>();
+        var firstAppRules = provider.GetRequiredService<ApplicationStorageHealthRules>();
+        var secondAppRules = provider.GetRequiredService<ApplicationStorageHealthRules>();
 
         Assert.Same(first, second);
         Assert.Same(firstReader, secondReader);
+        Assert.Same(firstStorageHealth, secondStorageHealth);
+        Assert.Same(firstSchemaReader, secondSchemaReader);
+        Assert.Same(firstAppRules, secondAppRules);
     }
 
     private static ServiceProvider BuildProvider()
