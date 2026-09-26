@@ -1,7 +1,7 @@
 # Hangfire Monitor — Architecture notes
 
 **Status:** Living notes  
-**Related:** `_docs/SPEC.md`, `_docs/plan.md`, `AGENTS.md`
+**Related:** `_docs/SPEC.md`, `_docs/plan.md`, `_docs/hangfire-storage-health-investigation.md`, `AGENTS.md`
 
 ---
 
@@ -391,6 +391,28 @@ Hangfire SQL Server stores state timestamps in UTC. `LastFailedAtReader` preserv
 - Schema type is SQL `datetime` (no time-zone info). ADO.NET typically surfaces `DateTimeKind.Unspecified`; `LastFailedAtQuery.ReadScalar` normalizes to `DateTimeKind.Utc` without changing the clock face.
 - Infrastructure / Domain keep the UTC instant (no fixed offset such as `+2`, no hard-coded `Europe/Madrid`).
 - `/jobs/failed` uses `LastFailedAtDisplay`: display via `DateTime.ToLocalTime()` (host time zone, DST-aware); HM-081 `data-sort-value` keeps the UTC wall-clock `yyyy-MM-ddTHH:mm:ss` so ordering follows the stored instant.
+
+---
+
+## Storage Health (investigation only — not implemented)
+
+Full analysis: `_docs/hangfire-storage-health-investigation.md` (2026-09-26).
+
+Accepted direction for a future feature (no application code in that investigation):
+
+| Topic | Decision |
+| --- | --- |
+| Scope (MVP metrics) | Schema Version; Active SQL Sessions; Active Transactions (DB-scoped); Data size/used; Log size/used; Log reuse wait |
+| Excluded initially | Total Connections / ADO.NET pool metrics; historical growth; detailed blocking/waits/deadlocks |
+| Read model | SQL readers return **raw metrics**; separate rules map to health |
+| Health statuses | Prefer a Storage Health status set (`OK` / `WARNING` / `CRITICAL` / `UNAVAILABLE`) distinct from job `MonitoringStatus.FAILED` |
+| Permission failures | `UNAVAILABLE` with explanation — never auto-`CRITICAL` |
+| Schema Version expected | Default **9** for Hangfire.SqlServer 1.8.x era; optional per-app override later; Monitor must not migrate |
+| Active transactions query | Must filter via `sys.dm_tran_database_transactions.database_id = DB_ID()` — instance-wide `sys.dm_tran_active_transactions` alone is incorrect |
+| Naming | “Active SQL Sessions”, not “Hangfire Connections” |
+| First implementation vertical | Schema Version reader + rule + tests only |
+
+Reuse existing read-only storage path (`SqlServerStorageFactory`, `SqlServerStorageDb.UseConnection`, configured schema). Do not use `JobStorage.Current` or `IMonitoringApi` for these DMV/catalog metrics.
 
 ---
 

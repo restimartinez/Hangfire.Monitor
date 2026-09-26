@@ -68,6 +68,7 @@ Keep durable context in the repository, not only in chat.
 | `_docs/process.md` | How work is organized (tasks, commits, review) |
 | `_docs/architecture.md` | Architectural decisions and rejected alternatives |
 | `_docs/testing.md` | Testing conventions once the test project exists |
+| `_docs/hangfire-storage-health-investigation.md` | Storage Health metrics investigation (read-only SQL; no app code yet) |
 
 When correcting the agent during a session, update the relevant document so the next session inherits the rule.
 
