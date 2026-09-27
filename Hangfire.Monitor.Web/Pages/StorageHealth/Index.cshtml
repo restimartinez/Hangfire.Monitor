@@ -25,8 +25,7 @@ else
             <thead>
                 <tr>
                     <th data-sort-type="text" aria-sort="none">Application</th>
-                    <th data-sort-type="number" aria-sort="none" data-default-sort="desc">Status</th>
-                    <th data-sort-type="number" aria-sort="none">Schema</th>
+                    <th data-sort-type="number" aria-sort="none" data-default-sort="desc">Schema</th>
                     <th data-sort-type="number" aria-sort="none">Data Files</th>
                     <th data-sort-type="number" aria-sort="none">Log</th>
                     <th data-sort-type="text" aria-sort="none">Log Reuse</th>
@@ -36,7 +35,6 @@ else
             <tbody>
             @foreach (var result in Model.Results)
             {
-                var statusClass = $"status-badge status-{result.Status.ToString().ToLowerInvariant()}";
                 var schemaSortValue = result.Schema.ActualVersion?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
                 var dataFilesSortValue = result.DataFiles.UsedPercent?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
                 var logSortValue = result.LogSpace?.UsedPercent.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
@@ -45,10 +43,9 @@ else
                     <td>
                         <a asp-page="./Details" asp-route-applicationName="@result.ApplicationName">@result.ApplicationName</a>
                     </td>
-                    <td data-sort-value="@StorageHealthDisplay.FormatStatusSortValue(result.Status)">
-                        <span class="@statusClass">@StorageHealthDisplay.FormatStatus(result.Status)</span>
+                    <td data-sort-value="@schemaSortValue">
+                        <span class="@StorageHealthDisplay.FormatSchemaBadgeCssClass(result.Schema)">@StorageHealthDisplay.FormatSchema(result.Schema)</span>
                     </td>
-                    <td data-sort-value="@schemaSortValue">@StorageHealthDisplay.FormatSchema(result.Schema)</td>
                     <td data-sort-value="@dataFilesSortValue">@StorageHealthDisplay.FormatDataFileSpace(result.DataFiles)</td>
                     <td data-sort-value="@logSortValue">@StorageHealthDisplay.FormatLogSpace(result.LogSpace)</td>
                     <td>@StorageHealthDisplay.FormatLogReuse(result.LogReuseWait)</td>

@@ -401,11 +401,26 @@ Hangfire SQL Server stores state timestamps in UTC. `LastFailedAtReader` preserv
 
 ---
 
-## Storage Health (investigation only — not implemented)
+## Storage Health (implemented)
+
+Index table (`/storage-health`): columns are Application, Schema, Data Files, Log, Log Reuse, Transactions. There is **no** separate Status column and **no** Health column yet.
+
+Schema cell presentation:
+- Text: `actual / expected` via `StorageHealthDisplay.FormatSchema` (e.g. `9 / 9`, `5 / 9`), or `-` when unavailable.
+- Badge CSS from `SchemaVersionHealthResult.Status` via `FormatSchemaBadgeCssClass` (`status-badge status-ok` / `status-warning` / `status-unavailable`) — presentation does **not** re-compare versions.
+- Schema OK/WARNING/UNAVAILABLE is decided only in `SchemaVersionHealthRules` (`actual == expected` → OK; otherwise WARNING when a version was read). Expected default remains `DefaultExpectedSchemaVersion` (9).
+
+`ApplicationStorageHealthResult.Status` (Schema + Data Files aggregation) remains on the domain model for future Health work; it is not shown on the index table.
+
+Detail page (`/storage-health/{applicationName}`) continues to show raw metrics only.
+
+---
+
+## Storage Health (investigation notes)
 
 Full analysis: `_docs/hangfire-storage-health-investigation.md` (2026-09-26).
 
-Accepted direction for a future feature (no application code in that investigation):
+Accepted direction for the feature:
 
 | Topic | Decision |
 | --- | --- |

@@ -22,13 +22,13 @@ public class StorageHealthDisplayTests
     public void FormatSchema_WhenActualIsLower_ReturnsActualSlashExpected()
     {
         var schema = new SchemaVersionHealthResult(
-            ActualVersion: 8,
+            ActualVersion: 5,
             ExpectedVersion: 9,
             StorageHealthStatus.WARNING,
             Diagnosis: "lower",
             Recommendation: "review");
 
-        Assert.Equal("8 / 9", StorageHealthDisplay.FormatSchema(schema));
+        Assert.Equal("5 / 9", StorageHealthDisplay.FormatSchema(schema));
     }
 
     [Fact]
@@ -55,6 +55,63 @@ public class StorageHealthDisplayTests
             Recommendation: "verify");
 
         Assert.Equal("-", StorageHealthDisplay.FormatSchema(schema));
+    }
+
+    [Fact]
+    public void FormatSchemaBadgeCssClass_WhenVersionsMatch_ReturnsStatusOk()
+    {
+        var schema = new SchemaVersionHealthResult(
+            ActualVersion: 9,
+            ExpectedVersion: 9,
+            StorageHealthStatus.OK,
+            Diagnosis: "ok",
+            Recommendation: "none");
+
+        Assert.Equal("status-badge status-ok", StorageHealthDisplay.FormatSchemaBadgeCssClass(schema));
+    }
+
+    [Fact]
+    public void FormatSchemaBadgeCssClass_WhenActualIsLower_ReturnsStatusWarning()
+    {
+        var schema = new SchemaVersionHealthResult(
+            ActualVersion: 5,
+            ExpectedVersion: 9,
+            StorageHealthStatus.WARNING,
+            Diagnosis: "lower",
+            Recommendation: "review");
+
+        Assert.Equal("status-badge status-warning", StorageHealthDisplay.FormatSchemaBadgeCssClass(schema));
+        Assert.Equal("5 / 9", StorageHealthDisplay.FormatSchema(schema));
+    }
+
+    [Fact]
+    public void FormatSchemaBadgeCssClass_WhenUnavailable_ReturnsStatusUnavailable()
+    {
+        var schema = new SchemaVersionHealthResult(
+            ActualVersion: null,
+            ExpectedVersion: 9,
+            StorageHealthStatus.UNAVAILABLE,
+            Diagnosis: "missing",
+            Recommendation: "verify");
+
+        Assert.Equal(
+            "status-badge status-unavailable",
+            StorageHealthDisplay.FormatSchemaBadgeCssClass(schema));
+    }
+
+    [Fact]
+    public void FormatSchemaBadgeCssClass_UsesSchemaStatus_DoesNotReEvaluateVersions()
+    {
+        // Presentation must trust Schema.Status from domain rules even if text looks "matched".
+        var schema = new SchemaVersionHealthResult(
+            ActualVersion: 9,
+            ExpectedVersion: 9,
+            StorageHealthStatus.WARNING,
+            Diagnosis: "forced",
+            Recommendation: "none");
+
+        Assert.Equal("status-badge status-warning", StorageHealthDisplay.FormatSchemaBadgeCssClass(schema));
+        Assert.Equal("9 / 9", StorageHealthDisplay.FormatSchema(schema));
     }
 
     [Fact]

@@ -29,6 +29,20 @@ public static class StorageHealthDisplay
     }
 
     /// <summary>
+    /// Returns the CSS classes for the Schema badge.
+    /// Uses <see cref="SchemaVersionHealthResult.Status"/> already computed by domain rules —
+    /// does not re-evaluate version comparison.
+    /// </summary>
+    public static string FormatSchemaBadgeCssClass(SchemaVersionHealthResult schema)
+    {
+        ArgumentNullException.ThrowIfNull(schema);
+
+        return string.Create(
+            Invariant,
+            $"status-badge status-{schema.Status.ToString().ToLowerInvariant()}");
+    }
+
+    /// <summary>
     /// Returns used percent with two decimal places, or <c>-</c> when unavailable.
     /// </summary>
     public static string FormatDataFileSpace(DataFileSpaceHealthResult dataFiles)
