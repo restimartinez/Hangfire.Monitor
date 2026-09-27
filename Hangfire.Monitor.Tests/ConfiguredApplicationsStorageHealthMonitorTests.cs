@@ -87,7 +87,7 @@ public class ConfiguredApplicationsStorageHealthMonitorTests
     }
 
     [Fact]
-    public void MonitorAll_SchemaWarningAndDataOk_ReturnsWarning()
+    public void MonitorAll_SchemaWarningAndDataOk_CapacityRemainsHealthy()
     {
         var monitor = CreateMonitor(
             _ => CreateStorage(),
@@ -101,11 +101,11 @@ public class ConfiguredApplicationsStorageHealthMonitorTests
 
         Assert.Equal(StorageHealthStatus.WARNING, result.Schema.Status);
         Assert.Equal(StorageHealthStatus.OK, result.DataFiles.Status);
-        Assert.Equal(StorageHealthStatus.WARNING, result.Status);
+        Assert.Equal(StorageHealthStatus.OK, result.Status);
     }
 
     [Fact]
-    public void MonitorAll_SchemaOkAndDataCritical_ReturnsCritical()
+    public void MonitorAll_HighDataUsedPercent_DoesNotForceCapacityWarning()
     {
         var monitor = CreateMonitor(
             _ => CreateStorage(),
@@ -118,8 +118,8 @@ public class ConfiguredApplicationsStorageHealthMonitorTests
         var result = Assert.Single(monitor.MonitorAll([App("App1")]));
 
         Assert.Equal(StorageHealthStatus.OK, result.Schema.Status);
-        Assert.Equal(StorageHealthStatus.CRITICAL, result.DataFiles.Status);
-        Assert.Equal(StorageHealthStatus.CRITICAL, result.Status);
+        Assert.Equal(StorageHealthStatus.OK, result.DataFiles.Status);
+        Assert.Equal(StorageHealthStatus.OK, result.Status);
     }
 
     [Fact]
@@ -327,6 +327,8 @@ public class ConfiguredApplicationsStorageHealthMonitorTests
         Assert.Null(result.LogReuseWait);
         Assert.Null(result.ActiveTransactions);
         Assert.Equal(0, result.ServerCount);
+        Assert.Equal("create failed", result.FailureReason);
+        Assert.Contains("create failed", result.Diagnosis, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -495,11 +497,13 @@ public class ConfiguredApplicationsStorageHealthMonitorTests
         Func<SqlServerStorage, LogSpaceMetrics> getLogSpace,
         Func<SqlServerStorage, LogReuseWaitMetrics> getLogReuseWait,
         Func<SqlServerStorage, ActiveTransactionMetrics> getActiveTransactions,
-        Func<SqlServerStorage, long>? getServerCount = null) =>
+        Func<SqlServerStorage, long>? getServerCount = null,
+        Func<SqlServerStorage, IReadOnlyList<DataFileHeadroomFileMetrics>>? getDataFileHeadroom = null) =>
         new(
             createStorage,
             getSchemaVersion,
             getDataFileSpace,
+            getDataFileHeadroom ?? (_ => Array.Empty<DataFileHeadroomFileMetrics>()),
             getLogSpace,
             getLogReuseWait,
             getActiveTransactions,

@@ -313,6 +313,7 @@ public class StorageHealthDetailsModelTests
             },
             _ => getSchemaVersionForApp(current!),
             _ => getDataFileSpaceForApp(current!),
+            _ => Array.Empty<DataFileHeadroomFileMetrics>(),
             getLogSpace,
             getLogReuseWait,
             getActiveTransactions,

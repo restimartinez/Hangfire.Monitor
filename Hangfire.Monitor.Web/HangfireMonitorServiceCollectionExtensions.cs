@@ -23,11 +23,13 @@ public static class HangfireMonitorServiceCollectionExtensions
 
         services.AddSingleton<SchemaVersionReader>();
         services.AddSingleton<DataFileSpaceReader>();
+        services.AddSingleton<DataFileHeadroomReader>();
         services.AddSingleton<LogSpaceReader>();
         services.AddSingleton<LogReuseWaitReader>();
         services.AddSingleton<ActiveTransactionsReader>();
         services.AddSingleton<SchemaVersionHealthRules>();
         services.AddSingleton<DataFileSpaceHealthRules>();
+        services.AddSingleton<DataFileHeadroomHealthRules>();
         services.AddSingleton<ApplicationStorageHealthRules>();
         services.AddSingleton<ConfiguredApplicationsStorageHealthMonitor>();
 

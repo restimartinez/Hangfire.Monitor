@@ -14,6 +14,7 @@ public class ConfiguredApplicationsStorageHealthMonitor
     private readonly Func<HangfireApplicationOptions, SqlServerStorage> _createStorage;
     private readonly Func<SqlServerStorage, int?> _getSchemaVersion;
     private readonly Func<SqlServerStorage, DataFileSpaceMetrics> _getDataFileSpace;
+    private readonly Func<SqlServerStorage, IReadOnlyList<DataFileHeadroomFileMetrics>> _getDataFileHeadroom;
     private readonly Func<SqlServerStorage, LogSpaceMetrics> _getLogSpace;
     private readonly Func<SqlServerStorage, LogReuseWaitMetrics> _getLogReuseWait;
     private readonly Func<SqlServerStorage, ActiveTransactionMetrics> _getActiveTransactions;
@@ -26,6 +27,7 @@ public class ConfiguredApplicationsStorageHealthMonitor
         SqlServerStorageFactory storageFactory,
         SchemaVersionReader schemaVersionReader,
         DataFileSpaceReader dataFileSpaceReader,
+        DataFileHeadroomReader dataFileHeadroomReader,
         LogSpaceReader logSpaceReader,
         LogReuseWaitReader logReuseWaitReader,
         ActiveTransactionsReader activeTransactionsReader,
@@ -37,6 +39,7 @@ public class ConfiguredApplicationsStorageHealthMonitor
         ArgumentNullException.ThrowIfNull(storageFactory);
         ArgumentNullException.ThrowIfNull(schemaVersionReader);
         ArgumentNullException.ThrowIfNull(dataFileSpaceReader);
+        ArgumentNullException.ThrowIfNull(dataFileHeadroomReader);
         ArgumentNullException.ThrowIfNull(logSpaceReader);
         ArgumentNullException.ThrowIfNull(logReuseWaitReader);
         ArgumentNullException.ThrowIfNull(activeTransactionsReader);
@@ -48,6 +51,7 @@ public class ConfiguredApplicationsStorageHealthMonitor
         _createStorage = storageFactory.Create;
         _getSchemaVersion = schemaVersionReader.GetSchemaVersion;
         _getDataFileSpace = dataFileSpaceReader.GetDataFileSpace;
+        _getDataFileHeadroom = dataFileHeadroomReader.GetDataFileHeadroom;
         _getLogSpace = logSpaceReader.GetLogSpace;
         _getLogReuseWait = logReuseWaitReader.GetLogReuseWait;
         _getActiveTransactions = activeTransactionsReader.GetActiveTransactions;
@@ -64,6 +68,7 @@ public class ConfiguredApplicationsStorageHealthMonitor
         Func<HangfireApplicationOptions, SqlServerStorage> createStorage,
         Func<SqlServerStorage, int?> getSchemaVersion,
         Func<SqlServerStorage, DataFileSpaceMetrics> getDataFileSpace,
+        Func<SqlServerStorage, IReadOnlyList<DataFileHeadroomFileMetrics>> getDataFileHeadroom,
         Func<SqlServerStorage, LogSpaceMetrics> getLogSpace,
         Func<SqlServerStorage, LogReuseWaitMetrics> getLogReuseWait,
         Func<SqlServerStorage, ActiveTransactionMetrics> getActiveTransactions,
@@ -75,6 +80,8 @@ public class ConfiguredApplicationsStorageHealthMonitor
         _createStorage = createStorage ?? throw new ArgumentNullException(nameof(createStorage));
         _getSchemaVersion = getSchemaVersion ?? throw new ArgumentNullException(nameof(getSchemaVersion));
         _getDataFileSpace = getDataFileSpace ?? throw new ArgumentNullException(nameof(getDataFileSpace));
+        _getDataFileHeadroom = getDataFileHeadroom
+            ?? throw new ArgumentNullException(nameof(getDataFileHeadroom));
         _getLogSpace = getLogSpace ?? throw new ArgumentNullException(nameof(getLogSpace));
         _getLogReuseWait = getLogReuseWait ?? throw new ArgumentNullException(nameof(getLogReuseWait));
         _getActiveTransactions = getActiveTransactions
@@ -125,13 +132,14 @@ public class ConfiguredApplicationsStorageHealthMonitor
         {
             storage = _createStorage(application);
         }
-        catch (DbException)
+        catch (DbException ex)
         {
-            return _appRules.Unavailable(application.Name);
+            return _appRules.Unavailable(application.Name, ex.Message);
         }
 
         var schema = ReadSchema(storage);
         var dataFiles = ReadDataFiles(storage);
+        var headroom = ReadDataFileHeadroom(storage);
         var logSpace = ReadLogSpace(storage);
         var logReuseWait = ReadLogReuseWait(storage);
         var activeTransactions = ReadActiveTransactions(storage);
@@ -141,6 +149,7 @@ public class ConfiguredApplicationsStorageHealthMonitor
             application.Name,
             schema,
             dataFiles,
+            headroom,
             logSpace,
             logReuseWait,
             activeTransactions,
@@ -172,6 +181,18 @@ public class ConfiguredApplicationsStorageHealthMonitor
         catch (DbException)
         {
             return _dataFileRules.Unavailable();
+        }
+    }
+
+    private IReadOnlyList<DataFileHeadroomFileMetrics>? ReadDataFileHeadroom(SqlServerStorage storage)
+    {
+        try
+        {
+            return _getDataFileHeadroom(storage);
+        }
+        catch (DbException)
+        {
+            return null;
         }
     }
 

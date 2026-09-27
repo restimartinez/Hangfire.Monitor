@@ -403,22 +403,36 @@ Hangfire SQL Server stores state timestamps in UTC. `LastFailedAtReader` preserv
 
 ## Storage Health (implemented)
 
-Index table (`/storage-health`): columns are Application, Schema, Data Files, Log, Log Reuse, Transactions. There is **no** separate Status column and **no** Health column yet.
+Index table (`/storage-health`): columns are Application, **Health**, Schema, Data Files, Log, Log Reuse, Transactions.
+
+Capacity Health badge (`ApplicationStorageHealthResult.Status`):
+
+| Domain | UI label |
+| --- | --- |
+| `OK` | Healthy |
+| `WARNING` | Warning |
+| `UNAVAILABLE` | Unavailable |
+
+Capacity Health uses justified headroom rules only (not Schema, not used-% alone). Schema remains its own badge/column.
 
 Schema cell presentation:
+
 - Text: `actual / expected` via `StorageHealthDisplay.FormatSchema` (e.g. `9 / 9`, `5 / 9`), or `-` when unavailable.
 - Badge CSS from `SchemaVersionHealthResult.Status` via `FormatSchemaBadgeCssClass` (`status-badge status-ok` / `status-warning` / `status-unavailable`) — presentation does **not** re-compare versions.
 - Schema OK/WARNING/UNAVAILABLE is decided only in `SchemaVersionHealthRules` (`actual == expected` → OK; otherwise WARNING when a version was read). Expected default remains `DefaultExpectedSchemaVersion` (9).
 
-`ApplicationStorageHealthResult.Status` (Schema + Data Files aggregation) remains on the domain model for future Health work; it is not shown on the index table.
+Detail page (`/storage-health/{applicationName}`) shows Health + Diagnosis, file/volume headroom tables when available, existing log/server/tx metrics, and a Resolution guide (copy-only SQL) when capacity Warning is present. Hangfire Monitor never executes corrective SQL.
 
-Detail page (`/storage-health/{applicationName}`) continues to show raw metrics only.
+Headroom acquisition: `DataFileHeadroomReader` (`sys.database_files` + `FILEPROPERTY` + `OUTER APPLY sys.dm_os_volume_stats`). Missing volume stats are informational, never Critical.
+
+Provisional used-% thresholds (80/90) were removed from `DataFileSpaceHealthRules`. Full decision record: `_docs/storage-health-investigation.md` § Storage Health Implementation.
 
 ---
 
 ## Storage Health (investigation notes)
 
-Full analysis: `_docs/hangfire-storage-health-investigation.md` (2026-09-26).
+Full analysis: `_docs/hangfire-storage-health-investigation.md` (2026-09-26).  
+Health definition from real estate data: `_docs/storage-health-investigation.md` (2026-09-27) — investigation only; no Health column yet.
 
 Accepted direction for the feature:
 

@@ -172,6 +172,104 @@ public static class StorageHealthDisplay
     }
 
     /// <summary>
+    /// Returns capacity Health display text: Healthy / Warning / Unavailable.
+    /// </summary>
+    public static string FormatHealth(StorageHealthStatus status) =>
+        status switch
+        {
+            StorageHealthStatus.OK => "Healthy",
+            StorageHealthStatus.WARNING => "Warning",
+            StorageHealthStatus.UNAVAILABLE => "Unavailable",
+            StorageHealthStatus.CRITICAL => "Warning",
+            _ => status.ToString()
+        };
+
+    /// <summary>
+    /// Returns CSS classes for the capacity Health badge.
+    /// </summary>
+    public static string FormatHealthBadgeCssClass(StorageHealthStatus status)
+    {
+        var cssStatus = status switch
+        {
+            StorageHealthStatus.OK => "ok",
+            StorageHealthStatus.WARNING => "warning",
+            StorageHealthStatus.CRITICAL => "warning",
+            StorageHealthStatus.UNAVAILABLE => "unavailable",
+            _ => "unavailable"
+        };
+
+        return string.Create(Invariant, $"status-badge status-{cssStatus}");
+    }
+
+    /// <summary>
+    /// Returns a numeric sort key for Health (Warning highest among evaluable states).
+    /// </summary>
+    public static string FormatHealthSortValue(StorageHealthStatus status) =>
+        status switch
+        {
+            StorageHealthStatus.WARNING => "2",
+            StorageHealthStatus.CRITICAL => "2",
+            StorageHealthStatus.OK => "1",
+            StorageHealthStatus.UNAVAILABLE => "0",
+            _ => "0"
+        };
+
+    /// <summary>
+    /// Formats MaxSize for display (UNLIMITED / NO_GROWTH / numeric MB).
+    /// </summary>
+    public static string FormatMaxSize(DataFileHeadroomFileMetrics file)
+    {
+        ArgumentNullException.ThrowIfNull(file);
+
+        return file.MaxSizeKind switch
+        {
+            DataFileMaxSizeKind.Unlimited => "UNLIMITED",
+            DataFileMaxSizeKind.NoGrowth => "NO_GROWTH",
+            DataFileMaxSizeKind.Limited when file.MaxSizeMB is not null =>
+                FormatMegabytes(file.MaxSizeMB.Value),
+            _ => "-"
+        };
+    }
+
+    /// <summary>
+    /// Formats autogrowth for display.
+    /// </summary>
+    public static string FormatGrowth(DataFileHeadroomFileMetrics file)
+    {
+        ArgumentNullException.ThrowIfNull(file);
+
+        if (file.IsPercentGrowth)
+        {
+            if (file.GrowthPercent is null)
+            {
+                return "-";
+            }
+
+            return file.GrowthPercent.Value.ToString(Invariant) + " %";
+        }
+
+        if (file.GrowthMB is null)
+        {
+            return "-";
+        }
+
+        return FormatMegabytes(file.GrowthMB.Value);
+    }
+
+    /// <summary>
+    /// Formats gigabytes with an optional suffix, or <c>-</c> when null.
+    /// </summary>
+    public static string FormatGigabytes(decimal? gigabytes)
+    {
+        if (gigabytes is null)
+        {
+            return "-";
+        }
+
+        return gigabytes.Value.ToString("#,0.###", Invariant) + " GB";
+    }
+
+    /// <summary>
     /// Returns the display text for <paramref name="status"/>.
     /// </summary>
     public static string FormatStatus(StorageHealthStatus status) =>

@@ -21,61 +21,33 @@ public class DataFileSpaceHealthRulesTests
     }
 
     [Fact]
-    public void Evaluate_WhenUsedPercentIs7999_ReturnsOk()
-    {
-        var result = _rules.Evaluate(new DataFileSpaceMetrics(10000m, 7999m, 2001m));
-
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
-        Assert.Equal(79.99m, result.UsedPercent);
-    }
-
-    [Fact]
-    public void Evaluate_WhenUsedPercentIsExactly80_ReturnsWarning()
+    public void Evaluate_WhenUsedPercentIsExactly80_ReturnsOk_NotWarning()
     {
         var result = _rules.Evaluate(new DataFileSpaceMetrics(100m, 80m, 20m));
 
-        Assert.Equal(StorageHealthStatus.WARNING, result.Status);
+        Assert.Equal(StorageHealthStatus.OK, result.Status);
         Assert.Equal(80.00m, result.UsedPercent);
-        Assert.Contains("approaching capacity", result.Diagnosis, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("allocated", result.Recommendation, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("approaching capacity", result.Diagnosis, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
-    public void Evaluate_WhenUsedPercentIs85_ReturnsWarning()
-    {
-        var result = _rules.Evaluate(new DataFileSpaceMetrics(100m, 85m, 15m));
-
-        Assert.Equal(StorageHealthStatus.WARNING, result.Status);
-        Assert.Equal(85.00m, result.UsedPercent);
-    }
-
-    [Fact]
-    public void Evaluate_WhenUsedPercentIsExactly90_ReturnsWarning()
+    public void Evaluate_WhenUsedPercentIsExactly90_ReturnsOk_NotWarning()
     {
         var result = _rules.Evaluate(new DataFileSpaceMetrics(100m, 90m, 10m));
 
-        Assert.Equal(StorageHealthStatus.WARNING, result.Status);
+        Assert.Equal(StorageHealthStatus.OK, result.Status);
         Assert.Equal(90.00m, result.UsedPercent);
     }
 
     [Fact]
-    public void Evaluate_WhenUsedPercentIs9001_ReturnsCritical()
+    public void Evaluate_WhenUsedPercentIs98_ReturnsOk_NotCritical()
     {
-        var result = _rules.Evaluate(new DataFileSpaceMetrics(10000m, 9001m, 999m));
+        var result = _rules.Evaluate(new DataFileSpaceMetrics(100m, 98m, 2m));
 
-        Assert.Equal(StorageHealthStatus.CRITICAL, result.Status);
-        Assert.Equal(90.01m, result.UsedPercent);
-        Assert.Contains("exhausting", result.Diagnosis, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("expand", result.Recommendation, StringComparison.OrdinalIgnoreCase);
-    }
-
-    [Fact]
-    public void Evaluate_WhenUsedPercentIs95_ReturnsCritical()
-    {
-        var result = _rules.Evaluate(new DataFileSpaceMetrics(100m, 95m, 5m));
-
-        Assert.Equal(StorageHealthStatus.CRITICAL, result.Status);
-        Assert.Equal(95.00m, result.UsedPercent);
+        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(98.00m, result.UsedPercent);
+        Assert.DoesNotContain("exhausting", result.Diagnosis, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal("No action required.", result.Recommendation);
     }
 
     [Fact]
@@ -134,7 +106,6 @@ public class DataFileSpaceHealthRulesTests
     [Fact]
     public void Evaluate_WhenFreeIsInconsistent_DoesNotChangeStatus()
     {
-        // FreeMB does not match Allocated - Used; status still follows UsedPercent (50%).
         var result = _rules.Evaluate(new DataFileSpaceMetrics(100m, 50m, 10m));
 
         Assert.Equal(StorageHealthStatus.OK, result.Status);
@@ -159,7 +130,6 @@ public class DataFileSpaceHealthRulesTests
     [Fact]
     public void Evaluate_RoundsUsedPercent_ToTwoDecimals()
     {
-        // 1 / 3 * 100 = 33.333... → 33.33
         var result = _rules.Evaluate(new DataFileSpaceMetrics(3m, 1m, 2m));
 
         Assert.Equal(33.33m, result.UsedPercent);
@@ -177,23 +147,14 @@ public class DataFileSpaceHealthRulesTests
     }
 
     [Fact]
-    public void Evaluate_Recommendations_DifferByStatus()
+    public void Evaluate_HighUsedPercent_SameRecommendationAsLow()
     {
-        var ok = _rules.Evaluate(new DataFileSpaceMetrics(100m, 50m, 50m));
-        var warning = _rules.Evaluate(new DataFileSpaceMetrics(100m, 85m, 15m));
-        var critical = _rules.Evaluate(new DataFileSpaceMetrics(100m, 95m, 5m));
+        var low = _rules.Evaluate(new DataFileSpaceMetrics(100m, 50m, 50m));
+        var high = _rules.Evaluate(new DataFileSpaceMetrics(100m, 98m, 2m));
 
-        Assert.Equal("No action required.", ok.Recommendation);
-        Assert.NotEqual(ok.Recommendation, warning.Recommendation);
-        Assert.NotEqual(warning.Recommendation, critical.Recommendation);
-        Assert.NotEqual(ok.Recommendation, critical.Recommendation);
-    }
-
-    [Fact]
-    public void DefaultThresholdConstants_AreEightyAndNinety()
-    {
-        Assert.Equal(80m, DataFileSpaceHealthRules.DefaultWarningThresholdPercent);
-        Assert.Equal(90m, DataFileSpaceHealthRules.DefaultCriticalThresholdPercent);
+        Assert.Equal(StorageHealthStatus.OK, low.Status);
+        Assert.Equal(StorageHealthStatus.OK, high.Status);
+        Assert.Equal(low.Recommendation, high.Recommendation);
     }
 
     private static void AssertContainsAllocatedSpaceClarification(string diagnosis)

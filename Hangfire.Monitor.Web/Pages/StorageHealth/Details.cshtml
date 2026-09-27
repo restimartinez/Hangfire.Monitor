@@ -16,17 +16,29 @@
         <span>@details.ApplicationName</span>
     </p>
     <h1>Storage Health / @details.ApplicationName</h1>
-    <p class="page-subtitle">Raw Hangfire SQL Server storage metrics for this configured application.</p>
+    <p class="page-subtitle">Capacity health, diagnosis, and operator guidance for this Hangfire storage database.</p>
+</section>
+
+<section class="storage-health-detail">
+    <h2>Health</h2>
+    <p>
+        <span class="@StorageHealthDisplay.FormatHealthBadgeCssClass(details.Status)">@StorageHealthDisplay.FormatHealth(details.Status)</span>
+    </p>
+</section>
+
+<section class="storage-health-detail">
+    <h2>Diagnosis</h2>
+    <p>@details.Diagnosis</p>
 </section>
 
 @if (details.IsUnavailable)
 {
-    <p class="empty-message">Storage health metrics are unavailable for this application.</p>
+    <p class="empty-message">Storage metrics below are unavailable because the application could not be queried.</p>
 }
 else
 {
     <section class="storage-health-detail @(StorageHealthDisplay.FormatRowCssClass(details.ServerCount))">
-        <h2>Servers</h2>
+        <h2>Hangfire Servers</h2>
         <dl class="metric-list">
             <div>
                 <dt>Active servers</dt>
@@ -35,26 +47,108 @@ else
         </dl>
     </section>
 
-    <section class="storage-health-detail">
+    <section class="storage-health-detail storage-health-detail-wide">
         <h2>Data Files</h2>
-        <dl class="metric-list">
-            <div>
-                <dt>Allocated</dt>
-                <dd>@StorageHealthDisplay.FormatMegabytes(details.DataFiles.AllocatedMB)</dd>
+        @if (details.DataFileHeadroom is null || details.DataFileHeadroom.Count == 0)
+        {
+            <p class="empty-message">Data file headroom metrics are unavailable.</p>
+            <dl class="metric-list">
+                <div>
+                    <dt>Allocated (database)</dt>
+                    <dd>@StorageHealthDisplay.FormatMegabytes(details.DataFiles.AllocatedMB)</dd>
+                </div>
+                <div>
+                    <dt>Used (database)</dt>
+                    <dd>@StorageHealthDisplay.FormatMegabytes(details.DataFiles.UsedMB)</dd>
+                </div>
+                <div>
+                    <dt>Free (database)</dt>
+                    <dd>@StorageHealthDisplay.FormatMegabytes(details.DataFiles.FreeMB)</dd>
+                </div>
+                <div>
+                    <dt>Used %</dt>
+                    <dd>@StorageHealthDisplay.FormatUsedPercent(details.DataFiles.UsedPercent)</dd>
+                </div>
+            </dl>
+        }
+        else
+        {
+            <div class="table-panel">
+                <table class="status-table metrics-table">
+                    <thead>
+                        <tr>
+                            <th>File</th>
+                            <th>Current size</th>
+                            <th>Used</th>
+                            <th>Free</th>
+                            <th>Used %</th>
+                            <th>Max size</th>
+                            <th>Growth</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var file in details.DataFileHeadroom)
+                    {
+                        <tr>
+                            <td>@file.FileName</td>
+                            <td>@StorageHealthDisplay.FormatMegabytes(file.CurrentSizeMB)</td>
+                            <td>@StorageHealthDisplay.FormatMegabytes(file.UsedMB)</td>
+                            <td>@StorageHealthDisplay.FormatMegabytes(file.FreeMB)</td>
+                            <td>@StorageHealthDisplay.FormatUsedPercent(file.UsedPercent)</td>
+                            <td>@StorageHealthDisplay.FormatMaxSize(file)</td>
+                            <td>@StorageHealthDisplay.FormatGrowth(file)</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
             </div>
-            <div>
-                <dt>Used</dt>
-                <dd>@StorageHealthDisplay.FormatMegabytes(details.DataFiles.UsedMB)</dd>
-            </div>
-            <div>
-                <dt>Free</dt>
-                <dd>@StorageHealthDisplay.FormatMegabytes(details.DataFiles.FreeMB)</dd>
-            </div>
-            <div>
-                <dt>Used</dt>
-                <dd>@StorageHealthDisplay.FormatUsedPercent(details.DataFiles.UsedPercent)</dd>
-            </div>
-        </dl>
+        }
+    </section>
+
+    <section class="storage-health-detail storage-health-detail-wide">
+        <h2>Volumes</h2>
+        @if (details.DataFileHeadroom is null || details.DataFileHeadroom.Count == 0)
+        {
+            <p class="empty-message">Volume statistics are unavailable.</p>
+        }
+        else
+        {
+            var volumes = details.DataFileHeadroom
+                .GroupBy(f => f.VolumeMountPoint ?? string.Empty)
+                .Select(g => g.First())
+                .ToList();
+            var anyVolume = volumes.Any(v => v.VolumeTotalGB is not null || !string.IsNullOrEmpty(v.VolumeMountPoint));
+            if (!anyVolume)
+            {
+                <p class="empty-message">Volume statistics are not available (missing permissions or unsupported host). This is informational — not a capacity failure by itself.</p>
+            }
+            else
+            {
+                <div class="table-panel">
+                    <table class="status-table metrics-table">
+                        <thead>
+                            <tr>
+                                <th>Volume</th>
+                                <th>Total</th>
+                                <th>Free</th>
+                                <th>Free %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var volume in volumes)
+                        {
+                            <tr>
+                                <td>@(string.IsNullOrEmpty(volume.VolumeMountPoint) ? "-" : volume.VolumeMountPoint)</td>
+                                <td>@StorageHealthDisplay.FormatGigabytes(volume.VolumeTotalGB)</td>
+                                <td>@StorageHealthDisplay.FormatGigabytes(volume.VolumeFreeGB)</td>
+                                <td>@StorageHealthDisplay.FormatUsedPercent(volume.VolumeFreePercent)</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        }
     </section>
 
     <section class="storage-health-detail">
@@ -135,5 +229,34 @@ else
                 </div>
             </dl>
         }
+    </section>
+}
+
+@if (details.HasResolution && details.Resolution is not null)
+{
+    var guide = details.Resolution;
+    <section class="storage-health-detail storage-health-detail-wide resolution-guide">
+        <h2>How to resolve</h2>
+        <p class="resolution-warning">@guide.ProductionWarning</p>
+
+        <h3>1. What is happening</h3>
+        <p>@guide.WhatIsHappening</p>
+
+        <h3>2. What to check</h3>
+        <p>@guide.WhatToCheck</p>
+
+        <h3>3. Recommended action</h3>
+        <p>@guide.RecommendedAction</p>
+
+        <h3>4. Diagnostic queries</h3>
+        <p>Read-only. Run in an authorized SQL client — Hangfire Monitor does not execute these.</p>
+        <pre class="sql-block"><code>@guide.DiagnosticQueriesSql</code></pre>
+
+        <h3>5. Corrective queries</h3>
+        <p>These modify database configuration. Copy into SSMS or another authorized tool only. Hangfire Monitor never runs them.</p>
+        <pre class="sql-block"><code>@guide.CorrectiveQueriesSql</code></pre>
+
+        <h3>6. Required permissions</h3>
+        <p>@guide.RequiredPermissions</p>
     </section>
 }

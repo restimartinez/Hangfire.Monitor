@@ -9,12 +9,48 @@ public class ApplicationStorageHealthRulesTests
     private readonly DataFileSpaceHealthRules _dataFileRules = new();
 
     [Fact]
-    public void FromMetrics_OkPlusOk_ReturnsOk()
+    public void FromMetrics_HealthyWhenNoHeadroomRisk()
     {
         var result = _rules.FromMetrics(
             "App1",
             SchemaOk(),
             DataOk(),
+            HeadroomUnlimited(),
+            logSpace: null,
+            logReuseWait: null,
+            activeTransactions: null,
+            serverCount: 1);
+
+        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Contains("No storage capacity issue", result.Diagnosis, StringComparison.OrdinalIgnoreCase);
+        Assert.Null(result.Resolution);
+    }
+
+    [Fact]
+    public void FromMetrics_SchemaWarning_DoesNotForceCapacityWarning()
+    {
+        var result = _rules.FromMetrics(
+            "App1",
+            SchemaWarning(),
+            DataOk(),
+            HeadroomUnlimited(),
+            logSpace: null,
+            logReuseWait: null,
+            activeTransactions: null,
+            serverCount: 1);
+
+        Assert.Equal(StorageHealthStatus.WARNING, result.Schema.Status);
+        Assert.Equal(StorageHealthStatus.OK, result.Status);
+    }
+
+    [Fact]
+    public void FromMetrics_HighDataUsedPercent_DoesNotForceWarning()
+    {
+        var result = _rules.FromMetrics(
+            "App1",
+            SchemaOk(),
+            _dataFileRules.Evaluate(new DataFileSpaceMetrics(100m, 98m, 2m)),
+            HeadroomUnlimited(usedPercent: 98m, freeMb: 2m),
             logSpace: null,
             logReuseWait: null,
             activeTransactions: null,
@@ -24,130 +60,136 @@ public class ApplicationStorageHealthRulesTests
     }
 
     [Fact]
-    public void FromMetrics_WarningPlusOk_ReturnsWarning()
+    public void FromMetrics_HighLogUsedPercent_DoesNotForceWarning()
     {
         var result = _rules.FromMetrics(
             "App1",
-            SchemaWarning(),
+            SchemaOk(),
             DataOk(),
+            HeadroomUnlimited(),
+            new LogSpaceMetrics(100m, 99m, 1m, 99m),
+            logReuseWait: null,
+            activeTransactions: null,
+            serverCount: 1);
+
+        Assert.Equal(StorageHealthStatus.OK, result.Status);
+    }
+
+    [Fact]
+    public void FromMetrics_ActiveTransactionWaitAlone_DoesNotForceWarning()
+    {
+        var result = _rules.FromMetrics(
+            "App1",
+            SchemaOk(),
+            DataOk(),
+            HeadroomUnlimited(),
+            logSpace: null,
+            new LogReuseWaitMetrics(6, "ACTIVE_TRANSACTION", "SIMPLE"),
+            activeTransactions: null,
+            serverCount: 1);
+
+        Assert.Equal(StorageHealthStatus.OK, result.Status);
+    }
+
+    [Fact]
+    public void FromMetrics_ActiveTransactionCountAlone_DoesNotForceWarning()
+    {
+        var result = _rules.FromMetrics(
+            "App1",
+            SchemaOk(),
+            DataOk(),
+            HeadroomUnlimited(),
+            logSpace: null,
+            logReuseWait: null,
+            new ActiveTransactionMetrics(5, DateTime.UtcNow, 3600),
+            serverCount: 1);
+
+        Assert.Equal(StorageHealthStatus.OK, result.Status);
+    }
+
+    [Fact]
+    public void FromMetrics_ServerCountZero_DoesNotForceWarning()
+    {
+        var result = _rules.FromMetrics(
+            "App1",
+            SchemaOk(),
+            DataOk(),
+            HeadroomUnlimited(),
+            logSpace: null,
+            logReuseWait: null,
+            activeTransactions: null,
+            serverCount: 0);
+
+        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(0, result.ServerCount);
+    }
+
+    [Fact]
+    public void FromMetrics_NullHeadroom_ReturnsHealthy_NotCritical()
+    {
+        var result = _rules.FromMetrics(
+            "App1",
+            SchemaOk(),
+            DataOk(),
+            dataFileHeadroom: null,
+            logSpace: null,
+            logReuseWait: null,
+            activeTransactions: null,
+            serverCount: 1);
+
+        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Contains("headroom", result.Diagnosis, StringComparison.OrdinalIgnoreCase);
+        Assert.Null(result.Resolution);
+    }
+
+    [Fact]
+    public void FromMetrics_CapacityCeiling_ReturnsWarningWithResolution()
+    {
+        var headroom = new[]
+        {
+            new DataFileHeadroomFileMetrics(
+                1,
+                "HangfireData",
+                CurrentSizeMB: 500m,
+                UsedMB: 500m,
+                FreeMB: 0m,
+                UsedPercent: 100m,
+                DataFileMaxSizeKind.Limited,
+                MaxSizeMB: 500m,
+                GrowthMB: 64m,
+                GrowthPercent: null,
+                IsPercentGrowth: false,
+                VolumeMountPoint: "D:\\",
+                VolumeTotalGB: 80m,
+                VolumeFreeGB: 40m,
+                VolumeFreePercent: 50m)
+        };
+
+        var result = _rules.FromMetrics(
+            "App1",
+            SchemaOk(),
+            DataOk(),
+            headroom,
             logSpace: null,
             logReuseWait: null,
             activeTransactions: null,
             serverCount: 1);
 
         Assert.Equal(StorageHealthStatus.WARNING, result.Status);
-    }
-
-    [Fact]
-    public void FromMetrics_CriticalPlusOk_ReturnsCritical()
-    {
-        var result = _rules.FromMetrics(
-            "App1",
-            SchemaOk(),
-            DataCritical(),
-            logSpace: null,
-            logReuseWait: null,
-            activeTransactions: null,
-            serverCount: 1);
-
-        Assert.Equal(StorageHealthStatus.CRITICAL, result.Status);
-    }
-
-    [Fact]
-    public void FromMetrics_CriticalPlusWarning_ReturnsCritical()
-    {
-        var result = _rules.FromMetrics(
-            "App1",
-            SchemaWarning(),
-            DataCritical(),
-            logSpace: null,
-            logReuseWait: null,
-            activeTransactions: null,
-            serverCount: 1);
-
-        Assert.Equal(StorageHealthStatus.CRITICAL, result.Status);
-    }
-
-    [Fact]
-    public void FromMetrics_UnavailablePlusOk_ReturnsOk()
-    {
-        var result = _rules.FromMetrics(
-            "App1",
-            SchemaUnavailable(),
-            DataOk(),
-            logSpace: null,
-            logReuseWait: null,
-            activeTransactions: null,
-            serverCount: 1);
-
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
-    }
-
-    [Fact]
-    public void FromMetrics_OkPlusUnavailable_ReturnsOk()
-    {
-        var result = _rules.FromMetrics(
-            "App1",
-            SchemaOk(),
-            DataUnavailable(),
-            logSpace: null,
-            logReuseWait: null,
-            activeTransactions: null,
-            serverCount: 1);
-
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
-    }
-
-    [Fact]
-    public void FromMetrics_UnavailablePlusWarning_ReturnsWarning()
-    {
-        var result = _rules.FromMetrics(
-            "App1",
-            SchemaUnavailable(),
-            DataWarning(),
-            logSpace: null,
-            logReuseWait: null,
-            activeTransactions: null,
-            serverCount: 1);
-
-        Assert.Equal(StorageHealthStatus.WARNING, result.Status);
-    }
-
-    [Fact]
-    public void FromMetrics_UnavailablePlusCritical_ReturnsCritical()
-    {
-        var result = _rules.FromMetrics(
-            "App1",
-            SchemaUnavailable(),
-            DataCritical(),
-            logSpace: null,
-            logReuseWait: null,
-            activeTransactions: null,
-            serverCount: 1);
-
-        Assert.Equal(StorageHealthStatus.CRITICAL, result.Status);
-    }
-
-    [Fact]
-    public void FromMetrics_UnavailablePlusUnavailable_ReturnsUnavailable()
-    {
-        var result = _rules.FromMetrics(
-            "App1",
-            SchemaUnavailable(),
-            DataUnavailable(),
-            logSpace: null,
-            logReuseWait: null,
-            activeTransactions: null,
-            serverCount: 1);
-
-        Assert.Equal(StorageHealthStatus.UNAVAILABLE, result.Status);
+        Assert.NotNull(result.Resolution);
+        Assert.Contains("Diagnostic only", result.Resolution!.DiagnosticQueriesSql, StringComparison.Ordinal);
+        Assert.Contains("NEVER executes", result.Resolution.CorrectiveQueriesSql, StringComparison.Ordinal);
+        Assert.Contains("<new_size_mb>", result.Resolution.CorrectiveQueriesSql, StringComparison.Ordinal);
+        Assert.DoesNotContain("Password", result.Resolution.CorrectiveQueriesSql, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("ConnectionString", result.Resolution.CorrectiveQueriesSql, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
     public void FromMetrics_PreservesApplicationNameAndMetricPayloads()
     {
         var schema = SchemaOk();
-        var dataFiles = DataWarning();
+        var dataFiles = DataOk();
+        var headroom = HeadroomUnlimited();
         var logSpace = new LogSpaceMetrics(100m, 40m, 60m, 40m);
         var logReuseWait = new LogReuseWaitMetrics(0, "NOTHING", "FULL");
         var activeTransactions = new ActiveTransactionMetrics(1, DateTime.UtcNow, 30);
@@ -156,6 +198,7 @@ public class ApplicationStorageHealthRulesTests
             "Payments.Worker",
             schema,
             dataFiles,
+            headroom,
             logSpace,
             logReuseWait,
             activeTransactions,
@@ -164,133 +207,31 @@ public class ApplicationStorageHealthRulesTests
         Assert.Equal("Payments.Worker", result.ApplicationName);
         Assert.Same(schema, result.Schema);
         Assert.Same(dataFiles, result.DataFiles);
+        Assert.Same(headroom, result.DataFileHeadroom);
         Assert.Same(logSpace, result.LogSpace);
         Assert.Same(logReuseWait, result.LogReuseWait);
         Assert.Same(activeTransactions, result.ActiveTransactions);
         Assert.Equal(2, result.ServerCount);
-        Assert.Equal(StorageHealthStatus.WARNING, result.Status);
-    }
-
-    [Fact]
-    public void FromMetrics_AcquisitionOnlyMetrics_DoNotAffectStatus()
-    {
-        var logSpace = new LogSpaceMetrics(100m, 99m, 1m, 99m);
-        var logReuseWait = new LogReuseWaitMetrics(2, "LOG_BACKUP", "FULL");
-        var activeTransactions = new ActiveTransactionMetrics(
-            5,
-            new DateTime(2026, 9, 26, 8, 0, 0, DateTimeKind.Utc),
-            3600);
-
-        var result = _rules.FromMetrics(
-            "App1",
-            SchemaOk(),
-            DataOk(),
-            logSpace,
-            logReuseWait,
-            activeTransactions,
-            serverCount: 0);
-
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
-        Assert.Same(logSpace, result.LogSpace);
-        Assert.Same(logReuseWait, result.LogReuseWait);
-        Assert.Same(activeTransactions, result.ActiveTransactions);
-        Assert.Equal(0, result.ServerCount);
-    }
-
-    [Fact]
-    public void FromMetrics_ServerCountZero_DoesNotChangeStatus_WhenOk()
-    {
-        var result = _rules.FromMetrics(
-            "App1",
-            SchemaOk(),
-            DataOk(),
-            logSpace: null,
-            logReuseWait: null,
-            activeTransactions: null,
-            serverCount: 0);
-
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
-        Assert.Equal(0, result.ServerCount);
-    }
-
-    [Fact]
-    public void FromMetrics_ServerCountZero_DoesNotChangeStatus_WhenCritical()
-    {
-        var result = _rules.FromMetrics(
-            "App1",
-            SchemaOk(),
-            DataCritical(),
-            logSpace: null,
-            logReuseWait: null,
-            activeTransactions: null,
-            serverCount: 0);
-
-        Assert.Equal(StorageHealthStatus.CRITICAL, result.Status);
-        Assert.Equal(0, result.ServerCount);
-    }
-
-    [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(4)]
-    public void FromMetrics_PropagatesServerCount(long serverCount)
-    {
-        var result = _rules.FromMetrics(
-            "App1",
-            SchemaOk(),
-            DataOk(),
-            logSpace: null,
-            logReuseWait: null,
-            activeTransactions: null,
-            serverCount);
-
-        Assert.Equal(serverCount, result.ServerCount);
         Assert.Equal(StorageHealthStatus.OK, result.Status);
     }
 
     [Fact]
-    public void FromMetrics_ServerCountZero_PreservesMetricPayloads()
+    public void Unavailable_ReturnsFullUnavailableRow_WithFailureReason()
     {
-        var schema = SchemaOk();
-        var dataFiles = DataOk();
-        var logSpace = new LogSpaceMetrics(100m, 40m, 60m, 40m);
-        var logReuseWait = new LogReuseWaitMetrics(0, "NOTHING", "FULL");
-        var activeTransactions = new ActiveTransactionMetrics(0, null, null);
-
-        var result = _rules.FromMetrics(
-            "App1",
-            schema,
-            dataFiles,
-            logSpace,
-            logReuseWait,
-            activeTransactions,
-            serverCount: 0);
-
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
-        Assert.Equal(0, result.ServerCount);
-        Assert.Same(schema, result.Schema);
-        Assert.Same(dataFiles, result.DataFiles);
-        Assert.Same(logSpace, result.LogSpace);
-        Assert.Same(logReuseWait, result.LogReuseWait);
-        Assert.Same(activeTransactions, result.ActiveTransactions);
-    }
-
-    [Fact]
-    public void Unavailable_ReturnsFullUnavailableRow()
-    {
-        var result = _rules.Unavailable("App3");
+        var result = _rules.Unavailable("App3", "login failed");
 
         Assert.Equal("App3", result.ApplicationName);
         Assert.Equal(StorageHealthStatus.UNAVAILABLE, result.Status);
         Assert.Equal(StorageHealthStatus.UNAVAILABLE, result.Schema.Status);
         Assert.Equal(StorageHealthStatus.UNAVAILABLE, result.DataFiles.Status);
-        Assert.Equal(SchemaVersionHealthRules.DefaultExpectedSchemaVersion, result.Schema.ExpectedVersion);
-        Assert.Null(result.Schema.ActualVersion);
-        Assert.Null(result.DataFiles.UsedPercent);
+        Assert.Null(result.DataFileHeadroom);
         Assert.Null(result.LogSpace);
         Assert.Null(result.LogReuseWait);
         Assert.Null(result.ActiveTransactions);
         Assert.Equal(0, result.ServerCount);
+        Assert.Equal("login failed", result.FailureReason);
+        Assert.Contains("login failed", result.Diagnosis, StringComparison.Ordinal);
+        Assert.Null(result.Resolution);
     }
 
     [Fact]
@@ -300,6 +241,7 @@ public class ApplicationStorageHealthRulesTests
             "App1",
             schema: null!,
             DataOk(),
+            HeadroomUnlimited(),
             logSpace: null,
             logReuseWait: null,
             activeTransactions: null,
@@ -313,6 +255,7 @@ public class ApplicationStorageHealthRulesTests
             "App1",
             SchemaOk(),
             dataFiles: null!,
+            HeadroomUnlimited(),
             logSpace: null,
             logReuseWait: null,
             activeTransactions: null,
@@ -326,6 +269,7 @@ public class ApplicationStorageHealthRulesTests
             applicationName: null!,
             SchemaOk(),
             DataOk(),
+            HeadroomUnlimited(),
             logSpace: null,
             logReuseWait: null,
             activeTransactions: null,
@@ -339,6 +283,7 @@ public class ApplicationStorageHealthRulesTests
             "App1",
             SchemaOk(),
             DataOk(),
+            HeadroomUnlimited(),
             logSpace: null,
             logReuseWait: null,
             activeTransactions: null,
@@ -357,18 +302,28 @@ public class ApplicationStorageHealthRulesTests
     private SchemaVersionHealthResult SchemaWarning() =>
         _schemaRules.Evaluate(8, SchemaVersionHealthRules.DefaultExpectedSchemaVersion);
 
-    private SchemaVersionHealthResult SchemaUnavailable() =>
-        _schemaRules.Unavailable(SchemaVersionHealthRules.DefaultExpectedSchemaVersion);
-
     private DataFileSpaceHealthResult DataOk() =>
         _dataFileRules.Evaluate(new DataFileSpaceMetrics(100m, 50m, 50m));
 
-    private DataFileSpaceHealthResult DataWarning() =>
-        _dataFileRules.Evaluate(new DataFileSpaceMetrics(100m, 85m, 15m));
-
-    private DataFileSpaceHealthResult DataCritical() =>
-        _dataFileRules.Evaluate(new DataFileSpaceMetrics(100m, 95m, 5m));
-
-    private DataFileSpaceHealthResult DataUnavailable() =>
-        _dataFileRules.Unavailable();
+    private static IReadOnlyList<DataFileHeadroomFileMetrics> HeadroomUnlimited(
+        decimal usedPercent = 50m,
+        decimal freeMb = 50m) =>
+        [
+            new DataFileHeadroomFileMetrics(
+                1,
+                "data",
+                CurrentSizeMB: 100m,
+                UsedMB: 100m - freeMb,
+                FreeMB: freeMb,
+                UsedPercent: usedPercent,
+                DataFileMaxSizeKind.Unlimited,
+                MaxSizeMB: null,
+                GrowthMB: 64m,
+                GrowthPercent: null,
+                IsPercentGrowth: false,
+                VolumeMountPoint: "C:\\",
+                VolumeTotalGB: 80m,
+                VolumeFreeGB: 40m,
+                VolumeFreePercent: 50m)
+        ];
 }

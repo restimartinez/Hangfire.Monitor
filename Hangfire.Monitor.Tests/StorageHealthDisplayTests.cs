@@ -198,6 +198,47 @@ public class StorageHealthDisplayTests
     }
 
     [Theory]
+    [InlineData(StorageHealthStatus.OK, "Healthy")]
+    [InlineData(StorageHealthStatus.WARNING, "Warning")]
+    [InlineData(StorageHealthStatus.UNAVAILABLE, "Unavailable")]
+    public void FormatHealth_ReturnsCapacityLabels(StorageHealthStatus status, string expected)
+    {
+        Assert.Equal(expected, StorageHealthDisplay.FormatHealth(status));
+    }
+
+    [Theory]
+    [InlineData(StorageHealthStatus.OK, "status-badge status-ok")]
+    [InlineData(StorageHealthStatus.WARNING, "status-badge status-warning")]
+    [InlineData(StorageHealthStatus.UNAVAILABLE, "status-badge status-unavailable")]
+    public void FormatHealthBadgeCssClass_ReturnsExpected(StorageHealthStatus status, string expected)
+    {
+        Assert.Equal(expected, StorageHealthDisplay.FormatHealthBadgeCssClass(status));
+    }
+
+    [Fact]
+    public void FormatMaxSize_Unlimited_DoesNotInventNumber()
+    {
+        var file = new DataFileHeadroomFileMetrics(
+            1,
+            "data",
+            100m,
+            50m,
+            50m,
+            50m,
+            DataFileMaxSizeKind.Unlimited,
+            null,
+            64m,
+            null,
+            false,
+            null,
+            null,
+            null,
+            null);
+
+        Assert.Equal("UNLIMITED", StorageHealthDisplay.FormatMaxSize(file));
+    }
+
+    [Theory]
     [InlineData(StorageHealthStatus.OK, "OK")]
     [InlineData(StorageHealthStatus.WARNING, "WARNING")]
     [InlineData(StorageHealthStatus.CRITICAL, "CRITICAL")]

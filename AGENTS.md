@@ -68,11 +68,20 @@ Keep durable context in the repository, not only in chat.
 | `_docs/process.md` | How work is organized (tasks, commits, review) |
 | `_docs/architecture.md` | Architectural decisions and rejected alternatives |
 | `_docs/testing.md` | Testing conventions once the test project exists |
-| `_docs/hangfire-storage-health-investigation.md` | Storage Health metrics investigation (read-only SQL; no app code yet) |
+| `_docs/hangfire-storage-health-investigation.md` | Storage Health metrics investigation (read-only SQL; acquisition) |
+| `_docs/storage-health-investigation.md` | Defining Storage Health from real data (rules/thresholds; investigation only) |
 
 When correcting the agent during a session, update the relevant document so the next session inherits the rule.
 
 Before UI work, check for a design note under `_docs/`. Before data-access work, check `_docs/architecture.md` for Hangfire schema and connection assumptions.
+
+### Internal information in versioned docs
+
+Do **not** use `secrets.json` (or User Secrets / environment config with the same data) as a source for documenting names. Use it, if needed, **only** to run the investigation against the configured databases. Results written to `_docs/` must be **anonymized**.
+
+Never copy into any versioned file: real application or database names, SQL Server hosts/instances, connection strings, users, credentials, IPs, internal domains, internal paths, or other identifying infrastructure details.
+
+When a research result must refer to a specific application or database, use generic identifiers only (`Application A`, `Database B`, or cases such as `Case A — high data usage`). Technical metrics may be documented when they do not identify internal infrastructure. Before finishing work that writes or updates `_docs/`, review the output for leakage.
 
 ## Commands
 
@@ -94,3 +103,4 @@ Stop and ask the human before:
 - Writing to Hangfire storage tables
 - Expanding scope beyond failed-job monitoring for the MVP
 - Committing secrets, connection strings with credentials, or production data dumps
+- Writing real names or other identifiers from `secrets.json` / config into versioned `_docs/` (anonymize; secrets are for running investigations only)

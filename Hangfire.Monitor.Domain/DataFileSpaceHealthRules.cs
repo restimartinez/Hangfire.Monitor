@@ -2,25 +2,16 @@ namespace Hangfire.Monitor.Domain;
 
 /// <summary>
 /// Pure rules that map <see cref="DataFileSpaceMetrics"/> into
-/// <see cref="DataFileSpaceHealthResult"/>. Does not catch storage exceptions;
-/// callers that need <see cref="StorageHealthStatus.UNAVAILABLE"/> after a
+/// <see cref="DataFileSpaceHealthResult"/>. Used-of-allocated percent is
+/// informational only — it never produces WARNING or CRITICAL.
+/// Callers that need <see cref="StorageHealthStatus.UNAVAILABLE"/> after a
 /// <c>DbException</c> must invoke <see cref="Unavailable"/> explicitly.
 /// </summary>
 public class DataFileSpaceHealthRules
 {
     /// <summary>
-    /// Used percent at or above this value (and at or below
-    /// <see cref="DefaultCriticalThresholdPercent"/>) maps to WARNING.
-    /// </summary>
-    public const decimal DefaultWarningThresholdPercent = 80m;
-
-    /// <summary>
-    /// Used percent above this value maps to CRITICAL.
-    /// </summary>
-    public const decimal DefaultCriticalThresholdPercent = 90m;
-
-    /// <summary>
-    /// Maps a successful data-file space read into OK, WARNING, CRITICAL, or UNAVAILABLE.
+    /// Maps a successful data-file space read into OK or UNAVAILABLE.
+    /// High used percent alone does not indicate capacity risk.
     /// </summary>
     public DataFileSpaceHealthResult Evaluate(DataFileSpaceMetrics metrics)
     {
@@ -46,43 +37,15 @@ public class DataFileSpaceHealthRules
             2,
             MidpointRounding.AwayFromZero);
 
-        if (usedPercent < DefaultWarningThresholdPercent)
-        {
-            return new DataFileSpaceHealthResult(
-                metrics.AllocatedMB,
-                metrics.UsedMB,
-                metrics.FreeMB,
-                usedPercent,
-                StorageHealthStatus.OK,
-                Diagnosis:
-                $"Data files are using {usedPercent}% of the allocated database data-file space.",
-                Recommendation: "No action required.");
-        }
-
-        if (usedPercent <= DefaultCriticalThresholdPercent)
-        {
-            return new DataFileSpaceHealthResult(
-                metrics.AllocatedMB,
-                metrics.UsedMB,
-                metrics.FreeMB,
-                usedPercent,
-                StorageHealthStatus.WARNING,
-                Diagnosis:
-                $"Data files are using {usedPercent}% of the allocated database data-file space and approaching capacity.",
-                Recommendation:
-                "Review file growth/autogrowth and available capacity within the allocated data files.");
-        }
-
         return new DataFileSpaceHealthResult(
             metrics.AllocatedMB,
             metrics.UsedMB,
             metrics.FreeMB,
             usedPercent,
-            StorageHealthStatus.CRITICAL,
+            StorageHealthStatus.OK,
             Diagnosis:
-            $"Data files are using {usedPercent}% of the allocated database data-file space and are close to exhausting the allocated space.",
-            Recommendation:
-            "Review/expand data files or free database space before capacity is exhausted.");
+            $"Data files are using {usedPercent}% of the allocated database data-file space.",
+            Recommendation: "No action required.");
     }
 
     /// <summary>

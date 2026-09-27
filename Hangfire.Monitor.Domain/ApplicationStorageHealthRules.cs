@@ -1,34 +1,25 @@
 namespace Hangfire.Monitor.Domain;
 
 /// <summary>
-/// Pure rules that aggregate per-metric storage health into
-/// <see cref="ApplicationStorageHealthResult"/>. Only Schema Version and Data File Space
-/// participate in the application-level <see cref="StorageHealthStatus"/>.
-/// Acquisition-only metrics are preserved and never affect status.
+/// Pure rules that aggregate storage capacity health into
+/// <see cref="ApplicationStorageHealthResult"/>. Schema Version, Log, Log Reuse,
+/// Active Transactions, Servers, and data used-% alone never set capacity Status.
+/// Only justified headroom Warning or total acquisition failure affect Status.
 /// </summary>
 public sealed class ApplicationStorageHealthRules
 {
     private readonly SchemaVersionHealthRules _schemaRules = new();
     private readonly DataFileSpaceHealthRules _dataFileRules = new();
+    private readonly DataFileHeadroomHealthRules _headroomRules = new();
 
     /// <summary>
     /// Builds an application storage-health result from already-evaluated metric results.
     /// </summary>
-    /// <remarks>
-    /// Aggregation (Schema + Data Files only):
-    /// <list type="bullet">
-    /// <item>Ignore <see cref="StorageHealthStatus.UNAVAILABLE"/> when another metric is evaluable</item>
-    /// <item>Any <see cref="StorageHealthStatus.CRITICAL"/> → CRITICAL</item>
-    /// <item>Else any <see cref="StorageHealthStatus.WARNING"/> → WARNING</item>
-    /// <item>Else all known are OK → OK</item>
-    /// <item>Both UNAVAILABLE → UNAVAILABLE</item>
-    /// <item><c>ServerCount</c> is propagated and does not affect status</item>
-    /// </list>
-    /// </remarks>
     public ApplicationStorageHealthResult FromMetrics(
         string applicationName,
         SchemaVersionHealthResult schema,
         DataFileSpaceHealthResult dataFiles,
+        IReadOnlyList<DataFileHeadroomFileMetrics>? dataFileHeadroom,
         LogSpaceMetrics? logSpace,
         LogReuseWaitMetrics? logReuseWait,
         ActiveTransactionMetrics? activeTransactions,
@@ -46,62 +37,65 @@ public sealed class ApplicationStorageHealthRules
                 "Server count cannot be negative.");
         }
 
-        var status = AggregateStatus(schema.Status, dataFiles.Status);
+        DataFileHeadroomHealthResult? headroomResult = null;
+        if (dataFileHeadroom is not null)
+        {
+            headroomResult = _headroomRules.Evaluate(dataFileHeadroom);
+        }
+
+        var status = headroomResult?.Status ?? StorageHealthStatus.OK;
+        var diagnosis = StorageHealthDiagnosisBuilder.BuildDiagnosis(
+            status,
+            headroomResult,
+            failureReason: null);
+        var resolution = StorageHealthDiagnosisBuilder.BuildResolution(
+            status,
+            headroomResult,
+            databaseNameHint: null);
 
         return new ApplicationStorageHealthResult(
             applicationName,
             status,
             schema,
             dataFiles,
+            dataFileHeadroom,
             logSpace,
             logReuseWait,
             activeTransactions,
-            serverCount);
+            serverCount,
+            diagnosis,
+            FailureReason: null,
+            resolution);
     }
 
     /// <summary>
     /// Builds a fully unavailable application row when storage health could not be obtained
     /// for the application as a whole.
     /// </summary>
-    public ApplicationStorageHealthResult Unavailable(string applicationName)
+    public ApplicationStorageHealthResult Unavailable(
+        string applicationName,
+        string? failureReason = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(applicationName);
 
+        var status = StorageHealthStatus.UNAVAILABLE;
+        var diagnosis = StorageHealthDiagnosisBuilder.BuildDiagnosis(
+            status,
+            headroom: null,
+            failureReason);
+
         return new ApplicationStorageHealthResult(
             applicationName,
-            StorageHealthStatus.UNAVAILABLE,
+            status,
             _schemaRules.Unavailable(SchemaVersionHealthRules.DefaultExpectedSchemaVersion),
             _dataFileRules.Unavailable(),
+            DataFileHeadroom: null,
             LogSpace: null,
             LogReuseWait: null,
             ActiveTransactions: null,
-            ServerCount: 0);
-    }
-
-    private static StorageHealthStatus AggregateStatus(
-        StorageHealthStatus schemaStatus,
-        StorageHealthStatus dataFilesStatus)
-    {
-        var schemaKnown = schemaStatus != StorageHealthStatus.UNAVAILABLE;
-        var dataFilesKnown = dataFilesStatus != StorageHealthStatus.UNAVAILABLE;
-
-        if (!schemaKnown && !dataFilesKnown)
-        {
-            return StorageHealthStatus.UNAVAILABLE;
-        }
-
-        if ((schemaKnown && schemaStatus == StorageHealthStatus.CRITICAL)
-            || (dataFilesKnown && dataFilesStatus == StorageHealthStatus.CRITICAL))
-        {
-            return StorageHealthStatus.CRITICAL;
-        }
-
-        if ((schemaKnown && schemaStatus == StorageHealthStatus.WARNING)
-            || (dataFilesKnown && dataFilesStatus == StorageHealthStatus.WARNING))
-        {
-            return StorageHealthStatus.WARNING;
-        }
-
-        return StorageHealthStatus.OK;
+            ServerCount: 0,
+            diagnosis,
+            failureReason,
+            Resolution: null);
     }
 }

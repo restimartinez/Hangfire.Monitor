@@ -41,11 +41,13 @@ public class HangfireMonitorDependencyInjectionTests
         Assert.NotNull(provider.GetRequiredService<ConfiguredApplicationsMonitor>());
         Assert.NotNull(provider.GetRequiredService<SchemaVersionReader>());
         Assert.NotNull(provider.GetRequiredService<DataFileSpaceReader>());
+        Assert.NotNull(provider.GetRequiredService<DataFileHeadroomReader>());
         Assert.NotNull(provider.GetRequiredService<LogSpaceReader>());
         Assert.NotNull(provider.GetRequiredService<LogReuseWaitReader>());
         Assert.NotNull(provider.GetRequiredService<ActiveTransactionsReader>());
         Assert.NotNull(provider.GetRequiredService<SchemaVersionHealthRules>());
         Assert.NotNull(provider.GetRequiredService<DataFileSpaceHealthRules>());
+        Assert.NotNull(provider.GetRequiredService<DataFileHeadroomHealthRules>());
         Assert.NotNull(provider.GetRequiredService<ApplicationStorageHealthRules>());
         Assert.NotNull(provider.GetRequiredService<ConfiguredApplicationsStorageHealthMonitor>());
     }
@@ -64,11 +66,13 @@ public class HangfireMonitorDependencyInjectionTests
         AssertSingleton<ConfiguredApplicationsMonitor>(services);
         AssertSingleton<SchemaVersionReader>(services);
         AssertSingleton<DataFileSpaceReader>(services);
+        AssertSingleton<DataFileHeadroomReader>(services);
         AssertSingleton<LogSpaceReader>(services);
         AssertSingleton<LogReuseWaitReader>(services);
         AssertSingleton<ActiveTransactionsReader>(services);
         AssertSingleton<SchemaVersionHealthRules>(services);
         AssertSingleton<DataFileSpaceHealthRules>(services);
+        AssertSingleton<DataFileHeadroomHealthRules>(services);
         AssertSingleton<ApplicationStorageHealthRules>(services);
         AssertSingleton<ConfiguredApplicationsStorageHealthMonitor>(services);
     }

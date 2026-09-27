@@ -199,6 +199,10 @@ body {
   max-width: 36rem;
 }
 
+.storage-health-detail-wide {
+  max-width: 56rem;
+}
+
 .storage-health-detail h2 {
   margin: 0 0 0.5rem;
   padding-bottom: 0.35rem;
@@ -206,10 +210,41 @@ body {
   font-size: 1.1rem;
 }
 
+.storage-health-detail h3 {
+  margin: 1.25rem 0 0.4rem;
+  font-size: 1rem;
+}
+
 .storage-health-detail.status-row-no-servers {
   background-color: #f0f0f0;
   padding: 0.75rem 0.85rem;
   border-radius: 0.25rem;
+}
+
+.metrics-table {
+  margin-top: 0.5rem;
+}
+
+.resolution-guide .resolution-warning {
+  color: #9a5b00;
+  background-color: #fff1e0;
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.25rem;
+}
+
+.sql-block {
+  margin: 0.5rem 0 1rem;
+  padding: 0.75rem 0.9rem;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 0.25rem;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+}
+
+.sql-block code {
+  font-family: Consolas, "Courier New", monospace;
 }
 
 .metric-list {

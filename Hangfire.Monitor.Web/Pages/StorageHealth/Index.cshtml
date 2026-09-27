@@ -25,7 +25,8 @@ else
             <thead>
                 <tr>
                     <th data-sort-type="text" aria-sort="none">Application</th>
-                    <th data-sort-type="number" aria-sort="none" data-default-sort="desc">Schema</th>
+                    <th data-sort-type="number" aria-sort="none" data-default-sort="desc">Health</th>
+                    <th data-sort-type="number" aria-sort="none">Schema</th>
                     <th data-sort-type="number" aria-sort="none">Data Files</th>
                     <th data-sort-type="number" aria-sort="none">Log</th>
                     <th data-sort-type="text" aria-sort="none">Log Reuse</th>
@@ -35,6 +36,7 @@ else
             <tbody>
             @foreach (var result in Model.Results)
             {
+                var healthSortValue = StorageHealthDisplay.FormatHealthSortValue(result.Status);
                 var schemaSortValue = result.Schema.ActualVersion?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
                 var dataFilesSortValue = result.DataFiles.UsedPercent?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
                 var logSortValue = result.LogSpace?.UsedPercent.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
@@ -42,6 +44,9 @@ else
                 <tr class="@StorageHealthDisplay.FormatRowCssClass(result.ServerCount)">
                     <td>
                         <a asp-page="./Details" asp-route-applicationName="@result.ApplicationName">@result.ApplicationName</a>
+                    </td>
+                    <td data-sort-value="@healthSortValue">
+                        <span class="@StorageHealthDisplay.FormatHealthBadgeCssClass(result.Status)">@StorageHealthDisplay.FormatHealth(result.Status)</span>
                     </td>
                     <td data-sort-value="@schemaSortValue">
                         <span class="@StorageHealthDisplay.FormatSchemaBadgeCssClass(result.Schema)">@StorageHealthDisplay.FormatSchema(result.Schema)</span>

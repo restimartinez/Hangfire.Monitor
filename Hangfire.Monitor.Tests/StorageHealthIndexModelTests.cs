@@ -52,10 +52,11 @@ public class StorageHealthIndexModelTests
         Assert.Equal(1, model.Results[0].ServerCount);
 
         Assert.Equal("App B", model.Results[1].ApplicationName);
-        Assert.Equal(StorageHealthStatus.CRITICAL, model.Results[1].Status);
+        Assert.Equal(StorageHealthStatus.OK, model.Results[1].Status);
         Assert.Equal(8, model.Results[1].Schema.ActualVersion);
         Assert.Equal(StorageHealthStatus.WARNING, model.Results[1].Schema.Status);
-        Assert.Equal(StorageHealthStatus.CRITICAL, model.Results[1].DataFiles.Status);
+        Assert.Equal(StorageHealthStatus.OK, model.Results[1].DataFiles.Status);
+        Assert.Equal(95.00m, model.Results[1].DataFiles.UsedPercent);
     }
 
     [Fact]
@@ -78,6 +79,7 @@ public class StorageHealthIndexModelTests
             },
             _ => 9,
             _ => new DataFileSpaceMetrics(100m, 50m, 50m),
+            _ => Array.Empty<DataFileHeadroomFileMetrics>(),
             _ => new LogSpaceMetrics(1m, 0m, 1m, 0m),
             _ => new LogReuseWaitMetrics(0, "NOTHING", "FULL"),
             _ => new ActiveTransactionMetrics(0, null, null),
@@ -206,7 +208,8 @@ public class StorageHealthIndexModelTests
         Assert.Equal(dataMetrics.UsedMB, result.DataFiles.UsedMB);
         Assert.Equal(dataMetrics.FreeMB, result.DataFiles.FreeMB);
         Assert.Equal(85.00m, result.DataFiles.UsedPercent);
-        Assert.Equal(StorageHealthStatus.WARNING, result.DataFiles.Status);
+        Assert.Equal(StorageHealthStatus.OK, result.DataFiles.Status);
+        Assert.Equal(StorageHealthStatus.OK, result.Status);
         Assert.Equal(logSpace, result.LogSpace);
         Assert.Equal(logReuse, result.LogReuseWait);
         Assert.Equal(transactions, result.ActiveTransactions);
@@ -244,6 +247,7 @@ public class StorageHealthIndexModelTests
             },
             _ => getSchemaVersionForApp(current!),
             _ => getDataFileSpaceForApp(current!),
+            _ => Array.Empty<DataFileHeadroomFileMetrics>(),
             getLogSpace,
             getLogReuseWait,
             getActiveTransactions,

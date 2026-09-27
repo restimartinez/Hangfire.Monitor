@@ -21,6 +21,7 @@ public class StorageHealthDetailsTests
             StorageHealthStatus.OK,
             "ok",
             "none");
+        var headroom = Array.Empty<DataFileHeadroomFileMetrics>();
         var log = new LogSpaceMetrics(200m, 20m, 180m, 10m);
         var logReuse = new LogReuseWaitMetrics(2, "LOG_BACKUP", "FULL");
         var transactions = new ActiveTransactionMetrics(
@@ -32,27 +33,34 @@ public class StorageHealthDetailsTests
             StorageHealthStatus.OK,
             schema,
             dataFiles,
+            headroom,
             log,
             logReuse,
             transactions,
-            ServerCount: 4);
+            ServerCount: 4,
+            Diagnosis: StorageHealthDiagnosisBuilder.HealthyDiagnosis,
+            FailureReason: null,
+            Resolution: null);
 
         var details = StorageHealthDetails.From(result);
 
         Assert.Equal("Payments.Worker", details.ApplicationName);
         Assert.Equal(4, details.ServerCount);
         Assert.Same(dataFiles, details.DataFiles);
+        Assert.Same(headroom, details.DataFileHeadroom);
         Assert.Equal(log, details.Log);
         Assert.Equal(logReuse, details.LogReuse);
         Assert.Equal(transactions, details.ActiveTransactions);
         Assert.Equal(StorageHealthStatus.OK, details.Status);
+        Assert.Equal(StorageHealthDiagnosisBuilder.HealthyDiagnosis, details.Diagnosis);
         Assert.False(details.IsUnavailable);
+        Assert.False(details.HasResolution);
     }
 
     [Fact]
     public void From_WhenUnavailable_SetsIsUnavailable()
     {
-        var result = new ApplicationStorageHealthRules().Unavailable("Offline.App");
+        var result = new ApplicationStorageHealthRules().Unavailable("Offline.App", "connection refused");
 
         var details = StorageHealthDetails.From(result);
 
@@ -61,5 +69,8 @@ public class StorageHealthDetailsTests
         Assert.Null(details.Log);
         Assert.Null(details.LogReuse);
         Assert.Null(details.ActiveTransactions);
+        Assert.Null(details.DataFileHeadroom);
+        Assert.Contains("connection refused", details.Diagnosis, StringComparison.Ordinal);
+        Assert.False(details.HasResolution);
     }
 }
