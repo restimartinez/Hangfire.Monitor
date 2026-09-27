@@ -102,6 +102,25 @@ body {
   text-decoration: underline;
 }
 
+.number-culture-form {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: 0.75rem;
+}
+
+.number-culture-label {
+  margin: 0;
+  color: #555;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.number-culture-select {
+  width: auto;
+  min-width: 6.5rem;
+}
+
 .table-panel {
   overflow-x: auto;
 }

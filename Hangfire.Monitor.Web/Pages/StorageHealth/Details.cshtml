@@ -5,6 +5,7 @@
         ? "Storage Health"
         : $"Storage Health / {Model.Details.ApplicationName}";
     var details = Model.Details!;
+    var numberCulture = NumberCulturePreference.ResolveCulture(ViewContext.HttpContext.Request);
 }
 
 <section class="page-header">
@@ -55,19 +56,19 @@ else
             <dl class="metric-list">
                 <div>
                     <dt>Allocated (database)</dt>
-                    <dd>@StorageHealthDisplay.FormatMegabytes(details.DataFiles.AllocatedMB)</dd>
+                    <dd>@StorageHealthDisplay.FormatMegabytes(details.DataFiles.AllocatedMB, numberCulture)</dd>
                 </div>
                 <div>
                     <dt>Used (database)</dt>
-                    <dd>@StorageHealthDisplay.FormatMegabytes(details.DataFiles.UsedMB)</dd>
+                    <dd>@StorageHealthDisplay.FormatMegabytes(details.DataFiles.UsedMB, numberCulture)</dd>
                 </div>
                 <div>
                     <dt>Free (database)</dt>
-                    <dd>@StorageHealthDisplay.FormatMegabytes(details.DataFiles.FreeMB)</dd>
+                    <dd>@StorageHealthDisplay.FormatMegabytes(details.DataFiles.FreeMB, numberCulture)</dd>
                 </div>
                 <div>
                     <dt>Used %</dt>
-                    <dd>@StorageHealthDisplay.FormatUsedPercent(details.DataFiles.UsedPercent)</dd>
+                    <dd>@StorageHealthDisplay.FormatUsedPercent(details.DataFiles.UsedPercent, numberCulture)</dd>
                 </div>
             </dl>
         }
@@ -91,12 +92,12 @@ else
                     {
                         <tr>
                             <td>@file.FileName</td>
-                            <td>@StorageHealthDisplay.FormatMegabytes(file.CurrentSizeMB)</td>
-                            <td>@StorageHealthDisplay.FormatMegabytes(file.UsedMB)</td>
-                            <td>@StorageHealthDisplay.FormatMegabytes(file.FreeMB)</td>
-                            <td>@StorageHealthDisplay.FormatUsedPercent(file.UsedPercent)</td>
-                            <td>@StorageHealthDisplay.FormatMaxSize(file)</td>
-                            <td>@StorageHealthDisplay.FormatGrowth(file)</td>
+                            <td>@StorageHealthDisplay.FormatMegabytes(file.CurrentSizeMB, numberCulture)</td>
+                            <td>@StorageHealthDisplay.FormatMegabytes(file.UsedMB, numberCulture)</td>
+                            <td>@StorageHealthDisplay.FormatMegabytes(file.FreeMB, numberCulture)</td>
+                            <td>@StorageHealthDisplay.FormatUsedPercent(file.UsedPercent, numberCulture)</td>
+                            <td>@StorageHealthDisplay.FormatMaxSize(file, numberCulture)</td>
+                            <td>@StorageHealthDisplay.FormatGrowth(file, numberCulture)</td>
                         </tr>
                     }
                     </tbody>
@@ -139,9 +140,9 @@ else
                         {
                             <tr>
                                 <td>@(string.IsNullOrEmpty(volume.VolumeMountPoint) ? "-" : volume.VolumeMountPoint)</td>
-                                <td>@StorageHealthDisplay.FormatGigabytes(volume.VolumeTotalGB)</td>
-                                <td>@StorageHealthDisplay.FormatGigabytes(volume.VolumeFreeGB)</td>
-                                <td>@StorageHealthDisplay.FormatUsedPercent(volume.VolumeFreePercent)</td>
+                                <td>@StorageHealthDisplay.FormatGigabytes(volume.VolumeTotalGB, numberCulture)</td>
+                                <td>@StorageHealthDisplay.FormatGigabytes(volume.VolumeFreeGB, numberCulture)</td>
+                                <td>@StorageHealthDisplay.FormatUsedPercent(volume.VolumeFreePercent, numberCulture)</td>
                             </tr>
                         }
                         </tbody>
@@ -162,19 +163,19 @@ else
             <dl class="metric-list">
                 <div>
                     <dt>Total</dt>
-                    <dd>@StorageHealthDisplay.FormatMegabytes(details.Log.TotalLogMB)</dd>
+                    <dd>@StorageHealthDisplay.FormatMegabytes(details.Log.TotalLogMB, numberCulture)</dd>
                 </div>
                 <div>
                     <dt>Used</dt>
-                    <dd>@StorageHealthDisplay.FormatMegabytes(details.Log.UsedLogMB)</dd>
+                    <dd>@StorageHealthDisplay.FormatMegabytes(details.Log.UsedLogMB, numberCulture)</dd>
                 </div>
                 <div>
                     <dt>Free</dt>
-                    <dd>@StorageHealthDisplay.FormatMegabytes(details.Log.FreeLogMB)</dd>
+                    <dd>@StorageHealthDisplay.FormatMegabytes(details.Log.FreeLogMB, numberCulture)</dd>
                 </div>
                 <div>
                     <dt>Used</dt>
-                    <dd>@StorageHealthDisplay.FormatUsedPercent(details.Log.UsedPercent)</dd>
+                    <dd>@StorageHealthDisplay.FormatUsedPercent(details.Log.UsedPercent, numberCulture)</dd>
                 </div>
             </dl>
         }

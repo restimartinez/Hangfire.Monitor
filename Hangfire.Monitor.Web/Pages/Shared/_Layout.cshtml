@@ -33,6 +33,31 @@
                             <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
                         </li>
                     </ul>
+                    @{
+                        var numberCultureToken = NumberCulturePreference.ResolveToken(
+                            ViewContext.HttpContext.Request.Cookies[NumberCulturePreference.CookieName]);
+                        var returnUrl = $"{ViewContext.HttpContext.Request.Path}{ViewContext.HttpContext.Request.QueryString}";
+                    }
+                    <form method="post"
+                          asp-page="/Preferences/NumberCulture"
+                          class="number-culture-form"
+                          aria-label="Number format">
+                        <input type="hidden" name="returnUrl" value="@returnUrl" />
+                        <label class="number-culture-label" for="number-culture-select">Numbers</label>
+                        <select id="number-culture-select"
+                                name="culture"
+                                class="form-select form-select-sm number-culture-select"
+                                onchange="this.form.submit()">
+                            <option value="@NumberCulturePreference.EnglishUnitedStatesToken"
+                                    selected="@(numberCultureToken == NumberCulturePreference.EnglishUnitedStatesToken)">
+                                1,234.56
+                            </option>
+                            <option value="@NumberCulturePreference.SpanishSpainToken"
+                                    selected="@(numberCultureToken == NumberCulturePreference.SpanishSpainToken)">
+                                1.234,56
+                            </option>
+                        </select>
+                    </form>
                 </div>
             </div>
         </nav>

@@ -45,29 +45,32 @@ public static class StorageHealthDisplay
     /// <summary>
     /// Returns used percent with two decimal places, or <c>-</c> when unavailable.
     /// </summary>
-    public static string FormatDataFileSpace(DataFileSpaceHealthResult dataFiles)
+    public static string FormatDataFileSpace(DataFileSpaceHealthResult dataFiles, CultureInfo culture)
     {
         ArgumentNullException.ThrowIfNull(dataFiles);
+        ArgumentNullException.ThrowIfNull(culture);
 
         if (dataFiles.UsedPercent is null)
         {
             return "-";
         }
 
-        return FormatPercent(dataFiles.UsedPercent.Value);
+        return FormatPercent(dataFiles.UsedPercent.Value, culture);
     }
 
     /// <summary>
     /// Returns log used percent with two decimal places, or <c>-</c> when not acquired.
     /// </summary>
-    public static string FormatLogSpace(LogSpaceMetrics? logSpace)
+    public static string FormatLogSpace(LogSpaceMetrics? logSpace, CultureInfo culture)
     {
+        ArgumentNullException.ThrowIfNull(culture);
+
         if (logSpace is null)
         {
             return "-";
         }
 
-        return FormatPercent(logSpace.UsedPercent);
+        return FormatPercent(logSpace.UsedPercent, culture);
     }
 
     /// <summary>
@@ -105,20 +108,25 @@ public static class StorageHealthDisplay
     /// <summary>
     /// Returns megabytes with grouping separators and an <c>MB</c> suffix.
     /// </summary>
-    public static string FormatMegabytes(decimal megabytes) =>
-        megabytes.ToString("#,0.###", Invariant) + " MB";
+    public static string FormatMegabytes(decimal megabytes, CultureInfo culture)
+    {
+        ArgumentNullException.ThrowIfNull(culture);
+        return megabytes.ToString("#,0.###", culture) + " MB";
+    }
 
     /// <summary>
     /// Returns used percent with one decimal place for the detail page, or <c>-</c> when null.
     /// </summary>
-    public static string FormatUsedPercent(decimal? percent)
+    public static string FormatUsedPercent(decimal? percent, CultureInfo culture)
     {
+        ArgumentNullException.ThrowIfNull(culture);
+
         if (percent is null)
         {
             return "-";
         }
 
-        return percent.Value.ToString("0.0", Invariant) + " %";
+        return percent.Value.ToString("0.0", culture) + " %";
     }
 
     /// <summary>
@@ -217,16 +225,17 @@ public static class StorageHealthDisplay
     /// <summary>
     /// Formats MaxSize for display (UNLIMITED / NO_GROWTH / numeric MB).
     /// </summary>
-    public static string FormatMaxSize(DataFileHeadroomFileMetrics file)
+    public static string FormatMaxSize(DataFileHeadroomFileMetrics file, CultureInfo culture)
     {
         ArgumentNullException.ThrowIfNull(file);
+        ArgumentNullException.ThrowIfNull(culture);
 
         return file.MaxSizeKind switch
         {
             DataFileMaxSizeKind.Unlimited => "UNLIMITED",
             DataFileMaxSizeKind.NoGrowth => "NO_GROWTH",
             DataFileMaxSizeKind.Limited when file.MaxSizeMB is not null =>
-                FormatMegabytes(file.MaxSizeMB.Value),
+                FormatMegabytes(file.MaxSizeMB.Value, culture),
             _ => "-"
         };
     }
@@ -234,9 +243,10 @@ public static class StorageHealthDisplay
     /// <summary>
     /// Formats autogrowth for display.
     /// </summary>
-    public static string FormatGrowth(DataFileHeadroomFileMetrics file)
+    public static string FormatGrowth(DataFileHeadroomFileMetrics file, CultureInfo culture)
     {
         ArgumentNullException.ThrowIfNull(file);
+        ArgumentNullException.ThrowIfNull(culture);
 
         if (file.IsPercentGrowth)
         {
@@ -253,20 +263,22 @@ public static class StorageHealthDisplay
             return "-";
         }
 
-        return FormatMegabytes(file.GrowthMB.Value);
+        return FormatMegabytes(file.GrowthMB.Value, culture);
     }
 
     /// <summary>
     /// Formats gigabytes with an optional suffix, or <c>-</c> when null.
     /// </summary>
-    public static string FormatGigabytes(decimal? gigabytes)
+    public static string FormatGigabytes(decimal? gigabytes, CultureInfo culture)
     {
+        ArgumentNullException.ThrowIfNull(culture);
+
         if (gigabytes is null)
         {
             return "-";
         }
 
-        return gigabytes.Value.ToString("#,0.###", Invariant) + " GB";
+        return gigabytes.Value.ToString("#,0.###", culture) + " GB";
     }
 
     /// <summary>
@@ -302,8 +314,8 @@ public static class StorageHealthDisplay
     public static string? FormatRowCssClass(long serverCount) =>
         serverCount == 0 ? "status-row-no-servers" : null;
 
-    private static string FormatPercent(decimal percent) =>
-        percent.ToString("0.00", Invariant) + "%";
+    private static string FormatPercent(decimal percent, CultureInfo culture) =>
+        percent.ToString("0.00", culture) + "%";
 
     private static DateTime AsUtc(DateTime value) =>
         value.Kind == DateTimeKind.Utc

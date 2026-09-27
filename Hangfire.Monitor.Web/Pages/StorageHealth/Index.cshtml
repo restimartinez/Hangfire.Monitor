@@ -2,6 +2,7 @@
 @model Hangfire.Monitor.Web.Pages.StorageHealth.IndexModel
 @{
     ViewData["Title"] = "Storage Health";
+    var numberCulture = NumberCulturePreference.ResolveCulture(ViewContext.HttpContext.Request);
 }
 
 <section class="page-header">
@@ -51,8 +52,8 @@ else
                     <td data-sort-value="@schemaSortValue">
                         <span class="@StorageHealthDisplay.FormatSchemaBadgeCssClass(result.Schema)">@StorageHealthDisplay.FormatSchema(result.Schema)</span>
                     </td>
-                    <td data-sort-value="@dataFilesSortValue">@StorageHealthDisplay.FormatDataFileSpace(result.DataFiles)</td>
-                    <td data-sort-value="@logSortValue">@StorageHealthDisplay.FormatLogSpace(result.LogSpace)</td>
+                    <td data-sort-value="@dataFilesSortValue">@StorageHealthDisplay.FormatDataFileSpace(result.DataFiles, numberCulture)</td>
+                    <td data-sort-value="@logSortValue">@StorageHealthDisplay.FormatLogSpace(result.LogSpace, numberCulture)</td>
                     <td>@StorageHealthDisplay.FormatLogReuse(result.LogReuseWait)</td>
                     <td data-sort-value="@transactionsSortValue">@StorageHealthDisplay.FormatTransactions(result.ActiveTransactions)</td>
                 </tr>

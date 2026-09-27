@@ -429,6 +429,36 @@ Provisional used-% thresholds (80/90) were removed from `DataFileSpaceHealthRule
 
 ---
 
+## Number culture preference (presentation)
+
+Per-browser preference for how Storage Health numeric values are displayed. Not application configuration, not Session, and not request-wide localization.
+
+| Item | Value |
+| --- | --- |
+| Cookie name | `hm.numberCulture` |
+| Allowed values | `en-US`, `es-ES` (exact match only) |
+| Default | `en-US` (missing, empty, or unsupported cookie) |
+| Cookie flags | Path `/`, HttpOnly, SameSite=Lax, Expires 365 days, Secure when request is HTTPS |
+
+Resolution and cookie options live in a single Web helper: `NumberCulturePreference`. Do not pass raw cookie values to `CultureInfo.GetCultureInfo` without whitelist validation.
+
+Presentation flow:
+
+```text
+Browser cookie → NumberCulturePreference → CultureInfo → StorageHealthDisplay(..., culture) → Razor
+```
+
+Rules:
+
+- Domain and Infrastructure stay culture-independent (raw `decimal` / `int` / `long`).
+- `StorageHealthDisplay` receives an explicit `CultureInfo` for culture-sensitive numeric methods (MB, GB, percents). Schema, status labels, transaction summaries, and date/time helpers stay invariant / fixed.
+- Table `data-sort-value` attributes remain InvariantCulture machine keys; never derive sort keys from localized display text.
+- Dates and times (`LastFailedAtDisplay`, oldest begin time) are intentionally out of scope.
+- No `AddSession`, no `UseRequestLocalization`, no request `CurrentCulture` mutation.
+- Preference UI: navbar selector in `_Layout` posts to `/preferences/number-culture` with antiforgery; `returnUrl` must pass `Url.IsLocalUrl` (fallback `/`).
+
+---
+
 ## Storage Health (investigation notes)
 
 Full analysis: `_docs/hangfire-storage-health-investigation.md` (2026-09-26).  
