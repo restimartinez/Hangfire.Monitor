@@ -20,4 +20,30 @@ public static class ApplicationDisplay
 
         return $"{applicationName} ({version.Trim()})";
     }
+
+    /// <summary>
+    /// Returns the trimmed Hangfire package version, or <c>-</c> when missing/whitespace.
+    /// </summary>
+    public static string FormatVersion(string? version)
+    {
+        if (string.IsNullOrWhiteSpace(version))
+        {
+            return "-";
+        }
+
+        return version.Trim();
+    }
+
+    /// <summary>
+    /// Sort key for the Version column: trimmed version, or empty when missing/whitespace.
+    /// </summary>
+    public static string FormatVersionSortValue(string? version)
+    {
+        if (string.IsNullOrWhiteSpace(version))
+        {
+            return string.Empty;
+        }
+
+        return version.Trim();
+    }
 }

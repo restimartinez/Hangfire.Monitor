@@ -45,4 +45,42 @@ public class ApplicationDisplayTests
     {
         Assert.ThrowsAny<ArgumentException>(() => ApplicationDisplay.FormatLabel("  ", "1.8.25"));
     }
+
+    [Fact]
+    public void FormatVersion_WhenNull_ReturnsDash()
+    {
+        Assert.Equal("-", ApplicationDisplay.FormatVersion(null));
+    }
+
+    [Fact]
+    public void FormatVersion_WhenEmpty_ReturnsDash()
+    {
+        Assert.Equal("-", ApplicationDisplay.FormatVersion(""));
+    }
+
+    [Fact]
+    public void FormatVersion_WhenWhitespace_ReturnsDash()
+    {
+        Assert.Equal("-", ApplicationDisplay.FormatVersion("   "));
+    }
+
+    [Fact]
+    public void FormatVersion_WhenPresent_ReturnsTrimmedVersion()
+    {
+        Assert.Equal("1.8.25", ApplicationDisplay.FormatVersion("  1.8.25  "));
+    }
+
+    [Fact]
+    public void FormatVersionSortValue_WhenMissing_ReturnsEmpty()
+    {
+        Assert.Equal(string.Empty, ApplicationDisplay.FormatVersionSortValue(null));
+        Assert.Equal(string.Empty, ApplicationDisplay.FormatVersionSortValue(""));
+        Assert.Equal(string.Empty, ApplicationDisplay.FormatVersionSortValue("   "));
+    }
+
+    [Fact]
+    public void FormatVersionSortValue_WhenPresent_ReturnsTrimmedVersion()
+    {
+        Assert.Equal("1.8.14", ApplicationDisplay.FormatVersionSortValue("  1.8.14  "));
+    }
 }

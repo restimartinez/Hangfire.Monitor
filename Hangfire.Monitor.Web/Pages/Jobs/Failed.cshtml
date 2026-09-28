@@ -25,6 +25,7 @@ else
             <thead>
                 <tr>
                     <th data-sort-type="text" aria-sort="none">Application</th>
+                    <th data-sort-type="text" aria-sort="none">Version</th>
                     <th data-sort-type="text" aria-sort="none">Status</th>
                     <th data-sort-type="number" aria-sort="none" data-default-sort="desc">Failed jobs</th>
                     <th data-sort-type="date" aria-sort="none">Last failure</th>
@@ -37,8 +38,11 @@ else
                 var statusClass = $"status-badge status-{result.Status.ToString().ToLowerInvariant()}";
                 var lastFailedAtSortValue = LastFailedAtDisplay.FormatSortValue(result.LastFailedAt);
                 var lastFailedAtDisplay = LastFailedAtDisplay.FormatDisplay(result.LastFailedAt);
+                var versionSortValue = ApplicationDisplay.FormatVersionSortValue(result.Version);
+                var versionDisplay = ApplicationDisplay.FormatVersion(result.Version);
                 <tr class="@(result.ServerCount == 0 ? "status-row-no-servers" : null)">
-                    <td data-sort-value="@result.ApplicationName">@ApplicationDisplay.FormatLabel(result.ApplicationName, result.Version)</td>
+                    <td data-sort-value="@result.ApplicationName">@result.ApplicationName</td>
+                    <td data-sort-value="@versionSortValue">@versionDisplay</td>
                     <td><span class="@statusClass">@result.Status</span></td>
                     <td data-sort-value="@result.FailedCount.ToString(System.Globalization.CultureInfo.InvariantCulture)">@result.FailedCount</td>
                     <td data-sort-value="@lastFailedAtSortValue">@lastFailedAtDisplay</td>

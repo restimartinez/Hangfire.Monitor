@@ -115,6 +115,23 @@ public class FailedModelTests
         Assert.Equal(4, model.Results[2].ServerCount);
     }
 
+    [Fact]
+    public void FailedMarkup_IncludesSortableVersionColumn()
+    {
+        var markupPath = Path.Combine(
+            FindRepositoryRoot(),
+            "Hangfire.Monitor.Web",
+            "Pages",
+            "Jobs",
+            "Failed.cshtml");
+        var markup = File.ReadAllText(markupPath);
+
+        Assert.Contains(">Version</th>", markup, StringComparison.Ordinal);
+        Assert.Contains("data-sort-type=\"text\"", markup, StringComparison.Ordinal);
+        Assert.Contains("data-sort-value=\"@versionSortValue\"", markup, StringComparison.Ordinal);
+        Assert.Contains("@versionDisplay</td>", markup, StringComparison.Ordinal);
+    }
+
     private ConfiguredApplicationsMonitor CreateMonitor(
         Func<HangfireApplicationOptions, HangfireApplicationFailureInfo> readFailureInfo) =>
         new(readFailureInfo, _rules);
@@ -126,4 +143,20 @@ public class FailedModelTests
             ConnectionString = "Server=localhost;Database=Example;Trusted_Connection=True;",
             Schema = HangfireApplicationOptions.DefaultSchema
         };
+
+    private static string FindRepositoryRoot()
+    {
+        var directory = new DirectoryInfo(AppContext.BaseDirectory);
+        while (directory is not null)
+        {
+            if (File.Exists(Path.Combine(directory.FullName, "Hangfire.Monitor.sln")))
+            {
+                return directory.FullName;
+            }
+
+            directory = directory.Parent;
+        }
+
+        throw new InvalidOperationException("Could not locate repository root from test base directory.");
+    }
 }

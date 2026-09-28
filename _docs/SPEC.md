@@ -41,7 +41,7 @@ Each configured application has:
 | `Name` | Yes | Human-readable application label shown in the UI |
 | `ConnectionString` | Yes | Hangfire SQL Server connection string for that application |
 | `Schema` | No | Hangfire SQL schema name; defaults to `HangFire` |
-| `Version` | No | Hangfire package version used by the application (manual registry). When set, the UI shows `Name (version)` next to the application name. Distinct from Hangfire SQL Schema Version. |
+| `Version` | No | Hangfire package version used by the application (manual registry). Shown as a sortable **Version** column on Failed Jobs and Storage Health tables (`-` when unset). Distinct from Hangfire SQL Schema Version. |
 
 Configuration conceptually follows:
 
@@ -112,7 +112,7 @@ Use these three conceptual statuses:
 - The initial page is a simple status table.
 - Conceptual columns:
 
-  | Application | Failed jobs | Last failure |
+  | Application | Version | Failed jobs | Last failure |
 
 - Status (`OK` / `FAILED` / `UNAVAILABLE`) must be distinguishable in the UI (exact presentation is left to implementation, provided the three outcomes remain clear).
 - When a last-failure timestamp exists, display it in the **host local time zone** (converted from Hangfire’s UTC storage instant), using a clear format such as:

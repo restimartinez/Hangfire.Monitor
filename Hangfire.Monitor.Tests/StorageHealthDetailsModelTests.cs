@@ -281,10 +281,10 @@ public class StorageHealthDetailsModelTests
 
         Assert.Contains("asp-page=\"./Details\"", markup, StringComparison.Ordinal);
         Assert.Contains("asp-route-applicationName=\"@result.ApplicationName\"", markup, StringComparison.Ordinal);
-        Assert.Contains(
-            "@ApplicationDisplay.FormatLabel(result.ApplicationName, result.Version)</a>",
-            markup,
-            StringComparison.Ordinal);
+        Assert.Contains("@result.ApplicationName</a>", markup, StringComparison.Ordinal);
+        Assert.Contains(">Version</th>", markup, StringComparison.Ordinal);
+        Assert.Contains("data-sort-value=\"@versionSortValue\"", markup, StringComparison.Ordinal);
+        Assert.Contains("@versionDisplay</td>", markup, StringComparison.Ordinal);
     }
 
     private ConfiguredApplicationsStorageHealthMonitor CreateSuccessfulMonitor() =>

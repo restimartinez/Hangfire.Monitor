@@ -26,6 +26,7 @@ else
             <thead>
                 <tr>
                     <th data-sort-type="text" aria-sort="none">Application</th>
+                    <th data-sort-type="text" aria-sort="none">Version</th>
                     <th data-sort-type="number" aria-sort="none" data-default-sort="desc">Health</th>
                     <th data-sort-type="number" aria-sort="none">Schema</th>
                     <th data-sort-type="number" aria-sort="none">Data Files</th>
@@ -40,6 +41,8 @@ else
             @foreach (var result in Model.Results)
             {
                 var healthSortValue = StorageHealthDisplay.FormatHealthSortValue(result.Status);
+                var versionSortValue = ApplicationDisplay.FormatVersionSortValue(result.Version);
+                var versionDisplay = ApplicationDisplay.FormatVersion(result.Version);
                 var schemaSortValue = result.Schema.ActualVersion?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
                 var dataFilesUsedSortValue = result.DataFiles.UsedPercent is null
                     ? string.Empty
@@ -50,8 +53,9 @@ else
                 var transactionsSortValue = result.ActiveTransactions?.Count.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
                 <tr class="@StorageHealthDisplay.FormatRowCssClass(result.ServerCount)">
                     <td>
-                        <a asp-page="./Details" asp-route-applicationName="@result.ApplicationName">@ApplicationDisplay.FormatLabel(result.ApplicationName, result.Version)</a>
+                        <a asp-page="./Details" asp-route-applicationName="@result.ApplicationName">@result.ApplicationName</a>
                     </td>
+                    <td data-sort-value="@versionSortValue">@versionDisplay</td>
                     <td data-sort-value="@healthSortValue">
                         <span class="@StorageHealthDisplay.FormatHealthBadgeCssClass(result.Status)">@StorageHealthDisplay.FormatHealth(result.Status)</span>
                     </td>

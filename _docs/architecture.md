@@ -65,8 +65,8 @@ Typed options live in `Hangfire.Monitor.Domain`:
 
 `HangfireApplicationOptions.Version` is an optional free-text field for the Hangfire package version the monitored application uses (manual registry, e.g. `1.8.25`). It is not read from SQL and is distinct from Hangfire SQL Schema Version (the integer shown in the Storage Health Schema column).
 
-- Missing / unset / whitespace → UI shows the application name alone.
-- Non-whitespace → UI shows `Name (version)` next to the name on Failed Jobs, Storage Health index, and Storage Health details (route identity remains `Name` only).
+- Missing / unset / whitespace → Version column shows `-`; Details page shows the application name alone.
+- Non-whitespace → Version column shows the trimmed value (sortable); Details page shows `Name (version)`. Table Application cells show `Name` only (route identity remains `Name`).
 
 ---
 
@@ -411,7 +411,7 @@ Hangfire SQL Server stores state timestamps in UTC. `LastFailedAtReader` preserv
 
 ## Storage Health (implemented)
 
-Index table (`/storage-health`): columns are Application, **Health**, Schema, Data Files (used MB), Data Files %, Log (used MB), Log %, Log Reuse, Transactions.
+Index table (`/storage-health`): columns are Application, **Version**, **Health**, Schema, Data Files (used MB), Data Files %, Log (used MB), Log %, Log Reuse, Transactions.
 
 Capacity Health badge (`ApplicationStorageHealthResult.Status`):
 
@@ -496,7 +496,8 @@ The Failed Jobs status table (`/jobs/failed`) is sorted in the browser only. Row
 
 - Vanilla JavaScript in `wwwroot/js/status-table-sort.js`, loaded from `Pages/Jobs/Failed.cshtml` (no-op when the empty-state message is shown). After that script runs, an inline script on the same page applies the default sort by programmatically clicking the **Failed jobs** header twice (ASC, then DESC), reusing the same click handler—no duplicate sort logic.
 - No extra HTTP requests. On `/jobs/failed`, the table initially shows **Failed jobs** descending (highest count first). User clicks on a column: first click sorts ASC; further clicks on the same column toggle DESC/ASC. Choosing a different column always starts at ASC.
-- `Failed jobs`, `Last failure`, and `Servers` expose `data-sort-value` in the Razor view. Application and Status use the visible cell text.
+- `Failed jobs`, `Last failure`, `Servers`, and `Version` expose `data-sort-value` in the Razor view. Application and Status use the visible cell text (Application also sets `data-sort-value` to the raw name).
+- `Version` uses `data-sort-type="text"` with numeric collation (`1.8.14` before `1.8.25`). Missing versions show `-` with empty `data-sort-value`.
 - `Servers` uses `data-sort-type="number"` (same numeric compare as Failed jobs) so `1 < 2 < 10`.
 - Last failure is **displayed** as local `dd/MM/yyyy HH:mm:ss` (`ToLocalTime()`). The sort key remains UTC wall-clock `yyyy-MM-ddTHH:mm:ss` of the storage instant (not DateTime `"o"`, not the local display string). Missing dates show `-` with empty `data-sort-value` (ASC: first; DESC: last).
 - Text columns use `Intl.Collator('en', { usage: 'sort', sensitivity: 'base', numeric: true })` so order does not depend on the browser locale. Status is lexicographic (`FAILED`, `OK`, `UNAVAILABLE`), not severity order.
