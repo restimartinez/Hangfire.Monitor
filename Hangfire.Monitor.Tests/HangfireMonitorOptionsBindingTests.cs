@@ -19,7 +19,8 @@ public class HangfireMonitorOptionsBindingTests
                   {
                     "Name": "Billing",
                     "ConnectionString": "Server=localhost;Database=HangfireBilling;",
-                    "Schema": "HangFire"
+                    "Schema": "HangFire",
+                    "Version": "1.8.25"
                   }
                 ]
               }
@@ -41,5 +42,6 @@ public class HangfireMonitorOptionsBindingTests
         Assert.Equal("Billing", options.Applications[0].Name);
         Assert.Equal("Server=localhost;Database=HangfireBilling;", options.Applications[0].ConnectionString);
         Assert.Equal("HangFire", options.Applications[0].Schema);
+        Assert.Equal("1.8.25", options.Applications[0].Version);
     }
 }

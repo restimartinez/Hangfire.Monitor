@@ -1,10 +1,9 @@
 @page "/storage-health/{applicationName}"
 @model Hangfire.Monitor.Web.Pages.StorageHealth.DetailsModel
 @{
-    ViewData["Title"] = Model.Details is null
-        ? "Storage Health"
-        : $"Storage Health / {Model.Details.ApplicationName}";
     var details = Model.Details!;
+    var applicationLabel = ApplicationDisplay.FormatLabel(details.ApplicationName, details.Version);
+    ViewData["Title"] = $"Storage Health / {applicationLabel}";
     var numberCulture = NumberCulturePreference.ResolveCulture(ViewContext.HttpContext.Request);
 }
 
@@ -14,9 +13,9 @@
         <span aria-hidden="true">/</span>
         <a asp-page="./Index">Storage Health</a>
         <span aria-hidden="true">/</span>
-        <span>@details.ApplicationName</span>
+        <span>@applicationLabel</span>
     </p>
-    <h1>Storage Health / @details.ApplicationName</h1>
+    <h1>Storage Health / @applicationLabel</h1>
     <p class="page-subtitle">Capacity health, diagnosis, and operator guidance for this Hangfire storage database.</p>
 </section>
 

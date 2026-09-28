@@ -55,6 +55,21 @@ public class StorageHealthDetailsTests
         Assert.Equal(StorageHealthDiagnosisBuilder.HealthyDiagnosis, details.Diagnosis);
         Assert.False(details.IsUnavailable);
         Assert.False(details.HasResolution);
+        Assert.Equal(string.Empty, details.Version);
+    }
+
+    [Fact]
+    public void From_PreservesVersion()
+    {
+        var result = new ApplicationStorageHealthRules().Unavailable("Offline.App") with
+        {
+            Version = "1.8.25"
+        };
+
+        var details = StorageHealthDetails.From(result);
+
+        Assert.Equal("1.8.25", details.Version);
+        Assert.Equal("Offline.App", details.ApplicationName);
     }
 
     [Fact]

@@ -41,6 +41,7 @@ Each configured application has:
 | `Name` | Yes | Human-readable application label shown in the UI |
 | `ConnectionString` | Yes | Hangfire SQL Server connection string for that application |
 | `Schema` | No | Hangfire SQL schema name; defaults to `HangFire` |
+| `Version` | No | Hangfire package version used by the application (manual registry). When set, the UI shows `Name (version)` next to the application name. Distinct from Hangfire SQL Schema Version. |
 
 Configuration conceptually follows:
 
@@ -51,7 +52,8 @@ Configuration conceptually follows:
       {
         "Name": "App1 Name",
         "ConnectionString": "...",
-        "Schema": "HangFire"
+        "Schema": "HangFire",
+        "Version": "1.8.25"
       }
     ]
   }
@@ -322,7 +324,7 @@ The MVP is acceptable when all of the following are true:
 
 The following MVP ambiguities are resolved:
 
-1. **Configuration shape** — `HangfireMonitor:Applications[]` with required `Name`, required `ConnectionString`, optional `Schema` (default `HangFire`).
+1. **Configuration shape** — `HangfireMonitor:Applications[]` with required `Name`, required `ConnectionString`, optional `Schema` (default `HangFire`), optional `Version` (Hangfire package version, manual).
 2. **Timestamp display** — Infrastructure preserves Hangfire’s UTC storage instant; MVP UI converts to host local time for display (DST-aware via `ToLocalTime()`), e.g. `14/09/2026 11:42:37`.
 3. **Status values** — `OK`, `FAILED`, `UNAVAILABLE` with the meanings defined above.
 4. **Zero failures display** — count shows `0`, last failure shows `-`.

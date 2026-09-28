@@ -52,7 +52,7 @@ Typed options live in `Hangfire.Monitor.Domain`:
 | Type | Role |
 | --- | --- |
 | `HangfireMonitorOptions` | Root (`HangfireMonitor`); holds `Applications` |
-| `HangfireApplicationOptions` | One monitored app: `Name`, `ConnectionString`, `Schema` |
+| `HangfireApplicationOptions` | One monitored app: `Name`, `ConnectionString`, `Schema`, optional `Version` |
 
 ### Schema default
 
@@ -60,6 +60,13 @@ Typed options live in `Hangfire.Monitor.Domain`:
 
 - Missing / unset schema → `HangFire` at construction time.
 - No extra Schema validation beyond that default.
+
+### Version (Hangfire package)
+
+`HangfireApplicationOptions.Version` is an optional free-text field for the Hangfire package version the monitored application uses (manual registry, e.g. `1.8.25`). It is not read from SQL and is distinct from Hangfire SQL Schema Version (the integer shown in the Storage Health Schema column).
+
+- Missing / unset / whitespace → UI shows the application name alone.
+- Non-whitespace → UI shows `Name (version)` next to the name on Failed Jobs, Storage Health index, and Storage Health details (route identity remains `Name` only).
 
 ---
 
@@ -79,6 +86,7 @@ Rules:
 
 - Per application: `Name` and `ConnectionString` required (non-whitespace).
 - `Schema` optional (model default `HangFire`).
+- `Version` optional (Hangfire package version; display only).
 - Empty `Applications` list is valid.
 
 Registration uses `ValidateOnStart()` so invalid config fails at host startup, before serving requests. `appsettings.json` keeps an empty `Applications` list; real connection strings belong in User Secrets / environment variables (HM-013).
@@ -337,7 +345,7 @@ Domain types (no Hangfire / Infrastructure references):
 | Type | Role |
 | --- | --- |
 | `MonitoringStatus` | `OK`, `FAILED`, `UNAVAILABLE` |
-| `ApplicationMonitoringResult` | Per-app outcome: `ApplicationName`, `Status`, `FailedCount`, `LastFailedAt`, `ServerCount` |
+| `ApplicationMonitoringResult` | Per-app outcome: `ApplicationName`, `Status`, `FailedCount`, `LastFailedAt`, `ServerCount`, optional `Version` |
 
 Infrastructure `HangfireApplicationFailureInfo` stays a technical read model. Mapping into `ApplicationMonitoringResult` (including when to set each status) is HM-041+. No error/detail field on the result yet — deferred until `UNAVAILABLE` mapping needs it.
 

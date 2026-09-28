@@ -14,7 +14,8 @@ public sealed record StorageHealthDetails(
     StorageHealthStatus Status,
     string Diagnosis,
     string? FailureReason,
-    StorageResolutionGuide? Resolution)
+    StorageResolutionGuide? Resolution,
+    string Version = "")
 {
     /// <summary>
     /// True when the application could not be queried as a whole.
@@ -44,6 +45,7 @@ public sealed record StorageHealthDetails(
             result.Status,
             result.Diagnosis,
             result.FailureReason,
-            result.Resolution);
+            result.Resolution,
+            result.Version);
     }
 }

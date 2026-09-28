@@ -21,4 +21,11 @@ public class HangfireApplicationOptions
     /// Hangfire SQL schema name. Optional; defaults to <see cref="DefaultSchema"/> when unset.
     /// </summary>
     public string Schema { get; set; } = DefaultSchema;
+
+    /// <summary>
+    /// Hangfire package version used by this application (manual registry). Optional.
+    /// Shown next to <see cref="Name"/> in the UI when non-whitespace (e.g. <c>App (1.8.25)</c>).
+    /// Distinct from Hangfire SQL Schema Version.
+    /// </summary>
+    public string Version { get; set; } = string.Empty;
 }

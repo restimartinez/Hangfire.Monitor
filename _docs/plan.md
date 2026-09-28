@@ -11,7 +11,7 @@ This plan decomposes the MVP into small, independently verifiable tasks for an A
 ## Guiding constraints
 
 - .NET 9, C#, ASP.NET Core Razor Pages, xUnit
-- Multi-app external config: `HangfireMonitor:Applications` (`Name`, `ConnectionString`, optional `Schema` default `HangFire`)
+- Multi-app external config: `HangfireMonitor:Applications` (`Name`, `ConnectionString`, optional `Schema` default `HangFire`, optional `Version` Hangfire package)
 - Failed count: `IMonitoringApi.GetStatistics().Failed`
 - Last failure: exact `MAX(FailedAt)` via narrow read-only SQL (after verification task)
 - Statuses: `OK` | `FAILED` | `UNAVAILABLE`
@@ -112,7 +112,7 @@ This plan decomposes the MVP into small, independently verifiable tasks for an A
 * Create `Hangfire.Monitor.Domain` class library targeting `net9.0` and add it to the solution
 * Keep the project minimal: configuration POCOs only for this task—no interfaces, repositories, services, MediatR, CQRS, or speculative abstractions
 * Place configuration model types in `Hangfire.Monitor.Domain` (monitor settings root + per-application entry); treat them as simple configuration/domain objects, not DDD entities
-* Properties: `Name`, `ConnectionString`, `Schema` (optional)
+* Properties: `Name`, `ConnectionString`, `Schema` (optional), `Version` (optional Hangfire package version)
 * Default schema value `HangFire` when schema is missing/blank (implementation may apply default at bind or validation time—document which)
 * Add project reference: `Hangfire.Monitor.Web` → `Hangfire.Monitor.Domain`
 * Add project reference: `Hangfire.Monitor.Tests` → `Hangfire.Monitor.Domain` (tests may exercise these models directly; existing Tests → Web reference may remain)

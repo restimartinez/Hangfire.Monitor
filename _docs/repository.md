@@ -106,6 +106,7 @@ The Web project has User Secrets enabled. From the repository root:
 dotnet user-secrets set --project Hangfire.Monitor.Web "HangfireMonitor:Applications:0:Name" "Example"
 dotnet user-secrets set --project Hangfire.Monitor.Web "HangfireMonitor:Applications:0:ConnectionString" "Server=localhost;Database=ExampleHangfire;Trusted_Connection=True;TrustServerCertificate=True;"
 dotnet user-secrets set --project Hangfire.Monitor.Web "HangfireMonitor:Applications:0:Schema" "HangFire"
+dotnet user-secrets set --project Hangfire.Monitor.Web "HangfireMonitor:Applications:0:Version" "1.8.25"
 ```
 
 That is equivalent to this structure (fictitious values only):
@@ -117,7 +118,8 @@ That is equivalent to this structure (fictitious values only):
       {
         "Name": "Example",
         "ConnectionString": "Server=localhost;Database=ExampleHangfire;Trusted_Connection=True;TrustServerCertificate=True;",
-        "Schema": "HangFire"
+        "Schema": "HangFire",
+        "Version": "1.8.25"
       }
     ]
   }
@@ -147,6 +149,7 @@ Example (PowerShell), using a fictitious connection string:
 $env:HangfireMonitor__Applications__0__Name = "Example"
 $env:HangfireMonitor__Applications__0__ConnectionString = "Server=localhost;Database=ExampleHangfire;Trusted_Connection=True;TrustServerCertificate=True;"
 $env:HangfireMonitor__Applications__0__Schema = "HangFire"
+$env:HangfireMonitor__Applications__0__Version = "1.8.25"
 ```
 
-Focus on providing `ConnectionString` (and the matching `Name` / optional `Schema`) for each application index you need; other Hangfire Monitor settings follow the same `__` convention when required.
+Focus on providing `ConnectionString` (and the matching `Name` / optional `Schema` / optional `Version`) for each application index you need; other Hangfire Monitor settings follow the same `__` convention when required.

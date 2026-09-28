@@ -27,6 +27,27 @@ public class HangfireApplicationOptionsTests
     }
 
     [Fact]
+    public void Version_DefaultsToEmpty_WhenNotSet()
+    {
+        var options = new HangfireApplicationOptions();
+
+        Assert.Equal(string.Empty, options.Version);
+    }
+
+    [Fact]
+    public void Version_UsesExplicitValue_WhenProvided()
+    {
+        var options = new HangfireApplicationOptions
+        {
+            Name = "App1",
+            ConnectionString = "Server=.;Database=Hangfire;",
+            Version = "1.8.25"
+        };
+
+        Assert.Equal("1.8.25", options.Version);
+    }
+
+    [Fact]
     public void HangfireMonitorOptions_Applications_DefaultsToEmptyList()
     {
         var options = new HangfireMonitorOptions();

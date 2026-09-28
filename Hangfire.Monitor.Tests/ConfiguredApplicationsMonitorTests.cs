@@ -195,16 +195,50 @@ public class ConfiguredApplicationsMonitorTests
         Assert.Empty(results);
     }
 
+    [Fact]
+    public void MonitorAll_PropagatesConfiguredVersion()
+    {
+        var applications = new[]
+        {
+            App("App A", version: "1.8.25"),
+            App("App B")
+        };
+
+        var monitor = CreateMonitor(_ => new HangfireApplicationFailureInfo(0, null, 1));
+
+        var results = monitor.MonitorAll(applications);
+
+        Assert.Equal("1.8.25", results[0].Version);
+        Assert.Equal(string.Empty, results[1].Version);
+    }
+
+    [Fact]
+    public void MonitorAll_PropagatesVersion_WhenUnavailable()
+    {
+        var applications = new[]
+        {
+            App("App A", version: "1.8.14")
+        };
+
+        var monitor = CreateMonitor(_ => throw new StubDbException("connection failed"));
+
+        var result = Assert.Single(monitor.MonitorAll(applications));
+
+        Assert.Equal(MonitoringStatus.UNAVAILABLE, result.Status);
+        Assert.Equal("1.8.14", result.Version);
+    }
+
     private ConfiguredApplicationsMonitor CreateMonitor(
         Func<HangfireApplicationOptions, HangfireApplicationFailureInfo> readFailureInfo) =>
         new(readFailureInfo, _rules);
 
-    private static HangfireApplicationOptions App(string name) =>
+    private static HangfireApplicationOptions App(string name, string version = "") =>
         new()
         {
             Name = name,
             ConnectionString = "Server=localhost;Database=Example;Trusted_Connection=True;",
-            Schema = HangfireApplicationOptions.DefaultSchema
+            Schema = HangfireApplicationOptions.DefaultSchema,
+            Version = version
         };
 
     private sealed class StubDbException : DbException

@@ -38,7 +38,7 @@ else
                 var lastFailedAtSortValue = LastFailedAtDisplay.FormatSortValue(result.LastFailedAt);
                 var lastFailedAtDisplay = LastFailedAtDisplay.FormatDisplay(result.LastFailedAt);
                 <tr class="@(result.ServerCount == 0 ? "status-row-no-servers" : null)">
-                    <td>@result.ApplicationName</td>
+                    <td data-sort-value="@result.ApplicationName">@ApplicationDisplay.FormatLabel(result.ApplicationName, result.Version)</td>
                     <td><span class="@statusClass">@result.Status</span></td>
                     <td data-sort-value="@result.FailedCount.ToString(System.Globalization.CultureInfo.InvariantCulture)">@result.FailedCount</td>
                     <td data-sort-value="@lastFailedAtSortValue">@lastFailedAtDisplay</td>

@@ -50,7 +50,7 @@ else
                 var transactionsSortValue = result.ActiveTransactions?.Count.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
                 <tr class="@StorageHealthDisplay.FormatRowCssClass(result.ServerCount)">
                     <td>
-                        <a asp-page="./Details" asp-route-applicationName="@result.ApplicationName">@result.ApplicationName</a>
+                        <a asp-page="./Details" asp-route-applicationName="@result.ApplicationName">@ApplicationDisplay.FormatLabel(result.ApplicationName, result.Version)</a>
                     </td>
                     <td data-sort-value="@healthSortValue">
                         <span class="@StorageHealthDisplay.FormatHealthBadgeCssClass(result.Status)">@StorageHealthDisplay.FormatHealth(result.Status)</span>

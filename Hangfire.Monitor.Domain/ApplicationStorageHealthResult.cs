@@ -17,4 +17,5 @@ public sealed record ApplicationStorageHealthResult(
     long ServerCount,
     string Diagnosis,
     string? FailureReason,
-    StorageResolutionGuide? Resolution);
+    StorageResolutionGuide? Resolution,
+    string Version = "");

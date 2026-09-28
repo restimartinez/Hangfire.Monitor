@@ -134,7 +134,10 @@ public class ConfiguredApplicationsStorageHealthMonitor
         }
         catch (DbException ex)
         {
-            return _appRules.Unavailable(application.Name, ex.Message);
+            return _appRules.Unavailable(application.Name, ex.Message) with
+            {
+                Version = application.Version
+            };
         }
 
         var schema = ReadSchema(storage);
@@ -153,7 +156,10 @@ public class ConfiguredApplicationsStorageHealthMonitor
             logSpace,
             logReuseWait,
             activeTransactions,
-            serverCount);
+            serverCount) with
+        {
+            Version = application.Version
+        };
     }
 
     private SchemaVersionHealthResult ReadSchema(SqlServerStorage storage)

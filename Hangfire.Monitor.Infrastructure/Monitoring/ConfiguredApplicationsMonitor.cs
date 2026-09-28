@@ -58,11 +58,17 @@ public class ConfiguredApplicationsMonitor
                     application.Name,
                     failureInfo.FailedCount,
                     failureInfo.LastFailedAt,
-                    failureInfo.ServerCount));
+                    failureInfo.ServerCount) with
+                {
+                    Version = application.Version
+                });
             }
             catch (DbException)
             {
-                results.Add(_rules.Unavailable(application.Name));
+                results.Add(_rules.Unavailable(application.Name) with
+                {
+                    Version = application.Version
+                });
             }
         }
 

@@ -480,6 +480,38 @@ public class ConfiguredApplicationsStorageHealthMonitorTests
         Assert.Equal(2, createCount);
     }
 
+    [Fact]
+    public void MonitorAll_PropagatesConfiguredVersion()
+    {
+        var monitor = CreateSuccessfulMonitor();
+
+        var results = monitor.MonitorAll(
+        [
+            App("App A", version: "1.8.25"),
+            App("App B")
+        ]);
+
+        Assert.Equal("1.8.25", results[0].Version);
+        Assert.Equal(string.Empty, results[1].Version);
+    }
+
+    [Fact]
+    public void MonitorOne_PropagatesVersion_WhenStorageCreateFails()
+    {
+        var monitor = CreateMonitor(
+            _ => throw new StubDbException("login failed"),
+            _ => throw new InvalidOperationException("should not be called"),
+            _ => throw new InvalidOperationException("should not be called"),
+            _ => throw new InvalidOperationException("should not be called"),
+            _ => throw new InvalidOperationException("should not be called"),
+            _ => throw new InvalidOperationException("should not be called"));
+
+        var result = monitor.MonitorOne(App("Offline.App", version: "1.8.14"));
+
+        Assert.Equal(StorageHealthStatus.UNAVAILABLE, result.Status);
+        Assert.Equal("1.8.14", result.Version);
+    }
+
     private ConfiguredApplicationsStorageHealthMonitor CreateSuccessfulMonitor() =>
         CreateMonitor(
             _ => CreateStorage(),
@@ -515,12 +547,13 @@ public class ConfiguredApplicationsStorageHealthMonitorTests
     private static SqlServerStorage CreateStorage() =>
         new SqlServerStorageFactory().Create(App("stub-storage"));
 
-    private static HangfireApplicationOptions App(string name) =>
+    private static HangfireApplicationOptions App(string name, string version = "") =>
         new()
         {
             Name = name,
             ConnectionString = "Server=localhost;Database=Example;Trusted_Connection=True;",
-            Schema = HangfireApplicationOptions.DefaultSchema
+            Schema = HangfireApplicationOptions.DefaultSchema,
+            Version = version
         };
 
     private sealed class StubDbException : DbException

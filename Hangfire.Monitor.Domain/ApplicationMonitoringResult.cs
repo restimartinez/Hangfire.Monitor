@@ -10,4 +10,5 @@ public sealed record ApplicationMonitoringResult(
     MonitoringStatus Status,
     long FailedCount,
     DateTime? LastFailedAt,
-    long ServerCount);
+    long ServerCount,
+    string Version = "");
