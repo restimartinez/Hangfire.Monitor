@@ -21,7 +21,9 @@ Hangfire.Monitor/
 │       ├── Index.cshtml               # Home (/)
 │       └── Jobs/Failed.cshtml         # Failed Jobs (/jobs/failed)
 ├── Hangfire.Monitor.Tests/            # xUnit test project
+├── Deployment/                        # Local publish output (gitignored)
 ├── _docs/                             # Specs, plan, investigations
+├── Publish-Web.ps1                    # Publish Web to Deployment\Build yyyyMMdd HHhmm
 ├── AGENTS.md
 ├── README.md
 ├── LICENSE
@@ -70,6 +72,14 @@ dotnet run --project Hangfire.Monitor.Web
 ```
 
 Stop the web process with `Ctrl+C` when finished.
+
+Publish the web application to a timestamped folder under `Deployment/` (gitignored):
+
+```text
+.\Publish-Web.ps1
+```
+
+Output path example: `Deployment\Build 20260928 10h28`.
 
 Equivalent forms that also work from the root:
 
