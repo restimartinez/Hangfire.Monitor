@@ -403,7 +403,7 @@ Hangfire SQL Server stores state timestamps in UTC. `LastFailedAtReader` preserv
 
 ## Storage Health (implemented)
 
-Index table (`/storage-health`): columns are Application, **Health**, Schema, Data Files, Log, Log Reuse, Transactions.
+Index table (`/storage-health`): columns are Application, **Health**, Schema, Data Files (used MB), Data Files %, Log (used MB), Log %, Log Reuse, Transactions.
 
 Capacity Health badge (`ApplicationStorageHealthResult.Status`):
 

@@ -43,6 +43,23 @@ public static class StorageHealthDisplay
     }
 
     /// <summary>
+    /// Returns data-file used megabytes, or <c>-</c> when unavailable.
+    /// Availability follows <see cref="DataFileSpaceHealthResult.UsedPercent"/> (null = unavailable).
+    /// </summary>
+    public static string FormatDataFileUsed(DataFileSpaceHealthResult dataFiles, CultureInfo culture)
+    {
+        ArgumentNullException.ThrowIfNull(dataFiles);
+        ArgumentNullException.ThrowIfNull(culture);
+
+        if (dataFiles.UsedPercent is null)
+        {
+            return "-";
+        }
+
+        return FormatMegabytes(dataFiles.UsedMB, culture);
+    }
+
+    /// <summary>
     /// Returns used percent with two decimal places, or <c>-</c> when unavailable.
     /// </summary>
     public static string FormatDataFileSpace(DataFileSpaceHealthResult dataFiles, CultureInfo culture)
@@ -56,6 +73,21 @@ public static class StorageHealthDisplay
         }
 
         return FormatPercent(dataFiles.UsedPercent.Value, culture);
+    }
+
+    /// <summary>
+    /// Returns log used megabytes, or <c>-</c> when not acquired.
+    /// </summary>
+    public static string FormatLogUsed(LogSpaceMetrics? logSpace, CultureInfo culture)
+    {
+        ArgumentNullException.ThrowIfNull(culture);
+
+        if (logSpace is null)
+        {
+            return "-";
+        }
+
+        return FormatMegabytes(logSpace.UsedLogMB, culture);
     }
 
     /// <summary>
@@ -106,16 +138,16 @@ public static class StorageHealthDisplay
     }
 
     /// <summary>
-    /// Returns megabytes with grouping separators and an <c>MB</c> suffix.
+    /// Returns megabytes with grouping separators, two decimal places, and an <c>MB</c> suffix.
     /// </summary>
     public static string FormatMegabytes(decimal megabytes, CultureInfo culture)
     {
         ArgumentNullException.ThrowIfNull(culture);
-        return megabytes.ToString("#,0.###", culture) + " MB";
+        return megabytes.ToString("#,0.00", culture) + " MB";
     }
 
     /// <summary>
-    /// Returns used percent with one decimal place for the detail page, or <c>-</c> when null.
+    /// Returns used percent with two decimal places for the detail page, or <c>-</c> when null.
     /// </summary>
     public static string FormatUsedPercent(decimal? percent, CultureInfo culture)
     {
@@ -126,7 +158,7 @@ public static class StorageHealthDisplay
             return "-";
         }
 
-        return percent.Value.ToString("0.0", culture) + " %";
+        return percent.Value.ToString("0.00", culture) + " %";
     }
 
     /// <summary>
@@ -255,7 +287,7 @@ public static class StorageHealthDisplay
                 return "-";
             }
 
-            return file.GrowthPercent.Value.ToString(Invariant) + " %";
+            return file.GrowthPercent.Value.ToString("0.00", Invariant) + " %";
         }
 
         if (file.GrowthMB is null)
@@ -267,7 +299,7 @@ public static class StorageHealthDisplay
     }
 
     /// <summary>
-    /// Formats gigabytes with an optional suffix, or <c>-</c> when null.
+    /// Formats gigabytes with two decimal places and a suffix, or <c>-</c> when null.
     /// </summary>
     public static string FormatGigabytes(decimal? gigabytes, CultureInfo culture)
     {
@@ -278,7 +310,7 @@ public static class StorageHealthDisplay
             return "-";
         }
 
-        return gigabytes.Value.ToString("#,0.###", culture) + " GB";
+        return gigabytes.Value.ToString("#,0.00", culture) + " GB";
     }
 
     /// <summary>

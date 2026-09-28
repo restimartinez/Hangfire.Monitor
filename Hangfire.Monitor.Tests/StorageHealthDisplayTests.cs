@@ -119,6 +119,37 @@ public class StorageHealthDisplayTests
     }
 
     [Fact]
+    public void FormatDataFileUsed_WhenAvailable_ReturnsMegabytes()
+    {
+        var dataFiles = new DataFileSpaceHealthResult(
+            AllocatedMB: 100m,
+            UsedMB: 82.5m,
+            FreeMB: 17.5m,
+            UsedPercent: 82.5m,
+            StorageHealthStatus.WARNING,
+            Diagnosis: "approaching",
+            Recommendation: "review");
+
+        Assert.Equal("82.50 MB", StorageHealthDisplay.FormatDataFileUsed(dataFiles, EnUs));
+        Assert.Equal("82,50 MB", StorageHealthDisplay.FormatDataFileUsed(dataFiles, EsEs));
+    }
+
+    [Fact]
+    public void FormatDataFileUsed_WhenUnavailable_ReturnsDash()
+    {
+        var dataFiles = new DataFileSpaceHealthResult(
+            AllocatedMB: 0m,
+            UsedMB: 0m,
+            FreeMB: 0m,
+            UsedPercent: null,
+            StorageHealthStatus.UNAVAILABLE,
+            Diagnosis: "missing",
+            Recommendation: "verify");
+
+        Assert.Equal("-", StorageHealthDisplay.FormatDataFileUsed(dataFiles, EnUs));
+    }
+
+    [Fact]
     public void FormatDataFileSpace_WhenUsedPercentPresent_ReturnsTwoDecimalPercent()
     {
         var dataFiles = new DataFileSpaceHealthResult(
@@ -146,6 +177,21 @@ public class StorageHealthDisplayTests
             Recommendation: "verify");
 
         Assert.Equal("-", StorageHealthDisplay.FormatDataFileSpace(dataFiles, EnUs));
+    }
+
+    [Fact]
+    public void FormatLogUsed_WhenPresent_ReturnsMegabytes()
+    {
+        var logSpace = new LogSpaceMetrics(100m, 65.2m, 34.8m, 65.2m);
+
+        Assert.Equal("65.20 MB", StorageHealthDisplay.FormatLogUsed(logSpace, EnUs));
+        Assert.Equal("65,20 MB", StorageHealthDisplay.FormatLogUsed(logSpace, EsEs));
+    }
+
+    [Fact]
+    public void FormatLogUsed_WhenNull_ReturnsDash()
+    {
+        Assert.Equal("-", StorageHealthDisplay.FormatLogUsed(null, EnUs));
     }
 
     [Fact]
@@ -288,6 +334,7 @@ public class StorageHealthDisplayTests
             new DateTime(2026, 9, 26, 8, 0, 0, DateTimeKind.Utc),
             3600);
 
+        Assert.Equal("99.00 MB", StorageHealthDisplay.FormatLogUsed(logSpace, EnUs));
         Assert.Equal("99.00%", StorageHealthDisplay.FormatLogSpace(logSpace, EnUs));
         Assert.Equal("ACTIVE_TRANSACTION", StorageHealthDisplay.FormatLogReuse(reuse));
         Assert.Equal("5 (oldest: 3600s)", StorageHealthDisplay.FormatTransactions(transactions));
@@ -296,37 +343,37 @@ public class StorageHealthDisplayTests
     [Fact]
     public void FormatMegabytes_FormatsGroupedMbValues_EnUs()
     {
-        Assert.Equal("12,450 MB", StorageHealthDisplay.FormatMegabytes(12450m, EnUs));
-        Assert.Equal("320.5 MB", StorageHealthDisplay.FormatMegabytes(320.5m, EnUs));
-        Assert.Equal("1,096 MB", StorageHealthDisplay.FormatMegabytes(1096m, EnUs));
-        Assert.Equal("4.938 MB", StorageHealthDisplay.FormatMegabytes(4.938m, EnUs));
-        Assert.Equal("1,091.063 MB", StorageHealthDisplay.FormatMegabytes(1091.063m, EnUs));
+        Assert.Equal("12,450.00 MB", StorageHealthDisplay.FormatMegabytes(12450m, EnUs));
+        Assert.Equal("320.50 MB", StorageHealthDisplay.FormatMegabytes(320.5m, EnUs));
+        Assert.Equal("1,096.00 MB", StorageHealthDisplay.FormatMegabytes(1096m, EnUs));
+        Assert.Equal("4.94 MB", StorageHealthDisplay.FormatMegabytes(4.938m, EnUs));
+        Assert.Equal("1,091.06 MB", StorageHealthDisplay.FormatMegabytes(1091.063m, EnUs));
     }
 
     [Fact]
     public void FormatMegabytes_FormatsGroupedMbValues_EsEs()
     {
-        Assert.Equal("12.450 MB", StorageHealthDisplay.FormatMegabytes(12450m, EsEs));
-        Assert.Equal("320,5 MB", StorageHealthDisplay.FormatMegabytes(320.5m, EsEs));
-        Assert.Equal("1.096 MB", StorageHealthDisplay.FormatMegabytes(1096m, EsEs));
-        Assert.Equal("4,938 MB", StorageHealthDisplay.FormatMegabytes(4.938m, EsEs));
-        Assert.Equal("1.091,063 MB", StorageHealthDisplay.FormatMegabytes(1091.063m, EsEs));
+        Assert.Equal("12.450,00 MB", StorageHealthDisplay.FormatMegabytes(12450m, EsEs));
+        Assert.Equal("320,50 MB", StorageHealthDisplay.FormatMegabytes(320.5m, EsEs));
+        Assert.Equal("1.096,00 MB", StorageHealthDisplay.FormatMegabytes(1096m, EsEs));
+        Assert.Equal("4,94 MB", StorageHealthDisplay.FormatMegabytes(4.938m, EsEs));
+        Assert.Equal("1.091,06 MB", StorageHealthDisplay.FormatMegabytes(1091.063m, EsEs));
     }
 
     [Fact]
-    public void FormatUsedPercent_WhenPresent_ReturnsOneDecimalPercent_EnUs()
+    public void FormatUsedPercent_WhenPresent_ReturnsTwoDecimalPercent_EnUs()
     {
-        Assert.Equal("58.8 %", StorageHealthDisplay.FormatUsedPercent(58.8m, EnUs));
-        Assert.Equal("15.6 %", StorageHealthDisplay.FormatUsedPercent(15.6m, EnUs));
-        Assert.Equal("0.5 %", StorageHealthDisplay.FormatUsedPercent(0.5m, EnUs));
+        Assert.Equal("58.80 %", StorageHealthDisplay.FormatUsedPercent(58.8m, EnUs));
+        Assert.Equal("15.60 %", StorageHealthDisplay.FormatUsedPercent(15.6m, EnUs));
+        Assert.Equal("0.50 %", StorageHealthDisplay.FormatUsedPercent(0.5m, EnUs));
     }
 
     [Fact]
-    public void FormatUsedPercent_WhenPresent_ReturnsOneDecimalPercent_EsEs()
+    public void FormatUsedPercent_WhenPresent_ReturnsTwoDecimalPercent_EsEs()
     {
-        Assert.Equal("58,8 %", StorageHealthDisplay.FormatUsedPercent(58.8m, EsEs));
-        Assert.Equal("15,6 %", StorageHealthDisplay.FormatUsedPercent(15.6m, EsEs));
-        Assert.Equal("0,5 %", StorageHealthDisplay.FormatUsedPercent(0.5m, EsEs));
+        Assert.Equal("58,80 %", StorageHealthDisplay.FormatUsedPercent(58.8m, EsEs));
+        Assert.Equal("15,60 %", StorageHealthDisplay.FormatUsedPercent(15.6m, EsEs));
+        Assert.Equal("0,50 %", StorageHealthDisplay.FormatUsedPercent(0.5m, EsEs));
     }
 
     [Fact]
@@ -354,8 +401,8 @@ public class StorageHealthDisplayTests
     [Fact]
     public void FormatGigabytes_UsesCultureSeparators()
     {
-        Assert.Equal("1,024.5 GB", StorageHealthDisplay.FormatGigabytes(1024.5m, EnUs));
-        Assert.Equal("1.024,5 GB", StorageHealthDisplay.FormatGigabytes(1024.5m, EsEs));
+        Assert.Equal("1,024.50 GB", StorageHealthDisplay.FormatGigabytes(1024.5m, EnUs));
+        Assert.Equal("1.024,50 GB", StorageHealthDisplay.FormatGigabytes(1024.5m, EsEs));
         Assert.Equal("-", StorageHealthDisplay.FormatGigabytes(null, EsEs));
     }
 
@@ -395,10 +442,10 @@ public class StorageHealthDisplayTests
             null,
             null);
 
-        Assert.Equal("64.5 MB", StorageHealthDisplay.FormatGrowth(mbGrowth, EnUs));
-        Assert.Equal("64,5 MB", StorageHealthDisplay.FormatGrowth(mbGrowth, EsEs));
-        Assert.Equal("10 %", StorageHealthDisplay.FormatGrowth(percentGrowth, EnUs));
-        Assert.Equal("10 %", StorageHealthDisplay.FormatGrowth(percentGrowth, EsEs));
+        Assert.Equal("64.50 MB", StorageHealthDisplay.FormatGrowth(mbGrowth, EnUs));
+        Assert.Equal("64,50 MB", StorageHealthDisplay.FormatGrowth(mbGrowth, EsEs));
+        Assert.Equal("10.00 %", StorageHealthDisplay.FormatGrowth(percentGrowth, EnUs));
+        Assert.Equal("10.00 %", StorageHealthDisplay.FormatGrowth(percentGrowth, EsEs));
     }
 
     [Fact]
