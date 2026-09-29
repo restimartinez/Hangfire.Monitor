@@ -41,13 +41,20 @@ Each configured application has:
 | `Name` | Yes | Human-readable application label shown in the UI |
 | `ConnectionString` | Yes | Hangfire SQL Server connection string for that application |
 | `Schema` | No | Hangfire SQL schema name; defaults to `HangFire` |
-| `Version` | No | Hangfire package version used by the application (manual registry). Shown as a sortable **Version** column on Failed Jobs and Storage Health tables (`-` when unset). Distinct from Hangfire SQL Schema Version. |
+| `Version` | No | Hangfire package version used by the application (manual registry). Shown as a sortable, color-coded **Version** column on Failed Jobs and Storage Health tables (`-` when unset). Distinct from Hangfire SQL Schema Version. |
+
+Root `HangfireMonitor` also supports:
+
+| Field | Required | Description |
+| --- | --- | --- |
+| `LatestHangfireVersion` | No | Reference Hangfire package version for Version badges (e.g. `1.8.25`). Exact match → green; same `major.minor` different patch → orange; older `major.minor` → red. |
 
 Configuration conceptually follows:
 
 ```json
 {
   "HangfireMonitor": {
+    "LatestHangfireVersion": "1.8.25",
     "Applications": [
       {
         "Name": "App1 Name",
@@ -324,7 +331,7 @@ The MVP is acceptable when all of the following are true:
 
 The following MVP ambiguities are resolved:
 
-1. **Configuration shape** — `HangfireMonitor:Applications[]` with required `Name`, required `ConnectionString`, optional `Schema` (default `HangFire`), optional `Version` (Hangfire package version, manual).
+1. **Configuration shape** — `HangfireMonitor:Applications[]` with required `Name`, required `ConnectionString`, optional `Schema` (default `HangFire`), optional `Version` (Hangfire package version, manual). Optional root `LatestHangfireVersion` (e.g. `1.8.25`) drives Version-column badges.
 2. **Timestamp display** — Infrastructure preserves Hangfire’s UTC storage instant; MVP UI converts to host local time for display (DST-aware via `ToLocalTime()`), e.g. `14/09/2026 11:42:37`.
 3. **Status values** — `OK`, `FAILED`, `UNAVAILABLE` with the meanings defined above.
 4. **Zero failures display** — count shows `0`, last failure shows `-`.

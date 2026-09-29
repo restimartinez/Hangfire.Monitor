@@ -284,7 +284,7 @@ public class StorageHealthDetailsModelTests
         Assert.Contains("@result.ApplicationName</a>", markup, StringComparison.Ordinal);
         Assert.Contains(">Version</th>", markup, StringComparison.Ordinal);
         Assert.Contains("data-sort-value=\"@versionSortValue\"", markup, StringComparison.Ordinal);
-        Assert.Contains("@versionDisplay</td>", markup, StringComparison.Ordinal);
+        Assert.Contains("<span class=\"@versionBadgeClass\">@versionDisplay</span>", markup, StringComparison.Ordinal);
     }
 
     private ConfiguredApplicationsStorageHealthMonitor CreateSuccessfulMonitor() =>

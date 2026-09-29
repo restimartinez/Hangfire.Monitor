@@ -60,6 +60,22 @@ public class StorageHealthIndexModelTests
     }
 
     [Fact]
+    public void OnGet_ExposesLatestHangfireVersion()
+    {
+        var options = Options.Create(new HangfireMonitorOptions
+        {
+            LatestHangfireVersion = "1.8.25",
+            Applications = []
+        });
+        var model = new IndexModel(CreateSuccessfulMonitor(), options);
+
+        model.OnGet();
+
+        Assert.Equal("1.8.25", model.LatestHangfireVersion);
+        Assert.Empty(model.Results);
+    }
+
+    [Fact]
     public void OnGet_ExposesServerCount_OnResults()
     {
         var applications = new List<HangfireApplicationOptions>

@@ -51,7 +51,7 @@ Typed options live in `Hangfire.Monitor.Domain`:
 
 | Type | Role |
 | --- | --- |
-| `HangfireMonitorOptions` | Root (`HangfireMonitor`); holds `Applications` |
+| `HangfireMonitorOptions` | Root (`HangfireMonitor`); holds `LatestHangfireVersion` and `Applications` |
 | `HangfireApplicationOptions` | One monitored app: `Name`, `ConnectionString`, `Schema`, optional `Version` |
 
 ### Schema default
@@ -65,8 +65,19 @@ Typed options live in `Hangfire.Monitor.Domain`:
 
 `HangfireApplicationOptions.Version` is an optional free-text field for the Hangfire package version the monitored application uses (manual registry, e.g. `1.8.25`). It is not read from SQL and is distinct from Hangfire SQL Schema Version (the integer shown in the Storage Health Schema column).
 
-- Missing / unset / whitespace → Version column shows `-`; Details page shows the application name alone.
-- Non-whitespace → Version column shows the trimmed value (sortable); Details page shows `Name (version)`. Table Application cells show `Name` only (route identity remains `Name`).
+`HangfireMonitorOptions.LatestHangfireVersion` (e.g. `1.8.25` in `appsettings.json`) is the reference version for Version-column badges:
+
+| Actual vs latest | Badge |
+| --- | --- |
+| Exact match (`1.8.25`) | OK (green) |
+| Same major.minor, different patch (`1.8.14`) | WARNING (orange) |
+| Older major.minor (`1.7.x`) | CRITICAL (red) |
+| Newer major.minor (`1.9.x`) | WARNING (orange) |
+| Missing / unparseable | UNAVAILABLE |
+
+- Missing / unset / whitespace application Version → Version column shows `-` with UNAVAILABLE badge; Details page shows the application name alone.
+- Non-whitespace → Version column shows the trimmed value (sortable + badge); Details page shows `Name (version)`. Table Application cells show `Name` only (route identity remains `Name`).
+- `LatestHangfireVersion`, when set, must be `major.minor.patch` (validated at startup).
 
 ---
 
@@ -87,6 +98,7 @@ Rules:
 - Per application: `Name` and `ConnectionString` required (non-whitespace).
 - `Schema` optional (model default `HangFire`).
 - `Version` optional (Hangfire package version; display only).
+- `LatestHangfireVersion` optional; when set must be `major.minor.patch` (e.g. `1.8.25`).
 - Empty `Applications` list is valid.
 
 Registration uses `ValidateOnStart()` so invalid config fails at host startup, before serving requests. `appsettings.json` keeps an empty `Applications` list; real connection strings belong in User Secrets / environment variables (HM-013).

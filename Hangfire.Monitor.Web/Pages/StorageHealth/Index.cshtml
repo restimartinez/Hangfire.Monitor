@@ -43,6 +43,9 @@ else
                 var healthSortValue = StorageHealthDisplay.FormatHealthSortValue(result.Status);
                 var versionSortValue = ApplicationDisplay.FormatVersionSortValue(result.Version);
                 var versionDisplay = ApplicationDisplay.FormatVersion(result.Version);
+                var versionBadgeClass = ApplicationDisplay.FormatVersionBadgeCssClass(
+                    result.Version,
+                    Model.LatestHangfireVersion);
                 var schemaSortValue = result.Schema.ActualVersion?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
                 var dataFilesUsedSortValue = result.DataFiles.UsedPercent is null
                     ? string.Empty
@@ -55,7 +58,7 @@ else
                     <td>
                         <a asp-page="./Details" asp-route-applicationName="@result.ApplicationName">@result.ApplicationName</a>
                     </td>
-                    <td data-sort-value="@versionSortValue">@versionDisplay</td>
+                    <td data-sort-value="@versionSortValue"><span class="@versionBadgeClass">@versionDisplay</span></td>
                     <td data-sort-value="@healthSortValue">
                         <span class="@StorageHealthDisplay.FormatHealthBadgeCssClass(result.Status)">@StorageHealthDisplay.FormatHealth(result.Status)</span>
                     </td>

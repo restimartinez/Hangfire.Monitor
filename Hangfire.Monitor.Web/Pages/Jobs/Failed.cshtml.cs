@@ -13,6 +13,11 @@ public class FailedModel : PageModel
     public IReadOnlyList<ApplicationMonitoringResult> Results { get; private set; }
         = Array.Empty<ApplicationMonitoringResult>();
 
+    /// <summary>
+    /// Configured latest Hangfire package version for Version-column badges.
+    /// </summary>
+    public string LatestHangfireVersion { get; private set; } = string.Empty;
+
     public FailedModel(
         ConfiguredApplicationsMonitor monitor,
         IOptions<HangfireMonitorOptions> options)
@@ -23,6 +28,7 @@ public class FailedModel : PageModel
 
     public void OnGet()
     {
+        LatestHangfireVersion = _options.Value.LatestHangfireVersion;
         Results = _monitor.MonitorAll(
             _options.Value.Applications);
     }

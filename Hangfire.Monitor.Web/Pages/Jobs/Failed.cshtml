@@ -40,9 +40,12 @@ else
                 var lastFailedAtDisplay = LastFailedAtDisplay.FormatDisplay(result.LastFailedAt);
                 var versionSortValue = ApplicationDisplay.FormatVersionSortValue(result.Version);
                 var versionDisplay = ApplicationDisplay.FormatVersion(result.Version);
+                var versionBadgeClass = ApplicationDisplay.FormatVersionBadgeCssClass(
+                    result.Version,
+                    Model.LatestHangfireVersion);
                 <tr class="@(result.ServerCount == 0 ? "status-row-no-servers" : null)">
                     <td data-sort-value="@result.ApplicationName">@result.ApplicationName</td>
-                    <td data-sort-value="@versionSortValue">@versionDisplay</td>
+                    <td data-sort-value="@versionSortValue"><span class="@versionBadgeClass">@versionDisplay</span></td>
                     <td><span class="@statusClass">@result.Status</span></td>
                     <td data-sort-value="@result.FailedCount.ToString(System.Globalization.CultureInfo.InvariantCulture)">@result.FailedCount</td>
                     <td data-sort-value="@lastFailedAtSortValue">@lastFailedAtDisplay</td>

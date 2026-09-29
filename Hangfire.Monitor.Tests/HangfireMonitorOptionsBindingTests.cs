@@ -44,4 +44,32 @@ public class HangfireMonitorOptionsBindingTests
         Assert.Equal("HangFire", options.Applications[0].Schema);
         Assert.Equal("1.8.25", options.Applications[0].Version);
     }
+
+    [Fact]
+    public void Configure_BindsLatestHangfireVersion()
+    {
+        const string json =
+            """
+            {
+              "HangfireMonitor": {
+                "LatestHangfireVersion": "1.8.25",
+                "Applications": []
+              }
+            }
+            """;
+
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
+        var configuration = new ConfigurationBuilder()
+            .AddJsonStream(stream)
+            .Build();
+
+        var services = new ServiceCollection();
+        services.Configure<HangfireMonitorOptions>(configuration.GetSection("HangfireMonitor"));
+
+        using var provider = services.BuildServiceProvider();
+        var options = provider.GetRequiredService<IOptions<HangfireMonitorOptions>>().Value;
+
+        Assert.Equal("1.8.25", options.LatestHangfireVersion);
+        Assert.Empty(options.Applications);
+    }
 }

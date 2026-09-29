@@ -1,3 +1,5 @@
+using Hangfire.Monitor.Domain;
+
 namespace Hangfire.Monitor.Web;
 
 /// <summary>
@@ -5,6 +7,8 @@ namespace Hangfire.Monitor.Web;
 /// </summary>
 public static class ApplicationDisplay
 {
+    private static readonly HangfirePackageVersionRules VersionRules = new();
+
     /// <summary>
     /// Returns <c>Name (version)</c> when <paramref name="version"/> is non-whitespace;
     /// otherwise returns <paramref name="applicationName"/> alone.
@@ -45,5 +49,14 @@ public static class ApplicationDisplay
         }
 
         return version.Trim();
+    }
+
+    /// <summary>
+    /// CSS classes for the Version badge, based on comparison to the configured latest Hangfire version.
+    /// </summary>
+    public static string FormatVersionBadgeCssClass(string? version, string? latestHangfireVersion)
+    {
+        var result = VersionRules.Evaluate(version, latestHangfireVersion);
+        return $"status-badge status-{result.Status.ToString().ToLowerInvariant()}";
     }
 }

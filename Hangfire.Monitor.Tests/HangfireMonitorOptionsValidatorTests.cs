@@ -125,6 +125,49 @@ public class HangfireMonitorOptionsValidatorTests
     }
 
     [Fact]
+    public void Validate_ValidLatestHangfireVersion_Succeeds()
+    {
+        var options = new HangfireMonitorOptions
+        {
+            LatestHangfireVersion = "1.8.25",
+            Applications = []
+        };
+
+        var result = _validator.Validate(Options.DefaultName, options);
+
+        Assert.True(result.Succeeded);
+    }
+
+    [Fact]
+    public void Validate_InvalidLatestHangfireVersion_Fails()
+    {
+        var options = new HangfireMonitorOptions
+        {
+            LatestHangfireVersion = "1.8",
+            Applications = []
+        };
+
+        var result = _validator.Validate(Options.DefaultName, options);
+
+        Assert.True(result.Failed);
+        Assert.Contains(result.Failures, f => f.Contains("LatestHangfireVersion", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Validate_EmptyLatestHangfireVersion_Succeeds()
+    {
+        var options = new HangfireMonitorOptions
+        {
+            LatestHangfireVersion = "",
+            Applications = []
+        };
+
+        var result = _validator.Validate(Options.DefaultName, options);
+
+        Assert.True(result.Succeeded);
+    }
+
+    [Fact]
     public void BindAndValidate_OmittedSchema_DefaultsToHangFire()
     {
         const string json =

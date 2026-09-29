@@ -83,4 +83,36 @@ public class ApplicationDisplayTests
     {
         Assert.Equal("1.8.14", ApplicationDisplay.FormatVersionSortValue("  1.8.14  "));
     }
+
+    [Fact]
+    public void FormatVersionBadgeCssClass_WhenExactLatest_ReturnsStatusOk()
+    {
+        Assert.Equal(
+            "status-badge status-ok",
+            ApplicationDisplay.FormatVersionBadgeCssClass("1.8.25", "1.8.25"));
+    }
+
+    [Fact]
+    public void FormatVersionBadgeCssClass_WhenSameLineDifferentPatch_ReturnsStatusWarning()
+    {
+        Assert.Equal(
+            "status-badge status-warning",
+            ApplicationDisplay.FormatVersionBadgeCssClass("1.8.14", "1.8.25"));
+    }
+
+    [Fact]
+    public void FormatVersionBadgeCssClass_WhenOlderLine_ReturnsStatusCritical()
+    {
+        Assert.Equal(
+            "status-badge status-critical",
+            ApplicationDisplay.FormatVersionBadgeCssClass("1.7.33", "1.8.25"));
+    }
+
+    [Fact]
+    public void FormatVersionBadgeCssClass_WhenMissing_ReturnsStatusUnavailable()
+    {
+        Assert.Equal(
+            "status-badge status-unavailable",
+            ApplicationDisplay.FormatVersionBadgeCssClass(null, "1.8.25"));
+    }
 }

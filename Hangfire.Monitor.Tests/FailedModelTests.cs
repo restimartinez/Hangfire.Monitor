@@ -48,6 +48,23 @@ public class FailedModelTests
     }
 
     [Fact]
+    public void OnGet_ExposesLatestHangfireVersion()
+    {
+        var options = Options.Create(new HangfireMonitorOptions
+        {
+            LatestHangfireVersion = "1.8.25",
+            Applications = []
+        });
+        var monitor = CreateMonitor(_ => throw new InvalidOperationException("should not be called"));
+        var model = new FailedModel(monitor, options);
+
+        model.OnGet();
+
+        Assert.Equal("1.8.25", model.LatestHangfireVersion);
+        Assert.Empty(model.Results);
+    }
+
+    [Fact]
     public void OnGet_PassesConfiguredApplications_FromOptions_ToMonitor()
     {
         var applications = new List<HangfireApplicationOptions>
@@ -129,7 +146,7 @@ public class FailedModelTests
         Assert.Contains(">Version</th>", markup, StringComparison.Ordinal);
         Assert.Contains("data-sort-type=\"text\"", markup, StringComparison.Ordinal);
         Assert.Contains("data-sort-value=\"@versionSortValue\"", markup, StringComparison.Ordinal);
-        Assert.Contains("@versionDisplay</td>", markup, StringComparison.Ordinal);
+        Assert.Contains("<span class=\"@versionBadgeClass\">@versionDisplay</span>", markup, StringComparison.Ordinal);
     }
 
     private ConfiguredApplicationsMonitor CreateMonitor(

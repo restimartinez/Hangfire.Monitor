@@ -94,6 +94,8 @@ dotnet test Hangfire.Monitor.sln
 
 Monitored Hangfire applications are configured under `HangfireMonitor:Applications`.
 
+The reference Hangfire package version for Version-column badges lives in tracked config as `HangfireMonitor:LatestHangfireVersion` (currently `1.8.25` in `appsettings.json`).
+
 **Do not store real connection strings in `appsettings.json` or commit them to Git.** Keep tracked `appsettings.json` free of secrets (an empty `Applications` list is fine). Provide real connection strings with **User Secrets** (local development) or **environment variables**.
 
 ASP.NET Core loads these automatically; no application code is required to read secrets manually.
@@ -114,6 +116,7 @@ That is equivalent to this structure (fictitious values only):
 ```json
 {
   "HangfireMonitor": {
+    "LatestHangfireVersion": "1.8.25",
     "Applications": [
       {
         "Name": "Example",

@@ -12,12 +12,21 @@ public sealed class HangfireMonitorOptionsValidator : IValidateOptions<HangfireM
     {
         ArgumentNullException.ThrowIfNull(options);
 
-        if (options.Applications is null || options.Applications.Count == 0)
+        var failures = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(options.LatestHangfireVersion)
+            && !HangfirePackageVersion.TryParse(options.LatestHangfireVersion, out _))
         {
-            return ValidateOptionsResult.Success;
+            failures.Add(
+                "HangfireMonitor:LatestHangfireVersion must be a major.minor.patch version (e.g. 1.8.25).");
         }
 
-        var failures = new List<string>();
+        if (options.Applications is null || options.Applications.Count == 0)
+        {
+            return failures.Count > 0
+                ? ValidateOptionsResult.Fail(failures)
+                : ValidateOptionsResult.Success;
+        }
 
         for (var i = 0; i < options.Applications.Count; i++)
         {
