@@ -13,7 +13,7 @@ public class SchemaVersionHealthRulesTests
 
         Assert.Equal(9, result.ActualVersion);
         Assert.Equal(9, result.ExpectedVersion);
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
         Assert.Equal("Schema version 9 matches the expected version.", result.Diagnosis);
         Assert.Equal("No action required.", result.Recommendation);
     }
@@ -25,7 +25,7 @@ public class SchemaVersionHealthRulesTests
 
         Assert.Equal(8, result.ActualVersion);
         Assert.Equal(9, result.ExpectedVersion);
-        Assert.Equal(StorageHealthStatus.WARNING, result.Status);
+        Assert.Equal(StorageHealthStatus.Warning, result.Status);
         Assert.Equal(
             "Schema version 8 is lower than the expected version 9.",
             result.Diagnosis);
@@ -41,7 +41,7 @@ public class SchemaVersionHealthRulesTests
 
         Assert.Equal(10, result.ActualVersion);
         Assert.Equal(9, result.ExpectedVersion);
-        Assert.Equal(StorageHealthStatus.WARNING, result.Status);
+        Assert.Equal(StorageHealthStatus.Warning, result.Status);
         Assert.Equal(
             "Schema version 10 is higher than the expected version 9.",
             result.Diagnosis);
@@ -57,7 +57,7 @@ public class SchemaVersionHealthRulesTests
 
         Assert.Null(result.ActualVersion);
         Assert.Equal(9, result.ExpectedVersion);
-        Assert.Equal(StorageHealthStatus.UNAVAILABLE, result.Status);
+        Assert.Equal(StorageHealthStatus.Unavailable, result.Status);
         Assert.Equal(
             "A valid Hangfire schema version could not be obtained.",
             result.Diagnosis);
@@ -73,7 +73,7 @@ public class SchemaVersionHealthRulesTests
 
         Assert.Null(result.ActualVersion);
         Assert.Equal(9, result.ExpectedVersion);
-        Assert.Equal(StorageHealthStatus.UNAVAILABLE, result.Status);
+        Assert.Equal(StorageHealthStatus.Unavailable, result.Status);
         Assert.Equal(
             "A valid Hangfire schema version could not be obtained.",
             result.Diagnosis);

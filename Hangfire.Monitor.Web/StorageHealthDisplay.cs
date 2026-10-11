@@ -56,7 +56,7 @@ public static class StorageHealthDisplay
             return "-";
         }
 
-        return FormatMegabytes(dataFiles.UsedMB, culture);
+        return FormatMegabytes(dataFiles.UsedMb, culture);
     }
 
     /// <summary>
@@ -87,7 +87,7 @@ public static class StorageHealthDisplay
             return "-";
         }
 
-        return FormatMegabytes(logSpace.UsedLogMB, culture);
+        return FormatMegabytes(logSpace.UsedLogMb, culture);
     }
 
     /// <summary>
@@ -217,10 +217,10 @@ public static class StorageHealthDisplay
     public static string FormatHealth(StorageHealthStatus status) =>
         status switch
         {
-            StorageHealthStatus.OK => "Healthy",
-            StorageHealthStatus.WARNING => "Warning",
-            StorageHealthStatus.UNAVAILABLE => "Unavailable",
-            StorageHealthStatus.CRITICAL => "Warning",
+            StorageHealthStatus.Ok => "Healthy",
+            StorageHealthStatus.Warning => "Warning",
+            StorageHealthStatus.Unavailable => "Unavailable",
+            StorageHealthStatus.Critical => "Warning",
             _ => status.ToString()
         };
 
@@ -231,10 +231,9 @@ public static class StorageHealthDisplay
     {
         var cssStatus = status switch
         {
-            StorageHealthStatus.OK => "ok",
-            StorageHealthStatus.WARNING => "warning",
-            StorageHealthStatus.CRITICAL => "warning",
-            StorageHealthStatus.UNAVAILABLE => "unavailable",
+            StorageHealthStatus.Ok => "ok",
+            StorageHealthStatus.Warning => "warning",
+            StorageHealthStatus.Critical => "warning",
             _ => "unavailable"
         };
 
@@ -247,10 +246,9 @@ public static class StorageHealthDisplay
     public static string FormatHealthSortValue(StorageHealthStatus status) =>
         status switch
         {
-            StorageHealthStatus.WARNING => "2",
-            StorageHealthStatus.CRITICAL => "2",
-            StorageHealthStatus.OK => "1",
-            StorageHealthStatus.UNAVAILABLE => "0",
+            StorageHealthStatus.Warning => "2",
+            StorageHealthStatus.Critical => "2",
+            StorageHealthStatus.Ok => "1",
             _ => "0"
         };
 
@@ -266,8 +264,8 @@ public static class StorageHealthDisplay
         {
             DataFileMaxSizeKind.Unlimited => "UNLIMITED",
             DataFileMaxSizeKind.NoGrowth => "NO_GROWTH",
-            DataFileMaxSizeKind.Limited when file.MaxSizeMB is not null =>
-                FormatMegabytes(file.MaxSizeMB.Value, culture),
+            DataFileMaxSizeKind.Limited when file.MaxSizeMb is not null =>
+                FormatMegabytes(file.MaxSizeMb.Value, culture),
             _ => "-"
         };
     }
@@ -290,12 +288,12 @@ public static class StorageHealthDisplay
             return file.GrowthPercent.Value.ToString("0.00", Invariant) + " %";
         }
 
-        if (file.GrowthMB is null)
+        if (file.GrowthMb is null)
         {
             return "-";
         }
 
-        return FormatMegabytes(file.GrowthMB.Value, culture);
+        return FormatMegabytes(file.GrowthMb.Value, culture);
     }
 
     /// <summary>
@@ -319,10 +317,10 @@ public static class StorageHealthDisplay
     public static string FormatStatus(StorageHealthStatus status) =>
         status switch
         {
-            StorageHealthStatus.OK => "OK",
-            StorageHealthStatus.WARNING => "WARNING",
-            StorageHealthStatus.CRITICAL => "CRITICAL",
-            StorageHealthStatus.UNAVAILABLE => "UNAVAILABLE",
+            StorageHealthStatus.Ok => "OK",
+            StorageHealthStatus.Warning => "WARNING",
+            StorageHealthStatus.Critical => "CRITICAL",
+            StorageHealthStatus.Unavailable => "UNAVAILABLE",
             _ => status.ToString()
         };
 
@@ -332,10 +330,9 @@ public static class StorageHealthDisplay
     public static string FormatStatusSortValue(StorageHealthStatus status) =>
         status switch
         {
-            StorageHealthStatus.CRITICAL => "3",
-            StorageHealthStatus.WARNING => "2",
-            StorageHealthStatus.OK => "1",
-            StorageHealthStatus.UNAVAILABLE => "0",
+            StorageHealthStatus.Critical => "3",
+            StorageHealthStatus.Warning => "2",
+            StorageHealthStatus.Ok => "1",
             _ => "0"
         };
 

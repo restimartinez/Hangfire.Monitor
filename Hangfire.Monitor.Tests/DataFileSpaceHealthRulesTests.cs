@@ -11,11 +11,11 @@ public class DataFileSpaceHealthRulesTests
     {
         var result = _rules.Evaluate(new DataFileSpaceMetrics(100m, 50m, 50m));
 
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
         Assert.Equal(50.00m, result.UsedPercent);
-        Assert.Equal(100m, result.AllocatedMB);
-        Assert.Equal(50m, result.UsedMB);
-        Assert.Equal(50m, result.FreeMB);
+        Assert.Equal(100m, result.AllocatedMb);
+        Assert.Equal(50m, result.UsedMb);
+        Assert.Equal(50m, result.FreeMb);
         Assert.Equal("No action required.", result.Recommendation);
         AssertContainsAllocatedSpaceClarification(result.Diagnosis);
     }
@@ -25,7 +25,7 @@ public class DataFileSpaceHealthRulesTests
     {
         var result = _rules.Evaluate(new DataFileSpaceMetrics(100m, 80m, 20m));
 
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
         Assert.Equal(80.00m, result.UsedPercent);
         Assert.DoesNotContain("approaching capacity", result.Diagnosis, StringComparison.OrdinalIgnoreCase);
     }
@@ -35,7 +35,7 @@ public class DataFileSpaceHealthRulesTests
     {
         var result = _rules.Evaluate(new DataFileSpaceMetrics(100m, 90m, 10m));
 
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
         Assert.Equal(90.00m, result.UsedPercent);
     }
 
@@ -44,7 +44,7 @@ public class DataFileSpaceHealthRulesTests
     {
         var result = _rules.Evaluate(new DataFileSpaceMetrics(100m, 98m, 2m));
 
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
         Assert.Equal(98.00m, result.UsedPercent);
         Assert.DoesNotContain("exhausting", result.Diagnosis, StringComparison.OrdinalIgnoreCase);
         Assert.Equal("No action required.", result.Recommendation);
@@ -55,9 +55,9 @@ public class DataFileSpaceHealthRulesTests
     {
         var result = _rules.Evaluate(new DataFileSpaceMetrics(0m, 0m, 0m));
 
-        Assert.Equal(StorageHealthStatus.UNAVAILABLE, result.Status);
+        Assert.Equal(StorageHealthStatus.Unavailable, result.Status);
         Assert.Null(result.UsedPercent);
-        Assert.Equal(0m, result.AllocatedMB);
+        Assert.Equal(0m, result.AllocatedMb);
         AssertContainsUnavailableGuidance(result);
     }
 
@@ -66,7 +66,7 @@ public class DataFileSpaceHealthRulesTests
     {
         var result = _rules.Evaluate(new DataFileSpaceMetrics(-1m, 1m, 1m));
 
-        Assert.Equal(StorageHealthStatus.UNAVAILABLE, result.Status);
+        Assert.Equal(StorageHealthStatus.Unavailable, result.Status);
         Assert.Null(result.UsedPercent);
     }
 
@@ -75,7 +75,7 @@ public class DataFileSpaceHealthRulesTests
     {
         var result = _rules.Evaluate(new DataFileSpaceMetrics(100m, -1m, 50m));
 
-        Assert.Equal(StorageHealthStatus.UNAVAILABLE, result.Status);
+        Assert.Equal(StorageHealthStatus.Unavailable, result.Status);
         Assert.Null(result.UsedPercent);
     }
 
@@ -84,7 +84,7 @@ public class DataFileSpaceHealthRulesTests
     {
         var result = _rules.Evaluate(new DataFileSpaceMetrics(100m, 40m, -1m));
 
-        Assert.Equal(StorageHealthStatus.UNAVAILABLE, result.Status);
+        Assert.Equal(StorageHealthStatus.Unavailable, result.Status);
         Assert.Null(result.UsedPercent);
     }
 
@@ -93,7 +93,7 @@ public class DataFileSpaceHealthRulesTests
     {
         var result = _rules.Evaluate(new DataFileSpaceMetrics(100m, 101m, 0m));
 
-        Assert.Equal(StorageHealthStatus.UNAVAILABLE, result.Status);
+        Assert.Equal(StorageHealthStatus.Unavailable, result.Status);
         Assert.Null(result.UsedPercent);
     }
 
@@ -108,9 +108,9 @@ public class DataFileSpaceHealthRulesTests
     {
         var result = _rules.Evaluate(new DataFileSpaceMetrics(100m, 50m, 10m));
 
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
         Assert.Equal(50.00m, result.UsedPercent);
-        Assert.Equal(10m, result.FreeMB);
+        Assert.Equal(10m, result.FreeMb);
     }
 
     [Fact]
@@ -118,11 +118,11 @@ public class DataFileSpaceHealthRulesTests
     {
         var result = _rules.Unavailable();
 
-        Assert.Equal(StorageHealthStatus.UNAVAILABLE, result.Status);
+        Assert.Equal(StorageHealthStatus.Unavailable, result.Status);
         Assert.Null(result.UsedPercent);
-        Assert.Equal(0m, result.AllocatedMB);
-        Assert.Equal(0m, result.UsedMB);
-        Assert.Equal(0m, result.FreeMB);
+        Assert.Equal(0m, result.AllocatedMb);
+        Assert.Equal(0m, result.UsedMb);
+        Assert.Equal(0m, result.FreeMb);
         Assert.Contains("could not be obtained", result.Diagnosis, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("permission", result.Recommendation, StringComparison.OrdinalIgnoreCase);
     }
@@ -133,7 +133,7 @@ public class DataFileSpaceHealthRulesTests
         var result = _rules.Evaluate(new DataFileSpaceMetrics(3m, 1m, 2m));
 
         Assert.Equal(33.33m, result.UsedPercent);
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
     }
 
     [Fact]
@@ -152,8 +152,8 @@ public class DataFileSpaceHealthRulesTests
         var low = _rules.Evaluate(new DataFileSpaceMetrics(100m, 50m, 50m));
         var high = _rules.Evaluate(new DataFileSpaceMetrics(100m, 98m, 2m));
 
-        Assert.Equal(StorageHealthStatus.OK, low.Status);
-        Assert.Equal(StorageHealthStatus.OK, high.Status);
+        Assert.Equal(StorageHealthStatus.Ok, low.Status);
+        Assert.Equal(StorageHealthStatus.Ok, high.Status);
         Assert.Equal(low.Recommendation, high.Recommendation);
     }
 

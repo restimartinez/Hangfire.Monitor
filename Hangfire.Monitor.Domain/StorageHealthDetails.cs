@@ -20,7 +20,7 @@ public sealed record StorageHealthDetails(
     /// <summary>
     /// True when the application could not be queried as a whole.
     /// </summary>
-    public bool IsUnavailable => Status == StorageHealthStatus.UNAVAILABLE;
+    public bool IsUnavailable => Status == StorageHealthStatus.Unavailable;
 
     /// <summary>
     /// True when capacity Warning requires the Resolution section.

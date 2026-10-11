@@ -21,7 +21,7 @@ public class ApplicationStorageHealthRulesTests
             activeTransactions: null,
             serverCount: 1);
 
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
         Assert.Contains("No storage capacity issue", result.Diagnosis, StringComparison.OrdinalIgnoreCase);
         Assert.Null(result.Resolution);
     }
@@ -39,8 +39,8 @@ public class ApplicationStorageHealthRulesTests
             activeTransactions: null,
             serverCount: 1);
 
-        Assert.Equal(StorageHealthStatus.WARNING, result.Schema.Status);
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Warning, result.Schema.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
     }
 
     [Fact]
@@ -56,7 +56,7 @@ public class ApplicationStorageHealthRulesTests
             activeTransactions: null,
             serverCount: 1);
 
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
     }
 
     [Fact]
@@ -72,7 +72,7 @@ public class ApplicationStorageHealthRulesTests
             activeTransactions: null,
             serverCount: 1);
 
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
     }
 
     [Fact]
@@ -88,7 +88,7 @@ public class ApplicationStorageHealthRulesTests
             activeTransactions: null,
             serverCount: 1);
 
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
     }
 
     [Fact]
@@ -104,7 +104,7 @@ public class ApplicationStorageHealthRulesTests
             new ActiveTransactionMetrics(5, DateTime.UtcNow, 3600),
             serverCount: 1);
 
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
     }
 
     [Fact]
@@ -120,7 +120,7 @@ public class ApplicationStorageHealthRulesTests
             activeTransactions: null,
             serverCount: 0);
 
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
         Assert.Equal(0, result.ServerCount);
     }
 
@@ -137,7 +137,7 @@ public class ApplicationStorageHealthRulesTests
             activeTransactions: null,
             serverCount: 1);
 
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
         Assert.Contains("headroom", result.Diagnosis, StringComparison.OrdinalIgnoreCase);
         Assert.Null(result.Resolution);
     }
@@ -150,18 +150,18 @@ public class ApplicationStorageHealthRulesTests
             new DataFileHeadroomFileMetrics(
                 1,
                 "HangfireData",
-                CurrentSizeMB: 500m,
-                UsedMB: 500m,
-                FreeMB: 0m,
+                CurrentSizeMb: 500m,
+                UsedMb: 500m,
+                FreeMb: 0m,
                 UsedPercent: 100m,
                 DataFileMaxSizeKind.Limited,
-                MaxSizeMB: 500m,
-                GrowthMB: 64m,
+                MaxSizeMb: 500m,
+                GrowthMb: 64m,
                 GrowthPercent: null,
                 IsPercentGrowth: false,
                 VolumeMountPoint: "D:\\",
-                VolumeTotalGB: 80m,
-                VolumeFreeGB: 40m,
+                VolumeTotalGb: 80m,
+                VolumeFreeGb: 40m,
                 VolumeFreePercent: 50m)
         };
 
@@ -175,7 +175,7 @@ public class ApplicationStorageHealthRulesTests
             activeTransactions: null,
             serverCount: 1);
 
-        Assert.Equal(StorageHealthStatus.WARNING, result.Status);
+        Assert.Equal(StorageHealthStatus.Warning, result.Status);
         Assert.NotNull(result.Resolution);
         Assert.Contains("Diagnostic only", result.Resolution!.DiagnosticQueriesSql, StringComparison.Ordinal);
         Assert.Contains("NEVER executes", result.Resolution.CorrectiveQueriesSql, StringComparison.Ordinal);
@@ -212,7 +212,7 @@ public class ApplicationStorageHealthRulesTests
         Assert.Same(logReuseWait, result.LogReuseWait);
         Assert.Same(activeTransactions, result.ActiveTransactions);
         Assert.Equal(2, result.ServerCount);
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
     }
 
     [Fact]
@@ -221,9 +221,9 @@ public class ApplicationStorageHealthRulesTests
         var result = _rules.Unavailable("App3", "login failed");
 
         Assert.Equal("App3", result.ApplicationName);
-        Assert.Equal(StorageHealthStatus.UNAVAILABLE, result.Status);
-        Assert.Equal(StorageHealthStatus.UNAVAILABLE, result.Schema.Status);
-        Assert.Equal(StorageHealthStatus.UNAVAILABLE, result.DataFiles.Status);
+        Assert.Equal(StorageHealthStatus.Unavailable, result.Status);
+        Assert.Equal(StorageHealthStatus.Unavailable, result.Schema.Status);
+        Assert.Equal(StorageHealthStatus.Unavailable, result.DataFiles.Status);
         Assert.Null(result.DataFileHeadroom);
         Assert.Null(result.LogSpace);
         Assert.Null(result.LogReuseWait);
@@ -309,21 +309,21 @@ public class ApplicationStorageHealthRulesTests
         decimal usedPercent = 50m,
         decimal freeMb = 50m) =>
         [
-            new DataFileHeadroomFileMetrics(
+            new(
                 1,
                 "data",
-                CurrentSizeMB: 100m,
-                UsedMB: 100m - freeMb,
-                FreeMB: freeMb,
+                CurrentSizeMb: 100m,
+                UsedMb: 100m - freeMb,
+                FreeMb: freeMb,
                 UsedPercent: usedPercent,
                 DataFileMaxSizeKind.Unlimited,
-                MaxSizeMB: null,
-                GrowthMB: 64m,
+                MaxSizeMb: null,
+                GrowthMb: 64m,
                 GrowthPercent: null,
                 IsPercentGrowth: false,
                 VolumeMountPoint: "C:\\",
-                VolumeTotalGB: 80m,
-                VolumeFreeGB: 40m,
+                VolumeTotalGb: 80m,
+                VolumeFreeGb: 40m,
                 VolumeFreePercent: 50m)
         ];
 }

@@ -21,7 +21,7 @@ public class DataFileHeadroomHealthRulesTests
 
         var result = _rules.Evaluate(files);
 
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
         Assert.Null(result.TriggeringFile);
         Assert.Contains("No storage capacity issue", result.Diagnosis, StringComparison.OrdinalIgnoreCase);
     }
@@ -45,7 +45,7 @@ public class DataFileHeadroomHealthRulesTests
 
         var result = _rules.Evaluate(files);
 
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
         Assert.Null(result.TriggeringFile);
     }
 
@@ -65,7 +65,7 @@ public class DataFileHeadroomHealthRulesTests
 
         var result = _rules.Evaluate(files);
 
-        Assert.Equal(StorageHealthStatus.WARNING, result.Status);
+        Assert.Equal(StorageHealthStatus.Warning, result.Status);
         Assert.NotNull(result.TriggeringFile);
         Assert.Equal("HangfireData", result.TriggeringFile!.FileName);
         Assert.Contains("cannot grow", result.Diagnosis, StringComparison.OrdinalIgnoreCase);
@@ -86,7 +86,7 @@ public class DataFileHeadroomHealthRulesTests
 
         var result = _rules.Evaluate(files);
 
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
     }
 
     [Fact]
@@ -104,7 +104,7 @@ public class DataFileHeadroomHealthRulesTests
 
         var result = _rules.Evaluate(files);
 
-        Assert.Equal(StorageHealthStatus.WARNING, result.Status);
+        Assert.Equal(StorageHealthStatus.Warning, result.Status);
     }
 
     [Fact]
@@ -122,7 +122,7 @@ public class DataFileHeadroomHealthRulesTests
 
         var result = _rules.Evaluate(files);
 
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
     }
 
     [Fact]
@@ -141,7 +141,7 @@ public class DataFileHeadroomHealthRulesTests
 
         var result = _rules.Evaluate(files);
 
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
     }
 
     [Fact]
@@ -161,7 +161,7 @@ public class DataFileHeadroomHealthRulesTests
             currentSizeMb: 100m);
 
         Assert.Equal(DataFileMaxSizeKind.Unlimited, file.MaxSizeKind);
-        Assert.Null(file.MaxSizeMB);
+        Assert.Null(file.MaxSizeMb);
     }
 
     private static DataFileHeadroomFileMetrics File(
@@ -178,17 +178,17 @@ public class DataFileHeadroomHealthRulesTests
         new(
             FileId: 1,
             FileName: fileName,
-            CurrentSizeMB: currentSizeMb,
-            UsedMB: currentSizeMb - freeMb,
-            FreeMB: freeMb,
+            CurrentSizeMb: currentSizeMb,
+            UsedMb: currentSizeMb - freeMb,
+            FreeMb: freeMb,
             UsedPercent: usedPercent,
             MaxSizeKind: maxSizeKind,
-            MaxSizeMB: maxSizeMb,
-            GrowthMB: 64m,
+            MaxSizeMb: maxSizeMb,
+            GrowthMb: 64m,
             GrowthPercent: null,
             IsPercentGrowth: false,
             VolumeMountPoint: volumeMountPoint,
-            VolumeTotalGB: volumeTotalGb,
-            VolumeFreeGB: volumeFreeGb,
+            VolumeTotalGb: volumeTotalGb,
+            VolumeFreeGb: volumeFreeGb,
             VolumeFreePercent: volumeFreePercent);
 }

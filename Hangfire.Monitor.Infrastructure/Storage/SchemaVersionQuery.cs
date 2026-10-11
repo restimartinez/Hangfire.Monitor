@@ -33,7 +33,8 @@ internal static class SchemaVersionQuery
     }
 
     /// <summary>
-    /// Maps <see cref="System.Data.Common.DbCommand.ExecuteScalar"/> output to <see cref="int?"/>.
+    /// Maps <see cref="System.Data.Common.DbCommand.ExecuteScalar"/> output to a nullable
+    /// <see cref="int"/>.
     /// </summary>
     public static int? ReadScalar(object? value)
     {

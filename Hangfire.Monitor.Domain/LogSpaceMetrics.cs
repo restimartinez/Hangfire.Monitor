@@ -5,7 +5,7 @@ namespace Hangfire.Monitor.Domain;
 /// Acquisition model only — no health status or thresholds.
 /// </summary>
 public sealed record LogSpaceMetrics(
-    decimal TotalLogMB,
-    decimal UsedLogMB,
-    decimal FreeLogMB,
+    decimal TotalLogMb,
+    decimal UsedLogMb,
+    decimal FreeLogMb,
     decimal UsedPercent);

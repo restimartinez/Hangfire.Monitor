@@ -98,7 +98,7 @@ public class ConfiguredApplicationsStorageHealthMonitor
     /// <summary>
     /// Monitors each application in <paramref name="applications"/> order.
     /// <see cref="DbException"/> when creating storage becomes a full-row
-    /// <see cref="StorageHealthStatus.UNAVAILABLE"/> for that app only.
+    /// <see cref="StorageHealthStatus.Unavailable"/> for that app only.
     /// <see cref="DbException"/> from an individual metric is isolated to that metric;
     /// other metrics for the same app continue. Non-<see cref="DbException"/> errors propagate.
     /// </summary>

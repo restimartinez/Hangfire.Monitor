@@ -49,9 +49,9 @@ else
                 var schemaSortValue = result.Schema.ActualVersion?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
                 var dataFilesUsedSortValue = result.DataFiles.UsedPercent is null
                     ? string.Empty
-                    : result.DataFiles.UsedMB.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                    : result.DataFiles.UsedMb.ToString(System.Globalization.CultureInfo.InvariantCulture);
                 var dataFilesPercentSortValue = result.DataFiles.UsedPercent?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
-                var logUsedSortValue = result.LogSpace?.UsedLogMB.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
+                var logUsedSortValue = result.LogSpace?.UsedLogMb.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
                 var logPercentSortValue = result.LogSpace?.UsedPercent.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
                 var transactionsSortValue = result.ActiveTransactions?.Count.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
                 <tr class="@StorageHealthDisplay.FormatRowCssClass(result.ServerCount)">

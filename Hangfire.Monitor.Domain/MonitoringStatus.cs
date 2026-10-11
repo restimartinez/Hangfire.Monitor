@@ -5,7 +5,7 @@ namespace Hangfire.Monitor.Domain;
 /// </summary>
 public enum MonitoringStatus
 {
-    OK,
-    FAILED,
-    UNAVAILABLE
+    Ok,
+    Failed,
+    Unavailable
 }

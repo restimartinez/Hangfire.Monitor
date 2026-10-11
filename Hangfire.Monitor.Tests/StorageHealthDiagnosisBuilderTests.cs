@@ -13,7 +13,7 @@ public class StorageHealthDiagnosisBuilderTests
         ]);
 
         var diagnosis = StorageHealthDiagnosisBuilder.BuildDiagnosis(
-            StorageHealthStatus.OK,
+            StorageHealthStatus.Ok,
             headroom,
             failureReason: null);
 
@@ -24,7 +24,7 @@ public class StorageHealthDiagnosisBuilderTests
     public void BuildDiagnosis_Unavailable_IncludesFailureReason()
     {
         var diagnosis = StorageHealthDiagnosisBuilder.BuildDiagnosis(
-            StorageHealthStatus.UNAVAILABLE,
+            StorageHealthStatus.Unavailable,
             headroom: null,
             failureReason: "timeout connecting");
 
@@ -35,7 +35,7 @@ public class StorageHealthDiagnosisBuilderTests
     public void BuildResolution_OnlyWhenWarning()
     {
         Assert.Null(StorageHealthDiagnosisBuilder.BuildResolution(
-            StorageHealthStatus.OK,
+            StorageHealthStatus.Ok,
             headroom: null,
             databaseNameHint: null));
 
@@ -60,7 +60,7 @@ public class StorageHealthDiagnosisBuilderTests
         ]);
 
         var guide = StorageHealthDiagnosisBuilder.BuildResolution(
-            StorageHealthStatus.WARNING,
+            StorageHealthStatus.Warning,
             warningHeadroom,
             databaseNameHint: null);
 
@@ -98,7 +98,7 @@ public class StorageHealthDiagnosisBuilderTests
         ]);
 
         var guide = StorageHealthDiagnosisBuilder.BuildResolution(
-            StorageHealthStatus.WARNING,
+            StorageHealthStatus.Warning,
             warningHeadroom,
             databaseNameHint: "Db]Name");
 

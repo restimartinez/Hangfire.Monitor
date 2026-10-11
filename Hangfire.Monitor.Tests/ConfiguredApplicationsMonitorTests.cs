@@ -74,17 +74,17 @@ public class ConfiguredApplicationsMonitorTests
 
         var results = monitor.MonitorAll(applications);
 
-        Assert.Equal(MonitoringStatus.OK, results[0].Status);
+        Assert.Equal(MonitoringStatus.Ok, results[0].Status);
         Assert.Equal(0, results[0].FailedCount);
         Assert.Null(results[0].LastFailedAt);
         Assert.Equal(3, results[0].ServerCount);
 
-        Assert.Equal(MonitoringStatus.FAILED, results[1].Status);
+        Assert.Equal(MonitoringStatus.Failed, results[1].Status);
         Assert.Equal(3, results[1].FailedCount);
         Assert.Equal(lastFailedAt, results[1].LastFailedAt);
         Assert.Equal(1, results[1].ServerCount);
 
-        Assert.Equal(MonitoringStatus.OK, results[2].Status);
+        Assert.Equal(MonitoringStatus.Ok, results[2].Status);
         Assert.Equal(0, results[2].FailedCount);
         Assert.Null(results[2].LastFailedAt);
         Assert.Equal(0, results[2].ServerCount);
@@ -108,9 +108,9 @@ public class ConfiguredApplicationsMonitorTests
 
         var results = monitor.MonitorAll(applications);
 
-        Assert.Equal(MonitoringStatus.OK, results[0].Status);
+        Assert.Equal(MonitoringStatus.Ok, results[0].Status);
         Assert.Equal(3, results[0].ServerCount);
-        Assert.Equal(MonitoringStatus.FAILED, results[1].Status);
+        Assert.Equal(MonitoringStatus.Failed, results[1].Status);
         Assert.Equal(3, results[1].ServerCount);
     }
 
@@ -145,17 +145,17 @@ public class ConfiguredApplicationsMonitorTests
         Assert.Equal(3, results.Count);
 
         Assert.Equal("App A", results[0].ApplicationName);
-        Assert.Equal(MonitoringStatus.OK, results[0].Status);
+        Assert.Equal(MonitoringStatus.Ok, results[0].Status);
         Assert.Equal(2, results[0].ServerCount);
 
         Assert.Equal("App B", results[1].ApplicationName);
-        Assert.Equal(MonitoringStatus.UNAVAILABLE, results[1].Status);
+        Assert.Equal(MonitoringStatus.Unavailable, results[1].Status);
         Assert.Equal(0, results[1].FailedCount);
         Assert.Null(results[1].LastFailedAt);
         Assert.Equal(0, results[1].ServerCount);
 
         Assert.Equal("App C", results[2].ApplicationName);
-        Assert.Equal(MonitoringStatus.FAILED, results[2].Status);
+        Assert.Equal(MonitoringStatus.Failed, results[2].Status);
         Assert.Equal(1, results[2].FailedCount);
         Assert.Equal(lastFailedAt, results[2].LastFailedAt);
         Assert.Equal(1, results[2].ServerCount);
@@ -224,7 +224,7 @@ public class ConfiguredApplicationsMonitorTests
 
         var result = Assert.Single(monitor.MonitorAll(applications));
 
-        Assert.Equal(MonitoringStatus.UNAVAILABLE, result.Status);
+        Assert.Equal(MonitoringStatus.Unavailable, result.Status);
         Assert.Equal("1.8.14", result.Version);
     }
 

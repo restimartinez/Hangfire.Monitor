@@ -1,5 +1,4 @@
 using System.Data.Common;
-using Hangfire;
 using Hangfire.Monitor.Domain;
 using Hangfire.SqlServer;
 

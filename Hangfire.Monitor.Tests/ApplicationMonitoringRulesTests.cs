@@ -11,7 +11,7 @@ public class ApplicationMonitoringRulesTests
     {
         var result = _rules.FromFailureInfo("App1", failedCount: 0, lastFailedAt: null, serverCount: 0);
 
-        Assert.Equal(MonitoringStatus.OK, result.Status);
+        Assert.Equal(MonitoringStatus.Ok, result.Status);
         Assert.Equal(0, result.FailedCount);
         Assert.Equal(0, result.ServerCount);
     }
@@ -25,7 +25,7 @@ public class ApplicationMonitoringRulesTests
             lastFailedAt: new DateTime(2026, 9, 14, 11, 42, 37, DateTimeKind.Utc),
             serverCount: 1);
 
-        Assert.Equal(MonitoringStatus.OK, result.Status);
+        Assert.Equal(MonitoringStatus.Ok, result.Status);
         Assert.Null(result.LastFailedAt);
         Assert.Equal(1, result.ServerCount);
     }
@@ -37,7 +37,7 @@ public class ApplicationMonitoringRulesTests
 
         var result = _rules.FromFailureInfo("App2", failedCount: 1, lastFailedAt, serverCount: 0);
 
-        Assert.Equal(MonitoringStatus.FAILED, result.Status);
+        Assert.Equal(MonitoringStatus.Failed, result.Status);
         Assert.Equal(1, result.FailedCount);
         Assert.Equal(lastFailedAt, result.LastFailedAt);
         Assert.Equal(0, result.ServerCount);
@@ -50,7 +50,7 @@ public class ApplicationMonitoringRulesTests
 
         var result = _rules.FromFailureInfo("App2", failedCount: 3, lastFailedAt, serverCount: 2);
 
-        Assert.Equal(MonitoringStatus.FAILED, result.Status);
+        Assert.Equal(MonitoringStatus.Failed, result.Status);
         Assert.Equal(3, result.FailedCount);
         Assert.Equal(lastFailedAt, result.LastFailedAt);
         Assert.Equal(2, result.ServerCount);
@@ -71,7 +71,7 @@ public class ApplicationMonitoringRulesTests
     {
         var result = _rules.FromFailureInfo("App2", failedCount: 2, lastFailedAt: null, serverCount: 0);
 
-        Assert.Equal(MonitoringStatus.FAILED, result.Status);
+        Assert.Equal(MonitoringStatus.Failed, result.Status);
         Assert.Null(result.LastFailedAt);
     }
 
@@ -88,7 +88,7 @@ public class ApplicationMonitoringRulesTests
     {
         var result = _rules.FromFailureInfo("App1", failedCount: 0, lastFailedAt: null, serverCount: 3);
 
-        Assert.Equal(MonitoringStatus.OK, result.Status);
+        Assert.Equal(MonitoringStatus.Ok, result.Status);
         Assert.Equal(0, result.FailedCount);
         Assert.Equal(3, result.ServerCount);
     }
@@ -100,7 +100,7 @@ public class ApplicationMonitoringRulesTests
 
         var result = _rules.FromFailureInfo("App2", failedCount: 2, lastFailedAt, serverCount: 3);
 
-        Assert.Equal(MonitoringStatus.FAILED, result.Status);
+        Assert.Equal(MonitoringStatus.Failed, result.Status);
         Assert.Equal(2, result.FailedCount);
         Assert.Equal(3, result.ServerCount);
     }
@@ -122,7 +122,7 @@ public class ApplicationMonitoringRulesTests
         var result = _rules.Unavailable("App3");
 
         Assert.Equal("App3", result.ApplicationName);
-        Assert.Equal(MonitoringStatus.UNAVAILABLE, result.Status);
+        Assert.Equal(MonitoringStatus.Unavailable, result.Status);
         Assert.Equal(0, result.FailedCount);
         Assert.Null(result.LastFailedAt);
         Assert.Equal(0, result.ServerCount);

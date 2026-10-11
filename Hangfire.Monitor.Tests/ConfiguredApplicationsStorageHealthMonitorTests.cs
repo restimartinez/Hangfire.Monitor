@@ -33,11 +33,11 @@ public class ConfiguredApplicationsStorageHealthMonitorTests
 
         var result = Assert.Single(results);
         Assert.Equal("App A", result.ApplicationName);
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
         Assert.Equal(9, result.Schema.ActualVersion);
-        Assert.Equal(StorageHealthStatus.OK, result.Schema.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Schema.Status);
         Assert.Equal(50.00m, result.DataFiles.UsedPercent);
-        Assert.Equal(StorageHealthStatus.OK, result.DataFiles.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.DataFiles.Status);
         Assert.Equal(logMetrics, result.LogSpace);
         Assert.Equal(reuseMetrics, result.LogReuseWait);
         Assert.Equal(txMetrics, result.ActiveTransactions);
@@ -68,9 +68,9 @@ public class ConfiguredApplicationsStorageHealthMonitorTests
         Assert.Equal("Payments.Worker", result.ApplicationName);
         Assert.Equal(9, result.Schema.ActualVersion);
         Assert.Equal(SchemaVersionHealthRules.DefaultExpectedSchemaVersion, result.Schema.ExpectedVersion);
-        Assert.Equal(dataMetrics.AllocatedMB, result.DataFiles.AllocatedMB);
-        Assert.Equal(dataMetrics.UsedMB, result.DataFiles.UsedMB);
-        Assert.Equal(dataMetrics.FreeMB, result.DataFiles.FreeMB);
+        Assert.Equal(dataMetrics.AllocatedMb, result.DataFiles.AllocatedMb);
+        Assert.Equal(dataMetrics.UsedMb, result.DataFiles.UsedMb);
+        Assert.Equal(dataMetrics.FreeMb, result.DataFiles.FreeMb);
         Assert.Equal(logMetrics, result.LogSpace);
         Assert.Equal(reuseMetrics, result.LogReuseWait);
         Assert.Equal(txMetrics, result.ActiveTransactions);
@@ -99,9 +99,9 @@ public class ConfiguredApplicationsStorageHealthMonitorTests
 
         var result = Assert.Single(monitor.MonitorAll([App("App1")]));
 
-        Assert.Equal(StorageHealthStatus.WARNING, result.Schema.Status);
-        Assert.Equal(StorageHealthStatus.OK, result.DataFiles.Status);
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Warning, result.Schema.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.DataFiles.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
     }
 
     [Fact]
@@ -117,9 +117,9 @@ public class ConfiguredApplicationsStorageHealthMonitorTests
 
         var result = Assert.Single(monitor.MonitorAll([App("App1")]));
 
-        Assert.Equal(StorageHealthStatus.OK, result.Schema.Status);
-        Assert.Equal(StorageHealthStatus.OK, result.DataFiles.Status);
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Schema.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.DataFiles.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
     }
 
     [Fact]
@@ -170,13 +170,13 @@ public class ConfiguredApplicationsStorageHealthMonitorTests
         Assert.Equal(1, logCalls);
         Assert.Equal(1, reuseCalls);
         Assert.Equal(1, txCalls);
-        Assert.Equal(StorageHealthStatus.UNAVAILABLE, result.Schema.Status);
+        Assert.Equal(StorageHealthStatus.Unavailable, result.Schema.Status);
         Assert.Null(result.Schema.ActualVersion);
-        Assert.Equal(StorageHealthStatus.OK, result.DataFiles.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.DataFiles.Status);
         Assert.Equal(logMetrics, result.LogSpace);
         Assert.Equal(reuseMetrics, result.LogReuseWait);
         Assert.Equal(txMetrics, result.ActiveTransactions);
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
     }
 
     [Fact]
@@ -196,13 +196,13 @@ public class ConfiguredApplicationsStorageHealthMonitorTests
 
         var result = Assert.Single(monitor.MonitorAll([App("App1")]));
 
-        Assert.Equal(StorageHealthStatus.OK, result.Schema.Status);
-        Assert.Equal(StorageHealthStatus.UNAVAILABLE, result.DataFiles.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Schema.Status);
+        Assert.Equal(StorageHealthStatus.Unavailable, result.DataFiles.Status);
         Assert.Null(result.DataFiles.UsedPercent);
         Assert.Equal(logMetrics, result.LogSpace);
         Assert.Equal(reuseMetrics, result.LogReuseWait);
         Assert.Equal(txMetrics, result.ActiveTransactions);
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
     }
 
     [Fact]
@@ -236,7 +236,7 @@ public class ConfiguredApplicationsStorageHealthMonitorTests
         Assert.Null(result.LogSpace);
         Assert.Equal(reuseMetrics, result.LogReuseWait);
         Assert.Equal(txMetrics, result.ActiveTransactions);
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
     }
 
     [Fact]
@@ -258,7 +258,7 @@ public class ConfiguredApplicationsStorageHealthMonitorTests
         Assert.Equal(logMetrics, result.LogSpace);
         Assert.Null(result.LogReuseWait);
         Assert.Equal(txMetrics, result.ActiveTransactions);
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
     }
 
     [Fact]
@@ -280,7 +280,7 @@ public class ConfiguredApplicationsStorageHealthMonitorTests
         Assert.Equal(logMetrics, result.LogSpace);
         Assert.Equal(reuseMetrics, result.LogReuseWait);
         Assert.Null(result.ActiveTransactions);
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
     }
 
     [Fact]
@@ -320,9 +320,9 @@ public class ConfiguredApplicationsStorageHealthMonitorTests
 
         Assert.Equal(0, metricCalls);
         Assert.Equal("App1", result.ApplicationName);
-        Assert.Equal(StorageHealthStatus.UNAVAILABLE, result.Status);
-        Assert.Equal(StorageHealthStatus.UNAVAILABLE, result.Schema.Status);
-        Assert.Equal(StorageHealthStatus.UNAVAILABLE, result.DataFiles.Status);
+        Assert.Equal(StorageHealthStatus.Unavailable, result.Status);
+        Assert.Equal(StorageHealthStatus.Unavailable, result.Schema.Status);
+        Assert.Equal(StorageHealthStatus.Unavailable, result.DataFiles.Status);
         Assert.Null(result.LogSpace);
         Assert.Null(result.LogReuseWait);
         Assert.Null(result.ActiveTransactions);
@@ -335,15 +335,9 @@ public class ConfiguredApplicationsStorageHealthMonitorTests
     public void MonitorAll_OneAppCreateDbException_DoesNotBlockNext()
     {
         var monitor = CreateMonitor(
-            app =>
-            {
-                if (app.Name == "App B")
-                {
-                    throw new StubDbException("storage unavailable");
-                }
-
-                return CreateStorage();
-            },
+            app => app.Name == "App B"
+                ? throw new StubDbException("storage unavailable")
+                : new SqlServerStorageFactory().Create(app),
             _ => 9,
             _ => new DataFileSpaceMetrics(100m, 50m, 50m),
             _ => new LogSpaceMetrics(1m, 0m, 1m, 0m),
@@ -353,11 +347,11 @@ public class ConfiguredApplicationsStorageHealthMonitorTests
         var results = monitor.MonitorAll([App("App A"), App("App B"), App("App C")]);
 
         Assert.Equal(3, results.Count);
-        Assert.Equal(StorageHealthStatus.OK, results[0].Status);
+        Assert.Equal(StorageHealthStatus.Ok, results[0].Status);
         Assert.Equal("App A", results[0].ApplicationName);
-        Assert.Equal(StorageHealthStatus.UNAVAILABLE, results[1].Status);
+        Assert.Equal(StorageHealthStatus.Unavailable, results[1].Status);
         Assert.Equal("App B", results[1].ApplicationName);
-        Assert.Equal(StorageHealthStatus.OK, results[2].Status);
+        Assert.Equal(StorageHealthStatus.Ok, results[2].Status);
         Assert.Equal("App C", results[2].ApplicationName);
     }
 
@@ -379,7 +373,7 @@ public class ConfiguredApplicationsStorageHealthMonitorTests
         var result = Assert.Single(monitor.MonitorAll([App("App1")]));
 
         Assert.Equal(serverCount, result.ServerCount);
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
     }
 
     [Fact]
@@ -401,7 +395,7 @@ public class ConfiguredApplicationsStorageHealthMonitorTests
         var result = Assert.Single(monitor.MonitorAll([App("App1")]));
 
         Assert.Equal(0, result.ServerCount);
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
         Assert.Equal(logMetrics, result.LogSpace);
         Assert.Equal(reuseMetrics, result.LogReuseWait);
         Assert.Equal(txMetrics, result.ActiveTransactions);
@@ -422,7 +416,7 @@ public class ConfiguredApplicationsStorageHealthMonitorTests
         var result = Assert.Single(monitor.MonitorAll([App("App1")]));
 
         Assert.Equal(0, result.ServerCount);
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
         Assert.Equal(9, result.Schema.ActualVersion);
         Assert.Equal(50.00m, result.DataFiles.UsedPercent);
     }
@@ -508,7 +502,7 @@ public class ConfiguredApplicationsStorageHealthMonitorTests
 
         var result = monitor.MonitorOne(App("Offline.App", version: "1.8.14"));
 
-        Assert.Equal(StorageHealthStatus.UNAVAILABLE, result.Status);
+        Assert.Equal(StorageHealthStatus.Unavailable, result.Status);
         Assert.Equal("1.8.14", result.Version);
     }
 
@@ -535,7 +529,7 @@ public class ConfiguredApplicationsStorageHealthMonitorTests
             createStorage,
             getSchemaVersion,
             getDataFileSpace,
-            getDataFileHeadroom ?? (_ => Array.Empty<DataFileHeadroomFileMetrics>()),
+            getDataFileHeadroom ?? (_ => []),
             getLogSpace,
             getLogReuseWait,
             getActiveTransactions,
@@ -556,11 +550,5 @@ public class ConfiguredApplicationsStorageHealthMonitorTests
             Version = version
         };
 
-    private sealed class StubDbException : DbException
-    {
-        public StubDbException(string message)
-            : base(message)
-        {
-        }
-    }
+    private sealed class StubDbException(string message) : DbException(message);
 }

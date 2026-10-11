@@ -9,13 +9,13 @@ public class ApplicationMonitoringResultTests
     {
         var result = new ApplicationMonitoringResult(
             ApplicationName: "App",
-            Status: MonitoringStatus.OK,
+            Status: MonitoringStatus.Ok,
             FailedCount: 0,
             LastFailedAt: null,
             ServerCount: 2);
 
         Assert.Equal("App", result.ApplicationName);
-        Assert.Equal(MonitoringStatus.OK, result.Status);
+        Assert.Equal(MonitoringStatus.Ok, result.Status);
         Assert.Equal(0, result.FailedCount);
         Assert.Null(result.LastFailedAt);
         Assert.Equal(2, result.ServerCount);
@@ -28,13 +28,13 @@ public class ApplicationMonitoringResultTests
 
         var result = new ApplicationMonitoringResult(
             ApplicationName: "App",
-            Status: MonitoringStatus.FAILED,
+            Status: MonitoringStatus.Failed,
             FailedCount: 3,
             LastFailedAt: lastFailedAt,
             ServerCount: 1);
 
         Assert.Equal("App", result.ApplicationName);
-        Assert.Equal(MonitoringStatus.FAILED, result.Status);
+        Assert.Equal(MonitoringStatus.Failed, result.Status);
         Assert.Equal(3, result.FailedCount);
         Assert.Equal(lastFailedAt, result.LastFailedAt);
         Assert.Equal(1, result.ServerCount);
@@ -45,13 +45,13 @@ public class ApplicationMonitoringResultTests
     {
         var result = new ApplicationMonitoringResult(
             ApplicationName: "App",
-            Status: MonitoringStatus.UNAVAILABLE,
+            Status: MonitoringStatus.Unavailable,
             FailedCount: 0,
             LastFailedAt: null,
             ServerCount: 0);
 
         Assert.Equal("App", result.ApplicationName);
-        Assert.Equal(MonitoringStatus.UNAVAILABLE, result.Status);
+        Assert.Equal(MonitoringStatus.Unavailable, result.Status);
         Assert.Equal(0, result.FailedCount);
         Assert.Null(result.LastFailedAt);
         Assert.Equal(0, result.ServerCount);
@@ -62,7 +62,7 @@ public class ApplicationMonitoringResultTests
     {
         var result = new ApplicationMonitoringResult(
             ApplicationName: "App",
-            Status: MonitoringStatus.OK,
+            Status: MonitoringStatus.Ok,
             FailedCount: 0,
             LastFailedAt: null,
             ServerCount: 0);

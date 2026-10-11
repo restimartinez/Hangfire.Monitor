@@ -35,13 +35,13 @@ public class FailedModelTests
         Assert.Equal(2, model.Results.Count);
 
         Assert.Equal("App A", model.Results[0].ApplicationName);
-        Assert.Equal(MonitoringStatus.OK, model.Results[0].Status);
+        Assert.Equal(MonitoringStatus.Ok, model.Results[0].Status);
         Assert.Equal(0, model.Results[0].FailedCount);
         Assert.Null(model.Results[0].LastFailedAt);
         Assert.Equal(3, model.Results[0].ServerCount);
 
         Assert.Equal("App B", model.Results[1].ApplicationName);
-        Assert.Equal(MonitoringStatus.FAILED, model.Results[1].Status);
+        Assert.Equal(MonitoringStatus.Failed, model.Results[1].Status);
         Assert.Equal(2, model.Results[1].FailedCount);
         Assert.Equal(lastFailedAt, model.Results[1].LastFailedAt);
         Assert.Equal(1, model.Results[1].ServerCount);

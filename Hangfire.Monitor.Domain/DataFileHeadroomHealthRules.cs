@@ -19,7 +19,7 @@ public sealed class DataFileHeadroomHealthRules
             if (IsCapacityWarning(file))
             {
                 return new DataFileHeadroomHealthResult(
-                    StorageHealthStatus.WARNING,
+                    StorageHealthStatus.Warning,
                     Diagnosis:
                     $"Data file '{file.FileName}' has no free space inside the file and cannot grow further because of its configured maximum size.",
                     Recommendation:
@@ -30,7 +30,7 @@ public sealed class DataFileHeadroomHealthRules
         }
 
         return new DataFileHeadroomHealthResult(
-            StorageHealthStatus.OK,
+            StorageHealthStatus.Ok,
             Diagnosis: "No storage capacity issue detected from the available metrics.",
             Recommendation: "No action required.",
             TriggeringFile: null,
@@ -44,7 +44,7 @@ public sealed class DataFileHeadroomHealthRules
     {
         ArgumentNullException.ThrowIfNull(file);
 
-        if (file.FreeMB > 0m)
+        if (file.FreeMb > 0m)
         {
             return false;
         }
@@ -52,9 +52,7 @@ public sealed class DataFileHeadroomHealthRules
         return file.MaxSizeKind switch
         {
             DataFileMaxSizeKind.NoGrowth => true,
-            DataFileMaxSizeKind.Limited =>
-                file.MaxSizeMB is not null && file.CurrentSizeMB >= file.MaxSizeMB.Value,
-            DataFileMaxSizeKind.Unlimited => false,
+            DataFileMaxSizeKind.Limited => file.MaxSizeMb is not null && file.CurrentSizeMb >= file.MaxSizeMb.Value,
             _ => false
         };
     }

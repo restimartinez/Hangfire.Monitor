@@ -110,18 +110,18 @@ internal static class DataFileHeadroomQuery
         return new DataFileHeadroomFileMetrics(
             FileId: RequireInt32(fileId, nameof(DataFileHeadroomFileMetrics.FileId)),
             FileName: RequireString(fileName, nameof(DataFileHeadroomFileMetrics.FileName)),
-            CurrentSizeMB: RequireDecimal(currentSizeMb, nameof(DataFileHeadroomFileMetrics.CurrentSizeMB)),
-            UsedMB: RequireDecimal(usedMb, nameof(DataFileHeadroomFileMetrics.UsedMB)),
-            FreeMB: RequireDecimal(freeMb, nameof(DataFileHeadroomFileMetrics.FreeMB)),
+            CurrentSizeMb: RequireDecimal(currentSizeMb, nameof(DataFileHeadroomFileMetrics.CurrentSizeMb)),
+            UsedMb: RequireDecimal(usedMb, nameof(DataFileHeadroomFileMetrics.UsedMb)),
+            FreeMb: RequireDecimal(freeMb, nameof(DataFileHeadroomFileMetrics.FreeMb)),
             UsedPercent: OptionalDecimal(usedPercent),
             MaxSizeKind: maxSizeKind,
-            MaxSizeMB: maxSizeMb,
-            GrowthMB: OptionalDecimal(growthMb),
+            MaxSizeMb: maxSizeMb,
+            GrowthMb: OptionalDecimal(growthMb),
             GrowthPercent: OptionalInt32(growthPercent),
             IsPercentGrowth: RequireBool(isPercentGrowth, nameof(DataFileHeadroomFileMetrics.IsPercentGrowth)),
             VolumeMountPoint: OptionalString(volumeMountPoint),
-            VolumeTotalGB: OptionalDecimal(volumeTotalGb),
-            VolumeFreeGB: OptionalDecimal(volumeFreeGb),
+            VolumeTotalGb: OptionalDecimal(volumeTotalGb),
+            VolumeFreeGb: OptionalDecimal(volumeFreeGb),
             VolumeFreePercent: OptionalDecimal(volumeFreePercent));
     }
 

@@ -45,15 +45,15 @@ public class StorageHealthDetailsModelTests
         Assert.Equal(3, details.ServerCount);
         Assert.False(details.IsUnavailable);
 
-        Assert.Equal(12450m, details.DataFiles.AllocatedMB);
-        Assert.Equal(7320m, details.DataFiles.UsedMB);
-        Assert.Equal(5130m, details.DataFiles.FreeMB);
+        Assert.Equal(12450m, details.DataFiles.AllocatedMb);
+        Assert.Equal(7320m, details.DataFiles.UsedMb);
+        Assert.Equal(5130m, details.DataFiles.FreeMb);
         Assert.Equal(58.80m, details.DataFiles.UsedPercent);
 
         Assert.Equal(logSpace, details.Log);
-        Assert.Equal(2048m, details.Log!.TotalLogMB);
-        Assert.Equal(320m, details.Log.UsedLogMB);
-        Assert.Equal(1728m, details.Log.FreeLogMB);
+        Assert.Equal(2048m, details.Log!.TotalLogMb);
+        Assert.Equal(320m, details.Log.UsedLogMb);
+        Assert.Equal(1728m, details.Log.FreeLogMb);
         Assert.Equal(15.6m, details.Log.UsedPercent);
 
         Assert.Equal(logReuse, details.LogReuse);
@@ -241,9 +241,9 @@ public class StorageHealthDetailsModelTests
         var details = Assert.IsType<StorageHealthDetails>(model.Details);
         Assert.Equal("Offline.App", details.ApplicationName);
         Assert.True(details.IsUnavailable);
-        Assert.Equal(StorageHealthStatus.UNAVAILABLE, details.Status);
+        Assert.Equal(StorageHealthStatus.Unavailable, details.Status);
         Assert.Equal(0, details.ServerCount);
-        Assert.Equal(StorageHealthStatus.UNAVAILABLE, details.DataFiles.Status);
+        Assert.Equal(StorageHealthStatus.Unavailable, details.DataFiles.Status);
         Assert.Null(details.Log);
         Assert.Null(details.LogReuse);
         Assert.Null(details.ActiveTransactions);

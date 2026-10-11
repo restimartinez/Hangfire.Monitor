@@ -27,9 +27,9 @@ public class DataFileSpaceReaderTests
     {
         var result = DataFileSpaceQuery.MapRow(2048.5m, 1350.25m, 698.25m);
 
-        Assert.Equal(2048.5m, result.AllocatedMB);
-        Assert.Equal(1350.25m, result.UsedMB);
-        Assert.Equal(698.25m, result.FreeMB);
+        Assert.Equal(2048.5m, result.AllocatedMb);
+        Assert.Equal(1350.25m, result.UsedMb);
+        Assert.Equal(698.25m, result.FreeMb);
     }
 
     [Fact]
@@ -37,9 +37,9 @@ public class DataFileSpaceReaderTests
     {
         var result = DataFileSpaceQuery.MapRow(1024.0d, 512, 512L);
 
-        Assert.Equal(1024.0m, result.AllocatedMB);
-        Assert.Equal(512m, result.UsedMB);
-        Assert.Equal(512m, result.FreeMB);
+        Assert.Equal(1024.0m, result.AllocatedMb);
+        Assert.Equal(512m, result.UsedMb);
+        Assert.Equal(512m, result.FreeMb);
     }
 
     [Fact]
@@ -60,9 +60,9 @@ public class DataFileSpaceReaderTests
 
         var result = _reader.GetDataFileSpace(connection);
 
-        Assert.Equal(2048.5m, result.AllocatedMB);
-        Assert.Equal(1350.25m, result.UsedMB);
-        Assert.Equal(698.25m, result.FreeMB);
+        Assert.Equal(2048.5m, result.AllocatedMb);
+        Assert.Equal(1350.25m, result.UsedMb);
+        Assert.Equal(698.25m, result.FreeMb);
         Assert.Contains("sys.dm_db_file_space_usage", connection.LastCommandText, StringComparison.Ordinal);
         Assert.Contains("AS AllocatedMB", connection.LastCommandText, StringComparison.Ordinal);
     }

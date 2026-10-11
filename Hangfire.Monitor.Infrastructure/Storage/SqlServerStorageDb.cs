@@ -42,12 +42,11 @@ internal static class SqlServerStorageDb
         ArgumentNullException.ThrowIfNull(action);
 
         var typed = UseConnectionMethod.MakeGenericMethod(typeof(TResult));
-        Func<SqlServerStorage, DbConnection, TResult> hangfireAction =
-            (_, connection) => action(connection);
+        TResult HangfireAction(SqlServerStorage _, DbConnection connection) => action(connection);
 
         try
         {
-            var result = typed.Invoke(storage, [null, hangfireAction]);
+            var result = typed.Invoke(storage, [null, (Func<SqlServerStorage, DbConnection, TResult>)HangfireAction]);
             return (TResult)result!;
         }
         catch (TargetInvocationException ex) when (ex.InnerException is not null)
@@ -61,7 +60,7 @@ internal static class SqlServerStorageDb
     {
         var methods = typeof(SqlServerStorage)
             .GetMethods(BindingFlags.Instance | BindingFlags.NonPublic)
-            .Where(m => m.Name == "UseConnection" && m.IsGenericMethodDefinition)
+            .Where(m => m is { Name: "UseConnection", IsGenericMethodDefinition: true })
             .ToArray();
 
         // UseConnection<TResult>(DbConnection dedicatedConnection, Func<SqlServerStorage, DbConnection, TResult> action)

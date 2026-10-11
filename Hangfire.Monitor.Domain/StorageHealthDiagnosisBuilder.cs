@@ -29,7 +29,7 @@ public static class StorageHealthDiagnosisBuilder
         DataFileHeadroomHealthResult? headroom,
         string? failureReason)
     {
-        if (status == StorageHealthStatus.UNAVAILABLE)
+        if (status == StorageHealthStatus.Unavailable)
         {
             if (!string.IsNullOrWhiteSpace(failureReason))
             {
@@ -39,7 +39,7 @@ public static class StorageHealthDiagnosisBuilder
             return "Storage health metrics could not be obtained for this application.";
         }
 
-        if (status == StorageHealthStatus.WARNING && headroom?.TriggeringFile is not null)
+        if (status == StorageHealthStatus.Warning && headroom?.TriggeringFile is not null)
         {
             return headroom.Diagnosis;
         }
@@ -60,7 +60,7 @@ public static class StorageHealthDiagnosisBuilder
         DataFileHeadroomHealthResult? headroom,
         string? databaseNameHint)
     {
-        if (status != StorageHealthStatus.WARNING || headroom?.TriggeringFile is null)
+        if (status != StorageHealthStatus.Warning || headroom?.TriggeringFile is null)
         {
             return null;
         }
@@ -76,15 +76,15 @@ public static class StorageHealthDiagnosisBuilder
         var maxSizeText = file.MaxSizeKind switch
         {
             DataFileMaxSizeKind.NoGrowth => "NO_GROWTH",
-            DataFileMaxSizeKind.Limited when file.MaxSizeMB is not null =>
-                file.MaxSizeMB.Value.ToString("0.###", CultureInfo.InvariantCulture) + " MB",
+            DataFileMaxSizeKind.Limited when file.MaxSizeMb is not null =>
+                file.MaxSizeMb.Value.ToString("0.###", CultureInfo.InvariantCulture) + " MB",
             DataFileMaxSizeKind.Unlimited => "UNLIMITED",
             _ => "unknown"
         };
 
         var whatIsHappening =
-            $"The data file '{file.FileName}' has FreeMB = {file.FreeMB.ToString("0.###", CultureInfo.InvariantCulture)} " +
-            $"and CurrentSizeMB = {file.CurrentSizeMB.ToString("0.###", CultureInfo.InvariantCulture)} " +
+            $"The data file '{file.FileName}' has FreeMB = {file.FreeMb.ToString("0.###", CultureInfo.InvariantCulture)} " +
+            $"and CurrentSizeMB = {file.CurrentSizeMb.ToString("0.###", CultureInfo.InvariantCulture)} " +
             $"with MaxSize = {maxSizeText}, so SQL Server cannot grow the file further.";
 
         var whatToCheck =

@@ -10,7 +10,7 @@ public class StorageHealthDetailsTests
         var schema = new SchemaVersionHealthResult(
             9,
             9,
-            StorageHealthStatus.OK,
+            StorageHealthStatus.Ok,
             "ok",
             "none");
         var dataFiles = new DataFileSpaceHealthResult(
@@ -18,7 +18,7 @@ public class StorageHealthDetailsTests
             58.8m,
             41.2m,
             58.80m,
-            StorageHealthStatus.OK,
+            StorageHealthStatus.Ok,
             "ok",
             "none");
         var headroom = Array.Empty<DataFileHeadroomFileMetrics>();
@@ -30,7 +30,7 @@ public class StorageHealthDetailsTests
             42);
         var result = new ApplicationStorageHealthResult(
             "Payments.Worker",
-            StorageHealthStatus.OK,
+            StorageHealthStatus.Ok,
             schema,
             dataFiles,
             headroom,
@@ -51,7 +51,7 @@ public class StorageHealthDetailsTests
         Assert.Equal(log, details.Log);
         Assert.Equal(logReuse, details.LogReuse);
         Assert.Equal(transactions, details.ActiveTransactions);
-        Assert.Equal(StorageHealthStatus.OK, details.Status);
+        Assert.Equal(StorageHealthStatus.Ok, details.Status);
         Assert.Equal(StorageHealthDiagnosisBuilder.HealthyDiagnosis, details.Diagnosis);
         Assert.False(details.IsUnavailable);
         Assert.False(details.HasResolution);
@@ -80,7 +80,7 @@ public class StorageHealthDetailsTests
         var details = StorageHealthDetails.From(result);
 
         Assert.True(details.IsUnavailable);
-        Assert.Equal(StorageHealthStatus.UNAVAILABLE, details.Status);
+        Assert.Equal(StorageHealthStatus.Unavailable, details.Status);
         Assert.Null(details.Log);
         Assert.Null(details.LogReuse);
         Assert.Null(details.ActiveTransactions);

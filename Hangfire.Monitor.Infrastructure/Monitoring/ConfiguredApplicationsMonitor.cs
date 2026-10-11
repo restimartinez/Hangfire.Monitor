@@ -37,7 +37,7 @@ public class ConfiguredApplicationsMonitor
 
     /// <summary>
     /// Monitors each application in <paramref name="applications"/> order.
-    /// <see cref="DbException"/> for one app becomes <see cref="MonitoringStatus.UNAVAILABLE"/>
+    /// <see cref="DbException"/> for one app becomes <see cref="MonitoringStatus.Unavailable"/>
     /// for that app only; other apps continue. Non-<see cref="DbException"/> errors propagate.
     /// </summary>
     public IReadOnlyList<ApplicationMonitoringResult> MonitorAll(

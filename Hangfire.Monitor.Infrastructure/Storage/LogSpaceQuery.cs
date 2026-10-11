@@ -61,9 +61,9 @@ internal static class LogSpaceQuery
         object? usedPercent)
     {
         return new LogSpaceMetrics(
-            RequireDecimal(totalLogMb, nameof(LogSpaceMetrics.TotalLogMB)),
-            RequireDecimal(usedLogMb, nameof(LogSpaceMetrics.UsedLogMB)),
-            RequireDecimal(freeLogMb, nameof(LogSpaceMetrics.FreeLogMB)),
+            RequireDecimal(totalLogMb, nameof(LogSpaceMetrics.TotalLogMb)),
+            RequireDecimal(usedLogMb, nameof(LogSpaceMetrics.UsedLogMb)),
+            RequireDecimal(freeLogMb, nameof(LogSpaceMetrics.FreeLogMb)),
             RequireDecimal(usedPercent, nameof(LogSpaceMetrics.UsedPercent)));
     }
 

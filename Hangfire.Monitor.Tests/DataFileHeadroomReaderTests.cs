@@ -77,10 +77,10 @@ public class DataFileHeadroomReaderTests
 
         Assert.Equal(1, row.FileId);
         Assert.Equal("Hangfire", row.FileName);
-        Assert.Equal(100m, row.CurrentSizeMB);
+        Assert.Equal(100m, row.CurrentSizeMb);
         Assert.Equal(DataFileMaxSizeKind.Unlimited, row.MaxSizeKind);
-        Assert.Null(row.MaxSizeMB);
-        Assert.Equal(64m, row.GrowthMB);
+        Assert.Null(row.MaxSizeMb);
+        Assert.Equal(64m, row.GrowthMb);
         Assert.False(row.IsPercentGrowth);
         Assert.Equal("D:\\Data\\", row.VolumeMountPoint);
         Assert.Equal(47.5m, row.VolumeFreePercent);
@@ -106,10 +106,10 @@ public class DataFileHeadroomReaderTests
             volumeFreePercent: null);
 
         Assert.Equal(DataFileMaxSizeKind.Limited, row.MaxSizeKind);
-        Assert.Equal(10.00m, row.MaxSizeMB);
+        Assert.Equal(10.00m, row.MaxSizeMb);
         Assert.Null(row.VolumeMountPoint);
-        Assert.Null(row.VolumeTotalGB);
-        Assert.Null(row.VolumeFreeGB);
+        Assert.Null(row.VolumeTotalGb);
+        Assert.Null(row.VolumeFreeGb);
         Assert.Null(row.VolumeFreePercent);
     }
 }

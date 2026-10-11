@@ -1,5 +1,4 @@
 using System.Data.Common;
-using Hangfire;
 using Hangfire.SqlServer;
 
 namespace Hangfire.Monitor.Infrastructure.Storage;

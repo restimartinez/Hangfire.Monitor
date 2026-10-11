@@ -55,15 +55,15 @@ else
             <dl class="metric-list">
                 <div>
                     <dt>Allocated (database)</dt>
-                    <dd>@StorageHealthDisplay.FormatMegabytes(details.DataFiles.AllocatedMB, numberCulture)</dd>
+                    <dd>@StorageHealthDisplay.FormatMegabytes(details.DataFiles.AllocatedMb, numberCulture)</dd>
                 </div>
                 <div>
                     <dt>Used (database)</dt>
-                    <dd>@StorageHealthDisplay.FormatMegabytes(details.DataFiles.UsedMB, numberCulture)</dd>
+                    <dd>@StorageHealthDisplay.FormatMegabytes(details.DataFiles.UsedMb, numberCulture)</dd>
                 </div>
                 <div>
                     <dt>Free (database)</dt>
-                    <dd>@StorageHealthDisplay.FormatMegabytes(details.DataFiles.FreeMB, numberCulture)</dd>
+                    <dd>@StorageHealthDisplay.FormatMegabytes(details.DataFiles.FreeMb, numberCulture)</dd>
                 </div>
                 <div>
                     <dt>Used %</dt>
@@ -91,9 +91,9 @@ else
                     {
                         <tr>
                             <td>@file.FileName</td>
-                            <td>@StorageHealthDisplay.FormatMegabytes(file.CurrentSizeMB, numberCulture)</td>
-                            <td>@StorageHealthDisplay.FormatMegabytes(file.UsedMB, numberCulture)</td>
-                            <td>@StorageHealthDisplay.FormatMegabytes(file.FreeMB, numberCulture)</td>
+                            <td>@StorageHealthDisplay.FormatMegabytes(file.CurrentSizeMb, numberCulture)</td>
+                            <td>@StorageHealthDisplay.FormatMegabytes(file.UsedMb, numberCulture)</td>
+                            <td>@StorageHealthDisplay.FormatMegabytes(file.FreeMb, numberCulture)</td>
                             <td>@StorageHealthDisplay.FormatUsedPercent(file.UsedPercent, numberCulture)</td>
                             <td>@StorageHealthDisplay.FormatMaxSize(file, numberCulture)</td>
                             <td>@StorageHealthDisplay.FormatGrowth(file, numberCulture)</td>
@@ -117,7 +117,7 @@ else
                 .GroupBy(f => f.VolumeMountPoint ?? string.Empty)
                 .Select(g => g.First())
                 .ToList();
-            var anyVolume = volumes.Any(v => v.VolumeTotalGB is not null || !string.IsNullOrEmpty(v.VolumeMountPoint));
+            var anyVolume = volumes.Any(v => v.VolumeTotalGb is not null || !string.IsNullOrEmpty(v.VolumeMountPoint));
             if (!anyVolume)
             {
                 <p class="empty-message">Volume statistics are not available (missing permissions or unsupported host). This is informational — not a capacity failure by itself.</p>
@@ -139,8 +139,8 @@ else
                         {
                             <tr>
                                 <td>@(string.IsNullOrEmpty(volume.VolumeMountPoint) ? "-" : volume.VolumeMountPoint)</td>
-                                <td>@StorageHealthDisplay.FormatGigabytes(volume.VolumeTotalGB, numberCulture)</td>
-                                <td>@StorageHealthDisplay.FormatGigabytes(volume.VolumeFreeGB, numberCulture)</td>
+                                <td>@StorageHealthDisplay.FormatGigabytes(volume.VolumeTotalGb, numberCulture)</td>
+                                <td>@StorageHealthDisplay.FormatGigabytes(volume.VolumeFreeGb, numberCulture)</td>
                                 <td>@StorageHealthDisplay.FormatUsedPercent(volume.VolumeFreePercent, numberCulture)</td>
                             </tr>
                         }
@@ -162,15 +162,15 @@ else
             <dl class="metric-list">
                 <div>
                     <dt>Total</dt>
-                    <dd>@StorageHealthDisplay.FormatMegabytes(details.Log.TotalLogMB, numberCulture)</dd>
+                    <dd>@StorageHealthDisplay.FormatMegabytes(details.Log.TotalLogMb, numberCulture)</dd>
                 </div>
                 <div>
                     <dt>Used</dt>
-                    <dd>@StorageHealthDisplay.FormatMegabytes(details.Log.UsedLogMB, numberCulture)</dd>
+                    <dd>@StorageHealthDisplay.FormatMegabytes(details.Log.UsedLogMb, numberCulture)</dd>
                 </div>
                 <div>
                     <dt>Free</dt>
-                    <dd>@StorageHealthDisplay.FormatMegabytes(details.Log.FreeLogMB, numberCulture)</dd>
+                    <dd>@StorageHealthDisplay.FormatMegabytes(details.Log.FreeLogMb, numberCulture)</dd>
                 </div>
                 <div>
                     <dt>Used</dt>
@@ -232,7 +232,7 @@ else
     </section>
 }
 
-@if (details.HasResolution && details.Resolution is not null)
+@if (details is { HasResolution: true, Resolution: not null })
 {
     var guide = details.Resolution;
     <section class="storage-health-detail storage-health-detail-wide resolution-guide">

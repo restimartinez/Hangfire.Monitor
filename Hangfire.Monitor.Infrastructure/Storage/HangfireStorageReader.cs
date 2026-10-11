@@ -1,4 +1,3 @@
-using Hangfire;
 using Hangfire.Monitor.Domain;
 using Hangfire.SqlServer;
 using Hangfire.Storage.Monitoring;

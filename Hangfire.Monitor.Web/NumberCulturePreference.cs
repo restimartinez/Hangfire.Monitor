@@ -1,5 +1,4 @@
 using System.Globalization;
-using Microsoft.AspNetCore.Http;
 
 namespace Hangfire.Monitor.Web;
 

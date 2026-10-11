@@ -21,7 +21,7 @@ public sealed class HangfireMonitorOptionsValidator : IValidateOptions<HangfireM
                 "HangfireMonitor:LatestHangfireVersion must be a major.minor.patch version (e.g. 1.8.25).");
         }
 
-        if (options.Applications is null || options.Applications.Count == 0)
+        if (options.Applications.Count == 0)
         {
             return failures.Count > 0
                 ? ValidateOptionsResult.Fail(failures)

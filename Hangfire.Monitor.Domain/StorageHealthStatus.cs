@@ -6,8 +6,8 @@ namespace Hangfire.Monitor.Domain;
 /// </summary>
 public enum StorageHealthStatus
 {
-    OK,
-    WARNING,
-    CRITICAL,
-    UNAVAILABLE
+    Ok,
+    Warning,
+    Critical,
+    Unavailable
 }

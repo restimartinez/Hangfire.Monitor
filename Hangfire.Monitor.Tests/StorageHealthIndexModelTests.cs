@@ -43,7 +43,7 @@ public class StorageHealthIndexModelTests
         Assert.Equal(2, model.Results.Count);
 
         Assert.Equal("App A", model.Results[0].ApplicationName);
-        Assert.Equal(StorageHealthStatus.OK, model.Results[0].Status);
+        Assert.Equal(StorageHealthStatus.Ok, model.Results[0].Status);
         Assert.Equal(9, model.Results[0].Schema.ActualVersion);
         Assert.Equal(50.00m, model.Results[0].DataFiles.UsedPercent);
         Assert.Equal(logSpace, model.Results[0].LogSpace);
@@ -52,10 +52,10 @@ public class StorageHealthIndexModelTests
         Assert.Equal(1, model.Results[0].ServerCount);
 
         Assert.Equal("App B", model.Results[1].ApplicationName);
-        Assert.Equal(StorageHealthStatus.OK, model.Results[1].Status);
+        Assert.Equal(StorageHealthStatus.Ok, model.Results[1].Status);
         Assert.Equal(8, model.Results[1].Schema.ActualVersion);
-        Assert.Equal(StorageHealthStatus.WARNING, model.Results[1].Schema.Status);
-        Assert.Equal(StorageHealthStatus.OK, model.Results[1].DataFiles.Status);
+        Assert.Equal(StorageHealthStatus.Warning, model.Results[1].Schema.Status);
+        Assert.Equal(StorageHealthStatus.Ok, model.Results[1].DataFiles.Status);
         Assert.Equal(95.00m, model.Results[1].DataFiles.UsedPercent);
     }
 
@@ -115,7 +115,7 @@ public class StorageHealthIndexModelTests
         model.OnGet();
 
         Assert.Equal(0, model.Results[0].ServerCount);
-        Assert.Equal(StorageHealthStatus.OK, model.Results[0].Status);
+        Assert.Equal(StorageHealthStatus.Ok, model.Results[0].Status);
         Assert.Equal(1, model.Results[1].ServerCount);
         Assert.Equal(4, model.Results[2].ServerCount);
     }
@@ -220,12 +220,12 @@ public class StorageHealthIndexModelTests
         model.OnGet();
 
         var result = Assert.Single(model.Results);
-        Assert.Equal(dataMetrics.AllocatedMB, result.DataFiles.AllocatedMB);
-        Assert.Equal(dataMetrics.UsedMB, result.DataFiles.UsedMB);
-        Assert.Equal(dataMetrics.FreeMB, result.DataFiles.FreeMB);
+        Assert.Equal(dataMetrics.AllocatedMb, result.DataFiles.AllocatedMb);
+        Assert.Equal(dataMetrics.UsedMb, result.DataFiles.UsedMb);
+        Assert.Equal(dataMetrics.FreeMb, result.DataFiles.FreeMb);
         Assert.Equal(85.00m, result.DataFiles.UsedPercent);
-        Assert.Equal(StorageHealthStatus.OK, result.DataFiles.Status);
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.DataFiles.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
         Assert.Equal(logSpace, result.LogSpace);
         Assert.Equal(logReuse, result.LogReuseWait);
         Assert.Equal(transactions, result.ActiveTransactions);

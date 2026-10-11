@@ -1,7 +1,6 @@
 using Hangfire.Monitor.Domain;
 using Hangfire.Monitor.Infrastructure.Monitoring;
 using Hangfire.Monitor.Infrastructure.Storage;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Hangfire.Monitor.Web;
 

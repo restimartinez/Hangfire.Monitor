@@ -15,7 +15,7 @@ public class StorageHealthDisplayTests
         var schema = new SchemaVersionHealthResult(
             ActualVersion: 9,
             ExpectedVersion: 9,
-            StorageHealthStatus.OK,
+            StorageHealthStatus.Ok,
             Diagnosis: "ok",
             Recommendation: "none");
 
@@ -28,7 +28,7 @@ public class StorageHealthDisplayTests
         var schema = new SchemaVersionHealthResult(
             ActualVersion: 5,
             ExpectedVersion: 9,
-            StorageHealthStatus.WARNING,
+            StorageHealthStatus.Warning,
             Diagnosis: "lower",
             Recommendation: "review");
 
@@ -41,7 +41,7 @@ public class StorageHealthDisplayTests
         var schema = new SchemaVersionHealthResult(
             ActualVersion: 10,
             ExpectedVersion: 9,
-            StorageHealthStatus.WARNING,
+            StorageHealthStatus.Warning,
             Diagnosis: "higher",
             Recommendation: "review");
 
@@ -54,7 +54,7 @@ public class StorageHealthDisplayTests
         var schema = new SchemaVersionHealthResult(
             ActualVersion: null,
             ExpectedVersion: 9,
-            StorageHealthStatus.UNAVAILABLE,
+            StorageHealthStatus.Unavailable,
             Diagnosis: "missing",
             Recommendation: "verify");
 
@@ -67,7 +67,7 @@ public class StorageHealthDisplayTests
         var schema = new SchemaVersionHealthResult(
             ActualVersion: 9,
             ExpectedVersion: 9,
-            StorageHealthStatus.OK,
+            StorageHealthStatus.Ok,
             Diagnosis: "ok",
             Recommendation: "none");
 
@@ -80,7 +80,7 @@ public class StorageHealthDisplayTests
         var schema = new SchemaVersionHealthResult(
             ActualVersion: 5,
             ExpectedVersion: 9,
-            StorageHealthStatus.WARNING,
+            StorageHealthStatus.Warning,
             Diagnosis: "lower",
             Recommendation: "review");
 
@@ -94,7 +94,7 @@ public class StorageHealthDisplayTests
         var schema = new SchemaVersionHealthResult(
             ActualVersion: null,
             ExpectedVersion: 9,
-            StorageHealthStatus.UNAVAILABLE,
+            StorageHealthStatus.Unavailable,
             Diagnosis: "missing",
             Recommendation: "verify");
 
@@ -110,7 +110,7 @@ public class StorageHealthDisplayTests
         var schema = new SchemaVersionHealthResult(
             ActualVersion: 9,
             ExpectedVersion: 9,
-            StorageHealthStatus.WARNING,
+            StorageHealthStatus.Warning,
             Diagnosis: "forced",
             Recommendation: "none");
 
@@ -122,11 +122,11 @@ public class StorageHealthDisplayTests
     public void FormatDataFileUsed_WhenAvailable_ReturnsMegabytes()
     {
         var dataFiles = new DataFileSpaceHealthResult(
-            AllocatedMB: 100m,
-            UsedMB: 82.5m,
-            FreeMB: 17.5m,
+            AllocatedMb: 100m,
+            UsedMb: 82.5m,
+            FreeMb: 17.5m,
             UsedPercent: 82.5m,
-            StorageHealthStatus.WARNING,
+            StorageHealthStatus.Warning,
             Diagnosis: "approaching",
             Recommendation: "review");
 
@@ -138,11 +138,11 @@ public class StorageHealthDisplayTests
     public void FormatDataFileUsed_WhenUnavailable_ReturnsDash()
     {
         var dataFiles = new DataFileSpaceHealthResult(
-            AllocatedMB: 0m,
-            UsedMB: 0m,
-            FreeMB: 0m,
+            AllocatedMb: 0m,
+            UsedMb: 0m,
+            FreeMb: 0m,
             UsedPercent: null,
-            StorageHealthStatus.UNAVAILABLE,
+            StorageHealthStatus.Unavailable,
             Diagnosis: "missing",
             Recommendation: "verify");
 
@@ -153,11 +153,11 @@ public class StorageHealthDisplayTests
     public void FormatDataFileSpace_WhenUsedPercentPresent_ReturnsTwoDecimalPercent()
     {
         var dataFiles = new DataFileSpaceHealthResult(
-            AllocatedMB: 100m,
-            UsedMB: 82.5m,
-            FreeMB: 17.5m,
+            AllocatedMb: 100m,
+            UsedMb: 82.5m,
+            FreeMb: 17.5m,
             UsedPercent: 82.5m,
-            StorageHealthStatus.WARNING,
+            StorageHealthStatus.Warning,
             Diagnosis: "approaching",
             Recommendation: "review");
 
@@ -168,11 +168,11 @@ public class StorageHealthDisplayTests
     public void FormatDataFileSpace_WhenUsedPercentNull_ReturnsDash()
     {
         var dataFiles = new DataFileSpaceHealthResult(
-            AllocatedMB: 0m,
-            UsedMB: 0m,
-            FreeMB: 0m,
+            AllocatedMb: 0m,
+            UsedMb: 0m,
+            FreeMb: 0m,
             UsedPercent: null,
-            StorageHealthStatus.UNAVAILABLE,
+            StorageHealthStatus.Unavailable,
             Diagnosis: "missing",
             Recommendation: "verify");
 
@@ -248,18 +248,18 @@ public class StorageHealthDisplayTests
     }
 
     [Theory]
-    [InlineData(StorageHealthStatus.OK, "Healthy")]
-    [InlineData(StorageHealthStatus.WARNING, "Warning")]
-    [InlineData(StorageHealthStatus.UNAVAILABLE, "Unavailable")]
+    [InlineData(StorageHealthStatus.Ok, "Healthy")]
+    [InlineData(StorageHealthStatus.Warning, "Warning")]
+    [InlineData(StorageHealthStatus.Unavailable, "Unavailable")]
     public void FormatHealth_ReturnsCapacityLabels(StorageHealthStatus status, string expected)
     {
         Assert.Equal(expected, StorageHealthDisplay.FormatHealth(status));
     }
 
     [Theory]
-    [InlineData(StorageHealthStatus.OK, "status-badge status-ok")]
-    [InlineData(StorageHealthStatus.WARNING, "status-badge status-warning")]
-    [InlineData(StorageHealthStatus.UNAVAILABLE, "status-badge status-unavailable")]
+    [InlineData(StorageHealthStatus.Ok, "status-badge status-ok")]
+    [InlineData(StorageHealthStatus.Warning, "status-badge status-warning")]
+    [InlineData(StorageHealthStatus.Unavailable, "status-badge status-unavailable")]
     public void FormatHealthBadgeCssClass_ReturnsExpected(StorageHealthStatus status, string expected)
     {
         Assert.Equal(expected, StorageHealthDisplay.FormatHealthBadgeCssClass(status));
@@ -290,20 +290,20 @@ public class StorageHealthDisplayTests
     }
 
     [Theory]
-    [InlineData(StorageHealthStatus.OK, "OK")]
-    [InlineData(StorageHealthStatus.WARNING, "WARNING")]
-    [InlineData(StorageHealthStatus.CRITICAL, "CRITICAL")]
-    [InlineData(StorageHealthStatus.UNAVAILABLE, "UNAVAILABLE")]
+    [InlineData(StorageHealthStatus.Ok, "OK")]
+    [InlineData(StorageHealthStatus.Warning, "WARNING")]
+    [InlineData(StorageHealthStatus.Critical, "CRITICAL")]
+    [InlineData(StorageHealthStatus.Unavailable, "UNAVAILABLE")]
     public void FormatStatus_ReturnsExpectedText(StorageHealthStatus status, string expected)
     {
         Assert.Equal(expected, StorageHealthDisplay.FormatStatus(status));
     }
 
     [Theory]
-    [InlineData(StorageHealthStatus.CRITICAL, "3")]
-    [InlineData(StorageHealthStatus.WARNING, "2")]
-    [InlineData(StorageHealthStatus.OK, "1")]
-    [InlineData(StorageHealthStatus.UNAVAILABLE, "0")]
+    [InlineData(StorageHealthStatus.Critical, "3")]
+    [InlineData(StorageHealthStatus.Warning, "2")]
+    [InlineData(StorageHealthStatus.Ok, "1")]
+    [InlineData(StorageHealthStatus.Unavailable, "0")]
     public void FormatStatusSortValue_ReturnsSeverityOrder(StorageHealthStatus status, string expected)
     {
         Assert.Equal(expected, StorageHealthDisplay.FormatStatusSortValue(status));
@@ -387,11 +387,11 @@ public class StorageHealthDisplayTests
     public void FormatDataFileSpace_EsEs_UsesCultureSeparators()
     {
         var dataFiles = new DataFileSpaceHealthResult(
-            AllocatedMB: 100m,
-            UsedMB: 82.5m,
-            FreeMB: 17.5m,
+            AllocatedMb: 100m,
+            UsedMb: 82.5m,
+            FreeMb: 17.5m,
             UsedPercent: 82.5m,
-            StorageHealthStatus.WARNING,
+            StorageHealthStatus.Warning,
             Diagnosis: "approaching",
             Recommendation: "review");
 

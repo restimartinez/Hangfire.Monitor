@@ -5,9 +5,9 @@ namespace Hangfire.Monitor.Domain;
 /// Construct via <see cref="DataFileSpaceHealthRules"/>.
 /// </summary>
 public sealed record DataFileSpaceHealthResult(
-    decimal AllocatedMB,
-    decimal UsedMB,
-    decimal FreeMB,
+    decimal AllocatedMb,
+    decimal UsedMb,
+    decimal FreeMb,
     decimal? UsedPercent,
     StorageHealthStatus Status,
     string Diagnosis,

@@ -43,7 +43,7 @@ public sealed class ApplicationStorageHealthRules
             headroomResult = _headroomRules.Evaluate(dataFileHeadroom);
         }
 
-        var status = headroomResult?.Status ?? StorageHealthStatus.OK;
+        var status = headroomResult?.Status ?? StorageHealthStatus.Ok;
         var diagnosis = StorageHealthDiagnosisBuilder.BuildDiagnosis(
             status,
             headroomResult,
@@ -78,7 +78,7 @@ public sealed class ApplicationStorageHealthRules
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(applicationName);
 
-        var status = StorageHealthStatus.UNAVAILABLE;
+        var status = StorageHealthStatus.Unavailable;
         var diagnosis = StorageHealthDiagnosisBuilder.BuildDiagnosis(
             status,
             headroom: null,

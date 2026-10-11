@@ -1,4 +1,3 @@
-using Hangfire.Monitor.Web;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 

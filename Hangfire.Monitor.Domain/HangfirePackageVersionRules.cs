@@ -12,11 +12,11 @@ public sealed class HangfirePackageVersionRules
     /// <remarks>
     /// Rules (when both sides parse as <c>major.minor.patch</c>):
     /// <list type="bullet">
-    /// <item>Exact match → <see cref="StorageHealthStatus.OK"/></item>
-    /// <item>Same major.minor, different patch → <see cref="StorageHealthStatus.WARNING"/></item>
-    /// <item>Lower major.minor than expected → <see cref="StorageHealthStatus.CRITICAL"/></item>
-    /// <item>Higher major.minor than expected → <see cref="StorageHealthStatus.WARNING"/></item>
-    /// <item>Missing or unparseable actual/expected → <see cref="StorageHealthStatus.UNAVAILABLE"/></item>
+    /// <item>Exact match → <see cref="StorageHealthStatus.Ok"/></item>
+    /// <item>Same major.minor, different patch → <see cref="StorageHealthStatus.Warning"/></item>
+    /// <item>Lower major.minor than expected → <see cref="StorageHealthStatus.Critical"/></item>
+    /// <item>Higher major.minor than expected → <see cref="StorageHealthStatus.Warning"/></item>
+    /// <item>Missing or unparseable actual/expected → <see cref="StorageHealthStatus.Unavailable"/></item>
     /// </list>
     /// </remarks>
     public HangfirePackageVersionResult Evaluate(string? actualVersion, string? expectedLatestVersion)
@@ -33,7 +33,7 @@ public sealed class HangfirePackageVersionRules
             return new HangfirePackageVersionResult(
                 actualRaw,
                 expectedRaw,
-                StorageHealthStatus.UNAVAILABLE);
+                StorageHealthStatus.Unavailable);
         }
 
         if (!HangfirePackageVersion.TryParse(actualRaw, out var actual))
@@ -41,7 +41,7 @@ public sealed class HangfirePackageVersionRules
             return new HangfirePackageVersionResult(
                 actualRaw,
                 expected.ToString(),
-                StorageHealthStatus.UNAVAILABLE);
+                StorageHealthStatus.Unavailable);
         }
 
         if (actual.Equals(expected))
@@ -49,7 +49,7 @@ public sealed class HangfirePackageVersionRules
             return new HangfirePackageVersionResult(
                 actual.ToString(),
                 expected.ToString(),
-                StorageHealthStatus.OK);
+                StorageHealthStatus.Ok);
         }
 
         if (actual.SameReleaseLineAs(expected))
@@ -57,7 +57,7 @@ public sealed class HangfirePackageVersionRules
             return new HangfirePackageVersionResult(
                 actual.ToString(),
                 expected.ToString(),
-                StorageHealthStatus.WARNING);
+                StorageHealthStatus.Warning);
         }
 
         if (actual.CompareTo(expected) < 0)
@@ -65,12 +65,12 @@ public sealed class HangfirePackageVersionRules
             return new HangfirePackageVersionResult(
                 actual.ToString(),
                 expected.ToString(),
-                StorageHealthStatus.CRITICAL);
+                StorageHealthStatus.Critical);
         }
 
         return new HangfirePackageVersionResult(
             actual.ToString(),
             expected.ToString(),
-            StorageHealthStatus.WARNING);
+            StorageHealthStatus.Warning);
     }
 }

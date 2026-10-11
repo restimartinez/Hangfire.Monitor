@@ -11,7 +11,7 @@ public class HangfirePackageVersionRulesTests
     {
         var result = _rules.Evaluate("1.8.25", "1.8.25");
 
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
         Assert.Equal("1.8.25", result.ActualVersion);
         Assert.Equal("1.8.25", result.ExpectedVersion);
     }
@@ -24,7 +24,7 @@ public class HangfirePackageVersionRulesTests
     {
         var result = _rules.Evaluate(actual, "1.8.25");
 
-        Assert.Equal(StorageHealthStatus.WARNING, result.Status);
+        Assert.Equal(StorageHealthStatus.Warning, result.Status);
     }
 
     [Theory]
@@ -35,7 +35,7 @@ public class HangfirePackageVersionRulesTests
     {
         var result = _rules.Evaluate(actual, "1.8.25");
 
-        Assert.Equal(StorageHealthStatus.CRITICAL, result.Status);
+        Assert.Equal(StorageHealthStatus.Critical, result.Status);
     }
 
     [Theory]
@@ -45,7 +45,7 @@ public class HangfirePackageVersionRulesTests
     {
         var result = _rules.Evaluate(actual, "1.8.25");
 
-        Assert.Equal(StorageHealthStatus.WARNING, result.Status);
+        Assert.Equal(StorageHealthStatus.Warning, result.Status);
     }
 
     [Theory]
@@ -57,7 +57,7 @@ public class HangfirePackageVersionRulesTests
     {
         var result = _rules.Evaluate(actual, "1.8.25");
 
-        Assert.Equal(StorageHealthStatus.UNAVAILABLE, result.Status);
+        Assert.Equal(StorageHealthStatus.Unavailable, result.Status);
     }
 
     [Theory]
@@ -68,7 +68,7 @@ public class HangfirePackageVersionRulesTests
     {
         var result = _rules.Evaluate("1.8.25", expected);
 
-        Assert.Equal(StorageHealthStatus.UNAVAILABLE, result.Status);
+        Assert.Equal(StorageHealthStatus.Unavailable, result.Status);
     }
 
     [Fact]
@@ -76,7 +76,7 @@ public class HangfirePackageVersionRulesTests
     {
         var result = _rules.Evaluate(" 1.8.25 ", " 1.8.25 ");
 
-        Assert.Equal(StorageHealthStatus.OK, result.Status);
+        Assert.Equal(StorageHealthStatus.Ok, result.Status);
         Assert.Equal("1.8.25", result.ActualVersion);
         Assert.Equal("1.8.25", result.ExpectedVersion);
     }

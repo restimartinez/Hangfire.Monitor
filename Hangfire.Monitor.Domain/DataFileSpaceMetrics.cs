@@ -5,6 +5,6 @@ namespace Hangfire.Monitor.Domain;
 /// Acquisition model only — no health status or thresholds.
 /// </summary>
 public sealed record DataFileSpaceMetrics(
-    decimal AllocatedMB,
-    decimal UsedMB,
-    decimal FreeMB);
+    decimal AllocatedMb,
+    decimal UsedMb,
+    decimal FreeMb);

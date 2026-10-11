@@ -3,7 +3,7 @@ namespace Hangfire.Monitor.Domain;
 /// <summary>
 /// Pure rules that map a Hangfire schema version reading into
 /// <see cref="SchemaVersionHealthResult"/>. Does not catch storage exceptions;
-/// callers that need <see cref="StorageHealthStatus.UNAVAILABLE"/> after a
+/// callers that need <see cref="StorageHealthStatus.Unavailable"/> after a
 /// <c>DbException</c> must invoke <see cref="Unavailable"/> explicitly.
 /// </summary>
 public class SchemaVersionHealthRules
@@ -14,17 +14,17 @@ public class SchemaVersionHealthRules
     public const int DefaultExpectedSchemaVersion = 9;
 
     /// <summary>
-    /// Maps a successful schema-version read into <see cref="StorageHealthStatus.OK"/>,
-    /// <see cref="StorageHealthStatus.WARNING"/>, or <see cref="StorageHealthStatus.UNAVAILABLE"/>.
+    /// Maps a successful schema-version read into <see cref="StorageHealthStatus.Ok"/>,
+    /// <see cref="StorageHealthStatus.Warning"/>, or <see cref="StorageHealthStatus.Unavailable"/>.
     /// </summary>
     /// <remarks>
     /// Rules:
     /// <list type="bullet">
-    /// <item><c>actual == null</c> → <see cref="StorageHealthStatus.UNAVAILABLE"/></item>
-    /// <item><c>actual == expected</c> → <see cref="StorageHealthStatus.OK"/></item>
-    /// <item><c>actual != expected</c> → <see cref="StorageHealthStatus.WARNING"/></item>
+    /// <item><c>actual == null</c> → <see cref="StorageHealthStatus.Unavailable"/></item>
+    /// <item><c>actual == expected</c> → <see cref="StorageHealthStatus.Ok"/></item>
+    /// <item><c>actual != expected</c> → <see cref="StorageHealthStatus.Warning"/></item>
     /// </list>
-    /// Schema Version never produces <see cref="StorageHealthStatus.CRITICAL"/>.
+    /// Schema Version never produces <see cref="StorageHealthStatus.Critical"/>.
     /// </remarks>
     public SchemaVersionHealthResult Evaluate(int? actualVersion, int expectedVersion)
     {
@@ -38,7 +38,7 @@ public class SchemaVersionHealthRules
             return new SchemaVersionHealthResult(
                 actualVersion,
                 expectedVersion,
-                StorageHealthStatus.OK,
+                StorageHealthStatus.Ok,
                 Diagnosis: $"Schema version {actualVersion.Value} matches the expected version.",
                 Recommendation: "No action required.");
         }
@@ -48,7 +48,7 @@ public class SchemaVersionHealthRules
             return new SchemaVersionHealthResult(
                 actualVersion,
                 expectedVersion,
-                StorageHealthStatus.WARNING,
+                StorageHealthStatus.Warning,
                 Diagnosis:
                 $"Schema version {actualVersion.Value} is lower than the expected version {expectedVersion}.",
                 Recommendation:
@@ -58,7 +58,7 @@ public class SchemaVersionHealthRules
         return new SchemaVersionHealthResult(
             actualVersion,
             expectedVersion,
-            StorageHealthStatus.WARNING,
+            StorageHealthStatus.Warning,
             Diagnosis:
             $"Schema version {actualVersion.Value} is higher than the expected version {expectedVersion}.",
             Recommendation:
@@ -66,7 +66,7 @@ public class SchemaVersionHealthRules
     }
 
     /// <summary>
-    /// Builds a <see cref="StorageHealthStatus.UNAVAILABLE"/> result.
+    /// Builds a <see cref="StorageHealthStatus.Unavailable"/> result.
     /// Does not interpret exceptions; use when the orchestration layer has already decided
     /// the schema version could not be read.
     /// </summary>
@@ -75,7 +75,7 @@ public class SchemaVersionHealthRules
         return new SchemaVersionHealthResult(
             ActualVersion: null,
             expectedVersion,
-            StorageHealthStatus.UNAVAILABLE,
+            StorageHealthStatus.Unavailable,
             Diagnosis: "A valid Hangfire schema version could not be obtained.",
             Recommendation:
             "Verify that the Hangfire SQL Server schema is installed and the configured schema name is correct.");

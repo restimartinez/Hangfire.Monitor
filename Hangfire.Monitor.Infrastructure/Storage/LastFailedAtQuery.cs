@@ -39,7 +39,8 @@ internal static class LastFailedAtQuery
     }
 
     /// <summary>
-    /// Maps <see cref="System.Data.Common.DbCommand.ExecuteScalar"/> output to <see cref="DateTime?"/>.
+    /// Maps <see cref="System.Data.Common.DbCommand.ExecuteScalar"/> output to a nullable
+    /// <see cref="DateTime"/>.
     /// Hangfire stores <c>State.CreatedAt</c> as UTC; ADO.NET typically returns
     /// <see cref="DateTimeKind.Unspecified"/>, which is normalized to <see cref="DateTimeKind.Utc"/>
     /// here. No local-time conversion is applied.

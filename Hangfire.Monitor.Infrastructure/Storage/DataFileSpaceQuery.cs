@@ -49,9 +49,9 @@ internal static class DataFileSpaceQuery
     public static DataFileSpaceMetrics MapRow(object? allocatedMb, object? usedMb, object? freeMb)
     {
         return new DataFileSpaceMetrics(
-            RequireDecimal(allocatedMb, nameof(DataFileSpaceMetrics.AllocatedMB)),
-            RequireDecimal(usedMb, nameof(DataFileSpaceMetrics.UsedMB)),
-            RequireDecimal(freeMb, nameof(DataFileSpaceMetrics.FreeMB)));
+            RequireDecimal(allocatedMb, nameof(DataFileSpaceMetrics.AllocatedMb)),
+            RequireDecimal(usedMb, nameof(DataFileSpaceMetrics.UsedMb)),
+            RequireDecimal(freeMb, nameof(DataFileSpaceMetrics.FreeMb)));
     }
 
     private static decimal RequireDecimal(object? value, string fieldName)

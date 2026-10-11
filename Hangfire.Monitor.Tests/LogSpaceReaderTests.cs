@@ -29,9 +29,9 @@ public class LogSpaceReaderTests
     {
         var result = LogSpaceQuery.MapRow(1024.50m, 845.25m, 179.25m, 82.50m);
 
-        Assert.Equal(1024.50m, result.TotalLogMB);
-        Assert.Equal(845.25m, result.UsedLogMB);
-        Assert.Equal(179.25m, result.FreeLogMB);
+        Assert.Equal(1024.50m, result.TotalLogMb);
+        Assert.Equal(845.25m, result.UsedLogMb);
+        Assert.Equal(179.25m, result.FreeLogMb);
         Assert.Equal(82.50m, result.UsedPercent);
     }
 
@@ -40,9 +40,9 @@ public class LogSpaceReaderTests
     {
         var result = LogSpaceQuery.MapRow(1024.0d, 512, 512L, 50.0f);
 
-        Assert.Equal(1024.0m, result.TotalLogMB);
-        Assert.Equal(512m, result.UsedLogMB);
-        Assert.Equal(512m, result.FreeLogMB);
+        Assert.Equal(1024.0m, result.TotalLogMb);
+        Assert.Equal(512m, result.UsedLogMb);
+        Assert.Equal(512m, result.FreeLogMb);
         Assert.Equal(50.0m, result.UsedPercent);
     }
 
@@ -76,9 +76,9 @@ public class LogSpaceReaderTests
 
         var result = _reader.GetLogSpace(connection);
 
-        Assert.Equal(1024.50m, result.TotalLogMB);
-        Assert.Equal(845.25m, result.UsedLogMB);
-        Assert.Equal(179.25m, result.FreeLogMB);
+        Assert.Equal(1024.50m, result.TotalLogMb);
+        Assert.Equal(845.25m, result.UsedLogMb);
+        Assert.Equal(179.25m, result.FreeLogMb);
         Assert.Equal(82.50m, result.UsedPercent);
         Assert.Contains("sys.dm_db_log_space_usage", connection.LastCommandText, StringComparison.Ordinal);
         Assert.Contains("AS UsedPercent", connection.LastCommandText, StringComparison.Ordinal);
